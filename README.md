@@ -19,7 +19,7 @@ Instalação
  - Estará disponível a opção **Sistema > AnyMarket** (System > AnyMarket)
  
 Requisitos mínimos
- ------------------
+------------------
  - [PHP] 5.4+
  - [Magento] 1.6.x 
   
