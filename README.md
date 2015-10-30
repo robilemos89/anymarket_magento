@@ -3,7 +3,7 @@ Módulo de integração AnyMarket e Magento
 ---
 Descrição
 ---------
-Com o módulo instalado e configurado será possível a integração automática de:
+Olá! Com o módulo de integração [AnyMarket] instalado e configurado será possível a integração automática de:
 
  - Produtos
  - Pedidos
@@ -11,7 +11,11 @@ Com o módulo instalado e configurado será possível a integração automática
 
 Instalação
 ----------
- - Certifique-se que não há a instalação de outros módulos [AnyMarket] em seu sistema.
+--- 
+ Fique ligado nas dicas que vão ajudar muito nos ucesso de sua instalação
+---
+
+ - Certifique-se que não há outros módulos [AnyMarket] instalados em seu sistema.
  - Baixe o repositório como arquivo zip ou faça um fork do projeto.
  - Copie o diretório **app** para dentro do diretório do magento.
  - Force a limpeza do cache **Sistema > Gerenciamento de cache** (System > Cache management)
@@ -26,19 +30,21 @@ Requisitos mínimos
  
 Mais informações ou parcerias
 --------
-Caso tenha dúvidas entre em contato conosco: http://www.anymarket.com.br/ ou em nosso [blog].
+Caso tenha dúivdas, estamos à disposição para atendê-lo no que for preciso: http://www.anymarket.com.br/ ou em nosso [blog].
 
 Desenvolvedores
 ----
-Informações sobre a API AnyMarket: http://developers.anymarket.com.br/
+Caso precise de informações sobre a API [AnyMarket] você encontra clicando em: http://developers.anymarket.com.br/
  
 Licença
 -------
+Este código fonte está licenciado sob os temos da Mozzila Public License, versão 2.0. Caso não encontre uma cópia distribuida com os arquivos, você obter uma em: https://mozilla.org/MPL/2.0/. 
+
 This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 Contribuições
 -------------
-Achou e corrigiu um bug ou tem alguma feature em mente e deseja contribuir?
+Caso tenha encontrado ou corrigido um bug ou tem alguma fature em mente e queira dividir com a equipe [AnyMarket] ficamos muito gratos e sugereimos os passos a seguir:
 
  * Faça um fork.
  * Adicione sua feature ou correção de bug.
