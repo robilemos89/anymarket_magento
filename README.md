@@ -1,4 +1,4 @@
-Módulo de integração AnyMarket para Magento
+Módulo de integração AnyMarket e Magento
 ===========================================
 ---
 Descrição
@@ -11,14 +11,14 @@ Com o módulo instalado e configurado será possível a integração automática
 
 Instalação
 ----------
- - Certifique-se que não há a instalação de outros módulos AnyMarket em seu sistema.
+ - Certifique-se que não há a instalação de outros módulos [AnyMarket] em seu sistema.
  - Baixe o repositório como arquivo zip ou faça um fork do projeto.
  - Copie o diretório **app** para dentro do diretório do magento.
  - Force a limpeza do cache **Sistema > Gerenciamento de cache** (System > Cache management)
  - Faça o logof e logue novamente
- -- Estará disponível a opção **Sistema > AnyMarket** (System > AnyMarket)
+ - Estará disponível a opção **Sistema > AnyMarket** (System > AnyMarket)
  
- Requisitos mínimos
+Requisitos mínimos
  ------------------
  - [PHP] 5.4+
  - [Magento] 1.6.x 
@@ -43,3 +43,10 @@ Achou e corrigiu um bug ou tem alguma feature em mente e deseja contribuir?
  * Faça um fork.
  * Adicione sua feature ou correção de bug.
  * Envie um pull request no [GitHub].
+
+
+ [Magento]: https://www.magentocommerce.com/
+ [PHP]: http://www.php.net/
+ [AnyMarket]: http://www.anymarket.com.br
+ [GitHub]: https://github.com/AnyMarket/magento
+ 
