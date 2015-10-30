@@ -11,7 +11,7 @@ Olá! Com o módulo de integração [AnyMarket] instalado e configurado será po
 
 Instalação
 ----------
-**Fique ligado nas dicas que vão ajudar muito no sucesso de sua instalação**
+**Fique ligado nas dicas que vão ajudar ter sucesso de sua instalação**
 
  - Certifique-se que não há outros módulos [AnyMarket] instalados em seu sistema.
  - Baixe o repositório como arquivo zip ou faça um fork do projeto.
