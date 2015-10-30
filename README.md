@@ -36,7 +36,7 @@ Caso precise de informações sobre a API [AnyMarket] você encontra clicando em
  
 Licença
 -------
-Este código fonte está licenciado sob os temos da Mozzila Public License, versão 2.0. Caso não encontre uma cópia distribuida com os arquivos, você obter uma em: https://mozilla.org/MPL/2.0/. 
+Este código fonte está licenciado sob os temos da Mozzila Public License, versão 2.0. Caso não encontre uma cópia distribuida com os arquivos, você pode obter uma em: https://mozilla.org/MPL/2.0/. 
 
 This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
