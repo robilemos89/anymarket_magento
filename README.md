@@ -24,12 +24,12 @@ Requisitos mínimos
  - [Magento] 1.6.x 
   
  
-Dúvidas?
+Mais informações ou parcerias
 --------
- - Caso tenha dúvidas entre em contato conosco: http://www.anymarket.com.br/
+Caso tenha dúvidas entre em contato conosco: http://www.anymarket.com.br/ ou em nosso [blog].
 
 Desenvolvedores
----------------
+----
 Informações sobre a API AnyMarket: http://developers.anymarket.com.br/
  
 Licença
@@ -49,4 +49,4 @@ Achou e corrigiu um bug ou tem alguma feature em mente e deseja contribuir?
  [PHP]: http://www.php.net/
  [AnyMarket]: http://www.anymarket.com.br
  [GitHub]: https://github.com/AnyMarket/magento
- 
+ [blog]: http://marketplace.anymarket.com.br/ 
