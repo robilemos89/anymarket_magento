@@ -42,7 +42,7 @@ This Source Code Form is subject to the terms of the **Mozilla Public License, v
 
 Contribuições
 -------------
-Caso tenha encontrado ou corrigido um bug ou tem alguma fature em mente e queira dividir com a equipe [AnyMarket] ficamos muito gratos e sugereimos os passos a seguir:
+Caso tenha encontrado ou corrigido um bug ou tem alguma fature em mente e queira dividir com a equipe [AnyMarket] ficamos muito gratos e sugerimos os passos a seguir:
 
  * Faça um fork.
  * Adicione sua feature ou correção de bug.
