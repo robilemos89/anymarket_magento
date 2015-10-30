@@ -48,9 +48,12 @@ Caso tenha encontrado ou corrigido um bug ou tem alguma fature em mente e queira
  * Adicione sua feature ou correção de bug.
  * Envie um pull request no [GitHub].
 
+Agradecemos a [Nova PC] pelo desenvolvimento do módulo.  
+
 
  [Magento]: https://www.magentocommerce.com/
  [PHP]: http://www.php.net/
  [AnyMarket]: http://www.anymarket.com.br
  [GitHub]: https://github.com/AnyMarket/magento
- [blog]: http://marketplace.anymarket.com.br/ 
+ [blog]: http://marketplace.anymarket.com.br/
+ [Nova PC]: http://www.novapc.com.br/ 
