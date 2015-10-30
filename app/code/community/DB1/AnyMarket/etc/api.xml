@@ -1,0 +1,432 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * DB1_AnyMarket extension
+ * 
+ * @category       DB1
+ * @package        DB1_AnyMarket
+ * @copyright      Copyright (c) 2015
+ * @license        http://opensource.org/licenses/mit-license.php MIT License
+ */
+-->
+<config>
+    <api>
+        <resources>
+            <anymarket_anymarketlog translate="title" module="db1_anymarket">
+                <title>AnyMarket Log API</title>
+                <model>db1_anymarket/anymarketlog_api</model>
+                <acl>anymarket/anymarketlog</acl>
+                <methods>
+                    <list translate="title" module="db1_anymarket">
+                        <title>Retrieve list of anymarket log</title>
+                        <method>items</method>
+                        <acl>anymarket/anymarketlog/list</acl>
+                    </list>
+                    <info translate="title" module="db1_anymarket">
+                        <title>Retrieve anymarket log info</title>
+                        <acl>anymarket/anymarketlog/info</acl>
+                    </info>
+                    <add translate="title" module="db1_anymarket">
+                        <title>Add anymarket log</title>
+                        <acl>anymarket/anymarketlog/add</acl>
+                    </add>
+                    <update translate="title" module="db1_anymarket">
+                        <title>Update anymarket log</title>
+                        <acl>anymarket/anymarketlog/update</acl>
+                    </update>
+                    <remove translate="title" module="db1_anymarket">
+                        <title>Remove anymarket log</title>
+                        <acl>anymarket/anymarketlog/remove</acl>
+                    </remove>
+                </methods>
+                <faults module="db1_anymarket">
+                    <anymarketlog_not_exists>
+                        <code>101</code>
+                        <message>Requested anymarket log does not exist.</message>
+                    </anymarketlog_not_exists>
+                    <invalid_data>
+                        <code>102</code>
+                        <message>Provided data is invalid.</message>
+                    </invalid_data>
+                    <save_error>
+                        <code>103</code>
+                        <message>Error while saving anymarket log. Details in error message.</message>
+                    </save_error>
+                    <remove_error>
+                        <code>104</code>
+                        <message>Error while removing anymarket log. Details in error message.</message>
+                    </remove_error>
+                </faults>
+            </anymarket_anymarketlog>
+            <anymarket_anymarketproducts translate="title" module="db1_anymarket">
+                <title>Anymarket Products API</title>
+                <model>db1_anymarket/anymarketproducts_api</model>
+                <acl>anymarket/anymarketproducts</acl>
+                <methods>
+                    <list translate="title" module="db1_anymarket">
+                        <title>Retrieve list of anymarket products</title>
+                        <method>items</method>
+                        <acl>anymarket/anymarketproducts/list</acl>
+                    </list>
+                    <info translate="title" module="db1_anymarket">
+                        <title>Retrieve anymarket products info</title>
+                        <acl>anymarket/anymarketproducts/info</acl>
+                    </info>
+                    <add translate="title" module="db1_anymarket">
+                        <title>Add anymarket products</title>
+                        <acl>anymarket/anymarketproducts/add</acl>
+                    </add>
+                    <update translate="title" module="db1_anymarket">
+                        <title>Update anymarket products</title>
+                        <acl>anymarket/anymarketproducts/update</acl>
+                    </update>
+                    <remove translate="title" module="db1_anymarket">
+                        <title>Remove anymarket products</title>
+                        <acl>anymarket/anymarketproducts/remove</acl>
+                    </remove>
+                </methods>
+                <faults module="db1_anymarket">
+                    <anymarketproducts_not_exists>
+                        <code>101</code>
+                        <message>Requested anymarket products does not exist.</message>
+                    </anymarketproducts_not_exists>
+                    <invalid_data>
+                        <code>102</code>
+                        <message>Provided data is invalid.</message>
+                    </invalid_data>
+                    <save_error>
+                        <code>103</code>
+                        <message>Error while saving anymarket products. Details in error message.</message>
+                    </save_error>
+                    <remove_error>
+                        <code>104</code>
+                        <message>Error while removing anymarket products. Details in error message.</message>
+                    </remove_error>
+                </faults>
+            </anymarket_anymarketproducts>
+            <anymarket_anymarketattributes translate="title" module="db1_anymarket">
+                <title>Anymarket Attributes API</title>
+                <model>db1_anymarket/anymarketattributes_api</model>
+                <acl>anymarket/anymarketattributes</acl>
+                <methods>
+                    <list translate="title" module="db1_anymarket">
+                        <title>Retrieve list of anymarket attributes</title>
+                        <method>items</method>
+                        <acl>anymarket/anymarketattributes/list</acl>
+                    </list>
+                    <info translate="title" module="db1_anymarket">
+                        <title>Retrieve anymarket attributes info</title>
+                        <acl>anymarket/anymarketattributes/info</acl>
+                    </info>
+                    <add translate="title" module="db1_anymarket">
+                        <title>Add anymarket attributes</title>
+                        <acl>anymarket/anymarketattributes/add</acl>
+                    </add>
+                    <update translate="title" module="db1_anymarket">
+                        <title>Update anymarket attributes</title>
+                        <acl>anymarket/anymarketattributes/update</acl>
+                    </update>
+                    <remove translate="title" module="db1_anymarket">
+                        <title>Remove anymarket attributes</title>
+                        <acl>anymarket/anymarketattributes/remove</acl>
+                    </remove>
+                </methods>
+                <faults module="db1_anymarket">
+                    <anymarketattributes_not_exists>
+                        <code>101</code>
+                        <message>Requested anymarket attributes does not exist.</message>
+                    </anymarketattributes_not_exists>
+                    <invalid_data>
+                        <code>102</code>
+                        <message>Provided data is invalid.</message>
+                    </invalid_data>
+                    <save_error>
+                        <code>103</code>
+                        <message>Error while saving anymarket attributes. Details in error message.</message>
+                    </save_error>
+                    <remove_error>
+                        <code>104</code>
+                        <message>Error while removing anymarket attributes. Details in error message.</message>
+                    </remove_error>
+                </faults>
+            </anymarket_anymarketattributes>
+            <anymarket_anymarketorders translate="title" module="db1_anymarket">
+                <title>Anymarket Orders API</title>
+                <model>db1_anymarket/anymarketorders_api</model>
+                <acl>anymarket/anymarketorders</acl>
+                <methods>
+                    <list translate="title" module="db1_anymarket">
+                        <title>Retrieve list of anymarket orders</title>
+                        <method>items</method>
+                        <acl>anymarket/anymarketorders/list</acl>
+                    </list>
+                    <info translate="title" module="db1_anymarket">
+                        <title>Retrieve anymarket orders info</title>
+                        <acl>anymarket/anymarketorders/info</acl>
+                    </info>
+                    <add translate="title" module="db1_anymarket">
+                        <title>Add anymarket orders</title>
+                        <acl>anymarket/anymarketorders/add</acl>
+                    </add>
+                    <update translate="title" module="db1_anymarket">
+                        <title>Update anymarket orders</title>
+                        <acl>anymarket/anymarketorders/update</acl>
+                    </update>
+                    <remove translate="title" module="db1_anymarket">
+                        <title>Remove anymarket orders</title>
+                        <acl>anymarket/anymarketorders/remove</acl>
+                    </remove>
+                </methods>
+                <faults module="db1_anymarket">
+                    <anymarketorders_not_exists>
+                        <code>101</code>
+                        <message>Requested anymarket orders does not exist.</message>
+                    </anymarketorders_not_exists>
+                    <invalid_data>
+                        <code>102</code>
+                        <message>Provided data is invalid.</message>
+                    </invalid_data>
+                    <save_error>
+                        <code>103</code>
+                        <message>Error while saving anymarket orders. Details in error message.</message>
+                    </save_error>
+                    <remove_error>
+                        <code>104</code>
+                        <message>Error while removing anymarket orders. Details in error message.</message>
+                    </remove_error>
+                </faults>
+            </anymarket_anymarketorders>
+            <anymarket_anymarketcategories translate="title" module="db1_anymarket">
+                <title>Anymarket Categories API</title>
+                <model>db1_anymarket/anymarketcategories_api</model>
+                <acl>anymarket/anymarketcategories</acl>
+                <methods>
+                    <list translate="title" module="db1_anymarket">
+                        <title>Retrieve list of anymarket categories</title>
+                        <method>items</method>
+                        <acl>anymarket/anymarketcategories/list</acl>
+                    </list>
+                    <info translate="title" module="db1_anymarket">
+                        <title>Retrieve anymarket categories info</title>
+                        <acl>anymarket/anymarketcategories/info</acl>
+                    </info>
+                    <add translate="title" module="db1_anymarket">
+                        <title>Add anymarket categories</title>
+                        <acl>anymarket/anymarketcategories/add</acl>
+                    </add>
+                    <update translate="title" module="db1_anymarket">
+                        <title>Update anymarket categories</title>
+                        <acl>anymarket/anymarketcategories/update</acl>
+                    </update>
+                    <remove translate="title" module="db1_anymarket">
+                        <title>Remove anymarket categories</title>
+                        <acl>anymarket/anymarketcategories/remove</acl>
+                    </remove>
+                </methods>
+                <faults module="db1_anymarket">
+                    <anymarketcategories_not_exists>
+                        <code>101</code>
+                        <message>Requested anymarket categories does not exist.</message>
+                    </anymarketcategories_not_exists>
+                    <invalid_data>
+                        <code>102</code>
+                        <message>Provided data is invalid.</message>
+                    </invalid_data>
+                    <save_error>
+                        <code>103</code>
+                        <message>Error while saving anymarket categories. Details in error message.</message>
+                    </save_error>
+                    <remove_error>
+                        <code>104</code>
+                        <message>Error while removing anymarket categories. Details in error message.</message>
+                    </remove_error>
+                </faults>
+            </anymarket_anymarketcategories>
+            <anymarket_anymarketqueue translate="title" module="db1_anymarket">
+                <title>Anymarket Queue API</title>
+                <model>db1_anymarket/anymarketqueue_api</model>
+                <acl>anymarket/anymarketqueue</acl>
+                <methods>
+                    <list translate="title" module="db1_anymarket">
+                        <title>Retrieve list of anymarket queues</title>
+                        <method>items</method>
+                        <acl>anymarket/anymarketqueue/list</acl>
+                    </list>
+                    <info translate="title" module="db1_anymarket">
+                        <title>Retrieve anymarket queue info</title>
+                        <acl>anymarket/anymarketqueue/info</acl>
+                    </info>
+                    <add translate="title" module="db1_anymarket">
+                        <title>Add anymarket queue</title>
+                        <acl>anymarket/anymarketqueue/add</acl>
+                    </add>
+                    <update translate="title" module="db1_anymarket">
+                        <title>Update anymarket queue</title>
+                        <acl>anymarket/anymarketqueue/update</acl>
+                    </update>
+                    <remove translate="title" module="db1_anymarket">
+                        <title>Remove anymarket queue</title>
+                        <acl>anymarket/anymarketqueue/remove</acl>
+                    </remove>
+                </methods>
+                <faults module="db1_anymarket">
+                    <anymarketqueue_not_exists>
+                        <code>101</code>
+                        <message>Requested anymarket queue does not exist.</message>
+                    </anymarketqueue_not_exists>
+                    <invalid_data>
+                        <code>102</code>
+                        <message>Provided data is invalid.</message>
+                    </invalid_data>
+                    <save_error>
+                        <code>103</code>
+                        <message>Error while saving anymarket queue. Details in error message.</message>
+                    </save_error>
+                    <remove_error>
+                        <code>104</code>
+                        <message>Error while removing anymarket queue. Details in error message.</message>
+                    </remove_error>
+                </faults>
+            </anymarket_anymarketqueue>
+        </resources>
+        <resources_alias>
+            <anymarketlog>anymarket_anymarketlog</anymarketlog>
+            <anymarketproducts>anymarket_anymarketproducts</anymarketproducts>
+            <anymarketattributes>anymarket_anymarketattributes</anymarketattributes>
+            <anymarketorders>anymarket_anymarketorders</anymarketorders>
+            <anymarketcategories>anymarket_anymarketcategories</anymarketcategories>
+            <anymarketqueue>anymarket_anymarketqueue</anymarketqueue>
+        </resources_alias>
+        <v2>
+            <resources_function_prefix>
+                <anymarketlog>anymarketAnymarketlog</anymarketlog>
+                <anymarketproducts>anymarketAnymarketproducts</anymarketproducts>
+                <anymarketattributes>anymarketAnymarketattributes</anymarketattributes>
+                <anymarketorders>anymarketAnymarketorders</anymarketorders>
+                <anymarketcategories>anymarketAnymarketcategories</anymarketcategories>
+                <anymarketqueue>anymarketAnymarketqueue</anymarketqueue>
+            </resources_function_prefix>
+        </v2>
+        <acl>
+            <resources>
+                <db1_anymarket translate="title" module="db1_anymarket">
+                    <title>AnyMarket</title>
+                    <anymarketlog translate="title" module="db1_anymarket">
+                        <title>AnyMarket Log</title>
+                        <sort_order>0</sort_order>
+                        <list translate="title" module="db1_anymarket">
+                            <title>List</title>
+                        </list>
+                        <info translate="title" module="db1_anymarket">
+                            <title>Info</title>
+                        </info>
+                        <add translate="title" module="db1_anymarket">
+                            <title>Add</title>
+                        </add>
+                        <update translate="title" module="db1_anymarket">
+                            <title>Update</title>
+                        </update>
+                        <remove translate="title" module="db1_anymarket">
+                            <title>Remove</title>
+                        </remove>
+                    </anymarketlog>
+                    <anymarketproducts translate="title" module="db1_anymarket">
+                        <title>Anymarket Products</title>
+                        <sort_order>10</sort_order>
+                        <list translate="title" module="db1_anymarket">
+                            <title>List</title>
+                        </list>
+                        <info translate="title" module="db1_anymarket">
+                            <title>Info</title>
+                        </info>
+                        <add translate="title" module="db1_anymarket">
+                            <title>Add</title>
+                        </add>
+                        <update translate="title" module="db1_anymarket">
+                            <title>Update</title>
+                        </update>
+                        <remove translate="title" module="db1_anymarket">
+                            <title>Remove</title>
+                        </remove>
+                    </anymarketproducts>
+                    <anymarketattributes translate="title" module="db1_anymarket">
+                        <title>Anymarket Attributes</title>
+                        <sort_order>20</sort_order>
+                        <list translate="title" module="db1_anymarket">
+                            <title>List</title>
+                        </list>
+                        <info translate="title" module="db1_anymarket">
+                            <title>Info</title>
+                        </info>
+                        <add translate="title" module="db1_anymarket">
+                            <title>Add</title>
+                        </add>
+                        <update translate="title" module="db1_anymarket">
+                            <title>Update</title>
+                        </update>
+                        <remove translate="title" module="db1_anymarket">
+                            <title>Remove</title>
+                        </remove>
+                    </anymarketattributes>
+                    <anymarketorders translate="title" module="db1_anymarket">
+                        <title>Anymarket Orders</title>
+                        <sort_order>30</sort_order>
+                        <list translate="title" module="db1_anymarket">
+                            <title>List</title>
+                        </list>
+                        <info translate="title" module="db1_anymarket">
+                            <title>Info</title>
+                        </info>
+                        <add translate="title" module="db1_anymarket">
+                            <title>Add</title>
+                        </add>
+                        <update translate="title" module="db1_anymarket">
+                            <title>Update</title>
+                        </update>
+                        <remove translate="title" module="db1_anymarket">
+                            <title>Remove</title>
+                        </remove>
+                    </anymarketorders>
+                    <anymarketcategories translate="title" module="db1_anymarket">
+                        <title>Anymarket Categories</title>
+                        <sort_order>40</sort_order>
+                        <list translate="title" module="db1_anymarket">
+                            <title>List</title>
+                        </list>
+                        <info translate="title" module="db1_anymarket">
+                            <title>Info</title>
+                        </info>
+                        <add translate="title" module="db1_anymarket">
+                            <title>Add</title>
+                        </add>
+                        <update translate="title" module="db1_anymarket">
+                            <title>Update</title>
+                        </update>
+                        <remove translate="title" module="db1_anymarket">
+                            <title>Remove</title>
+                        </remove>
+                    </anymarketcategories>
+                    <anymarketqueue translate="title" module="db1_anymarket">
+                        <title>Anymarket Queue</title>
+                        <sort_order>50</sort_order>
+                        <list translate="title" module="db1_anymarket">
+                            <title>List</title>
+                        </list>
+                        <info translate="title" module="db1_anymarket">
+                            <title>Info</title>
+                        </info>
+                        <add translate="title" module="db1_anymarket">
+                            <title>Add</title>
+                        </add>
+                        <update translate="title" module="db1_anymarket">
+                            <title>Update</title>
+                        </update>
+                        <remove translate="title" module="db1_anymarket">
+                            <title>Remove</title>
+                        </remove>
+                    </anymarketqueue>
+                </db1_anymarket>
+            </resources>
+        </acl>
+    </api>
+</config>

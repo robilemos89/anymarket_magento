@@ -1,0 +1,222 @@
+<?xml version="1.0"?>
+<layout>
+    <catalog_product_view>
+        <reference name="head">
+            <action method="addItem">
+                <type>js</type>
+                <name>prototype/window.js</name>
+            </action>
+        </reference>
+    </catalog_product_view>
+
+    <default>
+        <reference name="head">
+            <action method="addItem">
+                <type>js</type>
+                <name>DB1/base.js</name>
+            </action>
+        </reference>
+    </default>
+
+    <adminhtml_anymarket_anymarketlog_index>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketlog</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketlog" name="anymarketlog" />
+        </reference>
+    </adminhtml_anymarket_anymarketlog_index>
+    <adminhtml_anymarket_anymarketlog_grid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="db1_anymarket/adminhtml_anymarketlog_grid" name="anymarketlog_grid"/>
+        </block>
+    </adminhtml_anymarket_anymarketlog_grid>
+    <!-- Anymarketlog add/edit action -->
+    <adminhtml_anymarket_anymarketlog_edit>
+        <update handle="editor"/>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketlog</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketlog_edit" name="anymarketlog_edit"></block>
+        </reference>
+        <reference name="left">
+            <block type="db1_anymarket/adminhtml_anymarketlog_edit_tabs" name="anymarketlog_tabs"></block>
+        </reference>
+    </adminhtml_anymarket_anymarketlog_edit>
+
+<!--  PRODUCTS    -->
+
+    <adminhtml_anymarket_anymarketproducts_index>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketproducts</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketproducts" name="anymarketproducts" />
+        </reference>
+    </adminhtml_anymarket_anymarketproducts_index>
+    <adminhtml_anymarket_anymarketproducts_grid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="db1_anymarket/adminhtml_anymarketproducts_grid" name="anymarketproducts_grid"/>
+        </block>
+    </adminhtml_anymarket_anymarketproducts_grid>
+    <!-- Anymarketproducts add/edit action -->
+    <adminhtml_anymarket_anymarketproducts_edit>
+        <update handle="editor"/>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketproducts</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketproducts_edit" name="anymarketproducts_edit"></block>
+        </reference>
+        <reference name="left">
+            <block type="db1_anymarket/adminhtml_anymarketproducts_edit_tabs" name="anymarketproducts_tabs"></block>
+        </reference>
+    </adminhtml_anymarket_anymarketproducts_edit>
+
+<!--  ATTRIBUTES -->
+
+    <adminhtml_anymarket_anymarketattributes_index>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketattributes</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketattributes" name="anymarketattributes" />
+
+        </reference>
+    </adminhtml_anymarket_anymarketattributes_index>
+    <adminhtml_anymarket_anymarketattributes_grid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="db1_anymarket/adminhtml_anymarketattributes_grid" name="anymarketattributes_grid"/>
+        </block>
+    </adminhtml_anymarket_anymarketattributes_grid>
+    <!-- Anymarketattributes add/edit action -->
+    <adminhtml_anymarket_anymarketattributes_edit>
+        <update handle="editor"/>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketattributes</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketattributes_edit" name="anymarketattributes_edit"></block>
+        </reference>
+        <reference name="left">
+            <block type="db1_anymarket/adminhtml_anymarketattributes_edit_tabs" name="anymarketattributes_tabs"></block>
+        </reference>
+    </adminhtml_anymarket_anymarketattributes_edit>
+
+    <adminhtml_anymarket_anymarketorders_index>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketorders</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketorders" name="anymarketorders" />
+
+        </reference>
+    </adminhtml_anymarket_anymarketorders_index>
+    <adminhtml_anymarket_anymarketorders_grid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="db1_anymarket/adminhtml_anymarketorders_grid" name="anymarketorders_grid"/>
+        </block>
+    </adminhtml_anymarket_anymarketorders_grid>
+    <!-- Anymarketorders add/edit action -->
+    <adminhtml_anymarket_anymarketorders_edit>
+        <update handle="editor"/>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketorders</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketorders_edit" name="anymarketorders_edit"></block>
+        </reference>
+        <reference name="left">
+            <block type="db1_anymarket/adminhtml_anymarketorders_edit_tabs" name="anymarketorders_tabs"></block>
+        </reference>
+    </adminhtml_anymarket_anymarketorders_edit>
+
+    <adminhtml_anymarket_anymarketcategories_index>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketcategories</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketcategories" name="anymarketcategories" />
+
+        </reference>
+    </adminhtml_anymarket_anymarketcategories_index>
+    <adminhtml_anymarket_anymarketcategories_grid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="db1_anymarket/adminhtml_anymarketcategories_grid" name="anymarketcategories_grid"/>
+        </block>
+    </adminhtml_anymarket_anymarketcategories_grid>
+    <!-- Anymarketcategories add/edit action -->
+    <adminhtml_anymarket_anymarketcategories_edit>
+        <update handle="editor"/>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketcategories</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketcategories_edit" name="anymarketcategories_edit"></block>
+        </reference>
+        <reference name="left">
+            <block type="db1_anymarket/adminhtml_anymarketcategories_edit_tabs" name="anymarketcategories_tabs"></block>
+        </reference>
+    </adminhtml_anymarket_anymarketcategories_edit>
+
+    <adminhtml_anymarket_anymarketcategories_categories>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketcategories_categories" name="anymarketorders_categories"></block>
+        </reference>
+    </adminhtml_anymarket_anymarketcategories_categories>
+
+
+    <adminhtml_anymarket_anymarketqueue_index>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketqueue</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketqueue" name="anymarketqueue" />
+
+        </reference>
+    </adminhtml_anymarket_anymarketqueue_index>
+    <adminhtml_anymarket_anymarketqueue_grid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="db1_anymarket/adminhtml_anymarketqueue_grid" name="anymarketqueue_grid"/>
+        </block>
+    </adminhtml_anymarket_anymarketqueue_grid>
+    <!-- Anymarketqueue add/edit action -->
+    <adminhtml_anymarket_anymarketqueue_edit>
+        <update handle="editor"/>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketqueue</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketqueue_edit" name="anymarketqueue_edit"></block>
+        </reference>
+        <reference name="left">
+            <block type="db1_anymarket/adminhtml_anymarketqueue_edit_tabs" name="anymarketqueue_tabs"></block>
+        </reference>
+    </adminhtml_anymarket_anymarketqueue_edit>
+
+</layout>

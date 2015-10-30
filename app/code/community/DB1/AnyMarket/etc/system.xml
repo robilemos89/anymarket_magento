@@ -1,0 +1,404 @@
+<?xml version="1.0" ?>
+<config>
+    <tabs>
+        <anymarket_tab module="db1_anymarket" translate="label">
+            <label>DB1</label>
+            <sort_order>100</sort_order>
+        </anymarket_tab>
+    </tabs>
+    <sections>
+        <anymarket_section module="db1_anymarket" translate="label">
+            <label>AnyMarket</label>
+            <sort_order>200</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <tab>anymarket_tab</tab>
+            <groups>
+                <anymarket_information_group translate="label" module="db1_anymarket">
+                    <label>Important informations</label>
+                    <sort_order>0</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <comment>
+                        <![CDATA[
+                            <div>
+                                <h3>v. 1.7.2 Desenvolvido por<br> NovaPC - Tecnologia da Informação.</h3>
+                                <img src="http://novapc.com.br/images/logo.png" alt="Smiley face" height="200" width="300">
+                                <br>
+                                <br>
+                                Site: <a href="http://www.novapc.com.br/" target="_blank">www.novapc.com.br/</a>
+                                <br>
+                                E-mail: novapc@novapc.com.br
+                                <br>
+                                Telefone: 14-2104-5600
+                                <br>
+                                <hr>
+                                <br>
+                            </div>
+                        ]]>
+                    </comment>
+                </anymarket_information_group>
+
+                <anymarket_general_group translate="label" module="db1_anymarket">
+                    <label>General</label>
+                    <sort_order>0</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+
+                        <anymarket_NBM_required_field translate="label comment">
+                            <label>NBM Required</label>
+                            <comment>If marked yes, the validation will be done at the time of import.</comment>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        </anymarket_NBM_required_field>
+                        
+                        <anymarket_EAN_required_field translate="label">
+                            <label>Ignore EAN Invalid</label>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        </anymarket_EAN_required_field>
+
+                    </fields>
+                </anymarket_general_group>
+
+                <anymarket_integration_prod_group translate="label" module="db1_anymarket">
+                    <label>Integration (Products)</label>
+                    <sort_order>2</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <anymarket_type_prod_sync_field translate="label comment">
+                            <label>Type Synchronization</label>
+                            <comment>If checked Magento for Anymarket, products from the magento will be registered in anymarket. If checked Anymarket for Magento, anymarket's products will be registered in magento.</comment>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_typesync_order_values</source_model>
+                        </anymarket_type_prod_sync_field>
+                    </fields>
+
+                    <fields>
+                        <anymarket_type_weight_field translate="label comment">
+                            <label>Mass unit</label>
+                            <comment>Select will be treated as their weight in shipment to the Anymarket.</comment>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_massunit_values</source_model>
+                        </anymarket_type_weight_field>
+                    </fields>
+                </anymarket_integration_prod_group>
+
+                <anymarket_integration_order_group translate="label" module="db1_anymarket">
+                    <label>Integration (Orders)</label>
+                    <sort_order>3</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+
+                        <anymarket_type_order_sync_field translate="label tooltip comment">
+                            <label>Type Synchronization</label>
+                            <comment>If checked Magento for Anymarket, orders from the magento will be registered in anymarket. If checked Anymarket for Magento, anymarket's orders will be registered in magento.</comment>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_typesync_order_values</source_model>
+                        </anymarket_type_order_sync_field>
+
+                        <anymarket_stauts_order_field translate="label tooltip comment">
+                            <label>Status Order</label>
+                            <comment>Status of orders that must be imported.</comment>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_orders_values</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </anymarket_stauts_order_field>
+
+                        <anymarket_status_mg_am_field translate="label comment">
+                            <label>Status Order (Magento to Anymarket)</label>
+                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
+                            <frontend_model>db1_anymarket/system_config_source_orders_statusmgam_values</frontend_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Add Order Status Magento</comment>
+                        </anymarket_status_mg_am_field>
+
+                        <anymarket_status_am_mg_field translate="label comment">
+                            <label>Status Order (Anymarket to Magento)</label>
+                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
+                            <frontend_model>db1_anymarket/system_config_source_orders_statusammg_values</frontend_model>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Add Order Status Anymarket</comment>
+                        </anymarket_status_am_mg_field>
+
+                    </fields>
+                </anymarket_integration_order_group>
+
+                <anymarket_acesso_group translate="label comment" module="db1_anymarket">
+                    <label>Access</label>
+                    <comment>Configure all the necessary information to allow access to AnyMarket.</comment>
+                    <sort_order>5</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+
+                        <anymarket_host_field translate="label tooltip comment">
+                            <label>Host</label>
+                            <comment>URL for access to AnyMarket</comment>
+                            <tooltip>Contact the DB1 for this information</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>text</frontend_type>
+                        </anymarket_host_field>
+                        
+                        <anymarket_token_field translate="label tooltip comment">
+                            <label>Token</label>
+                            <comment>Token necessary access to AnyMarket</comment>
+                            <tooltip>Contact the DB1 for this information</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>text</frontend_type>
+                        </anymarket_token_field>
+
+                    </fields>
+                </anymarket_acesso_group>
+
+                <anymarket_attribute_group translate="label comment" module="db1_anymarket">
+                    <label>Attributes</label>
+                    <comment>Configure all the necessary information to manage the attributes.</comment>
+                    <sort_order>6</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <anymarket_desc_field translate="label tooltip comment">
+                            <label>Description</label>
+                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
+                            <frontend_model>db1_anymarket/system_config_source_products_values</frontend_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Selecione o(s) atributo(s) que devem ser enviado ao Anymarket</comment>
+                            <tooltip>Se selecionado mais que 1(um), será concatenado todos os campos.</tooltip>
+                        </anymarket_desc_field>
+
+                        <anymarket_doc_type_field translate="label tooltip comment">
+                            <label>Document Type (Customer)</label>
+                            <comment>Attribute responsible for import orders, usually CPF or RG.</comment>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>0</sort_order>
+                            <source_model>db1_anymarket/system_config_source_attributes_customer_values</source_model>
+                        </anymarket_doc_type_field>
+
+                        <anymarket_preco_field translate="label tooltip comment">
+                            <label>Price</label>
+                            <comment>Attribute that corresponds to the price.</comment>
+                            <tooltip>Select the attribute that corresponds to the price at AnyMarket</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
+                        </anymarket_preco_field>
+
+                        <anymarket_vol_comp_field translate="label tooltip comment">
+                            <label>Length_am</label>
+                            <comment>Attribute corresponding to the length.</comment>
+                            <tooltip>Select the attribute that corresponds to the length in AnyMarket</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
+                        </anymarket_vol_comp_field>
+
+                        <anymarket_vol_alt_field translate="label tooltip comment">
+                            <label>Height</label>
+                            <comment>Attribute corresponding to the height.</comment>
+                            <tooltip>Select the attribute that corresponds to the height AnyMarket</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
+                        </anymarket_vol_alt_field>
+
+                        <anymarket_vol_larg_field translate="label tooltip comment">
+                            <label>Width</label>
+                            <comment>Attribute corresponding to the Width.</comment>
+                            <tooltip>Select the attribute that corresponds to the width in AnyMarket</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
+                        </anymarket_vol_larg_field>
+
+                        <anymarket_video_url_field translate="label tooltip comment">
+                            <label>Video Url</label>
+                            <comment>Attribute corresponding to the Video Url.</comment>
+                            <tooltip>Select the attribute that corresponds to the video url in AnyMarket</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
+                        </anymarket_video_url_field>
+
+                        <anymarket_nbm_field translate="label tooltip comment">
+                            <label>NBM</label>
+                            <comment>Attribute corresponding to the NBM.</comment>
+                            <tooltip>Select the attribute that corresponds to nbm in AnyMarket</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
+                        </anymarket_nbm_field>
+
+                        <anymarket_nbm_origin_field translate="label tooltip comment">
+                            <label>Origem</label>
+                            <comment>Attribute corresponding to the Origem.</comment>
+                            <tooltip>Select the attribute that corresponds to the rise in AnyMarket</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
+                        </anymarket_nbm_origin_field>
+
+                        <anymarket_ean_field translate="label tooltip comment">
+                            <label>Bar code</label>
+                            <comment>Attribute corresponding to the Bar code.</comment>
+                            <tooltip>Select the attribute that corresponds to the barcode on AnyMarket</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
+                        </anymarket_ean_field>
+
+                        <anymarket_warranty_text_field translate="label tooltip comment">
+                            <label>Warranty</label>
+                            <comment>Attribute corresponding to the Warranty.</comment>
+                            <tooltip>Select the attribute that corresponds to the guarantee in AnyMarket</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
+                        </anymarket_warranty_text_field>
+
+                        <anymarket_warranty_time_field translate="label tooltip comment">
+                            <label>Warranty time</label>
+                            <comment>Attribute corresponding to the Warranty time.</comment>
+                            <tooltip>Select the attribute that corresponds to the time bars on AnyMarket</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
+                        </anymarket_warranty_time_field>
+
+                        <anymarket_brand_field translate="label tooltip comment">
+                            <label>Brand</label>
+                            <comment>Attribute corresponding to the Brand.</comment>
+                            <tooltip>Select the attribute that corresponds to the brand AnyMarket</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
+                        </anymarket_brand_field>
+                        
+                        <anymarket_model_field translate="label tooltip comment">
+                            <label>Model</label>
+                            <comment>Attribute corresponding to the Model.</comment>
+                            <tooltip>Selecione o Atributo que corresponde a model no AnyMarket</tooltip>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
+                        </anymarket_model_field>
+
+                    </fields>
+                </anymarket_attribute_group>
+
+            </groups>
+        </anymarket_section>
+
+        <payment>
+          <groups>
+            <db1_anymarket translate="label" module="db1_anymarket">
+              <label>AnyMarket Payment Method</label>
+              <sort_order>670</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>0</show_in_store>
+              <fields>
+                <active translate="label">
+                  <label>Enabled</label>
+                  <frontend_type>select</frontend_type>
+                  <source_model>adminhtml/system_config_source_yesno</source_model>
+                  <sort_order>1</sort_order>
+                  <show_in_default>1</show_in_default>
+                  <show_in_website>1</show_in_website>
+                  <show_in_store>0</show_in_store>
+                </active>
+                <order_status translate="label">
+                  <label>New order status</label>
+                  <frontend_type>select</frontend_type>
+                  <source_model>adminhtml/system_config_source_order_status_new</source_model>
+                  <sort_order>4</sort_order>
+                  <show_in_default>1</show_in_default>
+                  <show_in_website>1</show_in_website>
+                  <show_in_store>0</show_in_store>
+                </order_status>
+                <title translate="label">
+                  <label>Title</label>
+                  <frontend_type>text</frontend_type>
+                  <sort_order>2</sort_order>
+                  <show_in_default>1</show_in_default>
+                  <show_in_website>1</show_in_website>
+                  <show_in_store>0</show_in_store>
+                </title>
+              </fields>
+            </db1_anymarket>
+          </groups>
+        </payment>
+
+    </sections>
+</config>
