@@ -470,7 +470,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 }
                 $this->saveLogsProds($returnProd, $product);
-            }else{
+            }else if($product->getData('id_anymarket') != '0'){
                 $returnProd = $this->CallAPICurl("PUT", $HOST."/rest/api/v1/products/".$product->getData('id_anymarket'), $headers, $param);
 
                 if($returnProd['error'] == '0'){
@@ -1025,20 +1025,20 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 "Accept: */*",
                                 "gumgaToken: ".$TOKEN
                             );
-                                $params = array(
-                                    "quantity" => $QtdStock,
-                                    "cost" => $Price
-                                );
+                            $params = array(
+                                "quantity" => $QtdStock,
+                                "cost" => $Price
+                            );
 
-                                $skuPut = str_replace(" ", "%20", $product->getSku());
-                                $returnProd = $this->CallAPICurl("PUT", $HOST."/rest/api/v1/erp/stock/skuInClient/".$skuPut, $headers, $params);
+                            $skuPut = str_replace(" ", "%20", $product->getSku());
+                            $returnProd = $this->CallAPICurl("PUT", $HOST."/rest/api/v1/erp/stock/skuInClient/".$skuPut, $headers, $params);
 
-                                if($returnProd['return'] == ''){
-                                    $returnProd['return'] = Mage::helper('db1_anymarket')->__('Update Stock and Price');
-                                    $returnProd['error'] = '0';
-                                    $returnProd['json'] = '';
-                                }
-                                $this->saveLogsProds($returnProd, $product);
+                            if($returnProd['return'] == ''){
+                                $returnProd['return'] = Mage::helper('db1_anymarket')->__('Update Stock and Price');
+                                $returnProd['error'] = '0';
+                                $returnProd['json'] = '';
+                            }
+                            $this->saveLogsProds($returnProd, $product);
                         }
                     }
                 }
