@@ -444,13 +444,16 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 "variations" => $ArrayVariations
             );
 
-            if($product->getData('id_anymarket') == ''){
+            if( ($product->getData('id_anymarket') == '') || ($product->getData('id_anymarket') == '0') ){
                 $returnProd = $this->CallAPICurl("POST", $HOST."/rest/api/v1/products/", $headers, $param);
      
                 if($returnProd['error'] != '1'){
                     $SaveLog = $returnProd['return'];
                     $IDinAnymarket = json_encode($SaveLog->id);
-                    $product->setIdAnymarket($IDinAnymarket);
+
+                    if($IDinAnymarket != '0'){
+                        $product->setIdAnymarket($IDinAnymarket);
+                    }
                     $product->save();
 
                     if($product->getTypeID() == "configurable"){
@@ -462,14 +465,21 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             if($productC->getIntegraAnymarket() != '1'){
                                 $productC->setIntegraAnymarket('1');
                             }
-
-                            $productC->setIdAnymarket($IDinAnymarket);
+                            if($IDinAnymarket != '0'){
+                                $productC->setIdAnymarket($IDinAnymarket);
+                            }
                             $productC->save();
                         }
                     }
 
                 }
-                $this->saveLogsProds($returnProd, $product);
+                if($IDinAnymarket != '0'){
+                    $this->saveLogsProds($returnProd, $product);
+                }else{
+                    $returnProd['error'] = '1';
+                    $returnProd['return'] = Mage::helper('db1_anymarket')->__('Error synchronizing, code anymarket invalid.');
+                    $this->saveLogsProds($returnProd, $product);
+                }
             }else if($product->getData('id_anymarket') != '0'){
                 $returnProd = $this->CallAPICurl("PUT", $HOST."/rest/api/v1/products/".$product->getData('id_anymarket'), $headers, $param);
 
