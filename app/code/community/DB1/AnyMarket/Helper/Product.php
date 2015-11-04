@@ -480,7 +480,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     $returnProd['return'] = Mage::helper('db1_anymarket')->__('Error synchronizing, code anymarket invalid.');
                     $this->saveLogsProds($returnProd, $product);
                 }
-            }else if($product->getData('id_anymarket') != '0'){
+            }else{
                 $returnProd = $this->CallAPICurl("PUT", $HOST."/rest/api/v1/products/".$product->getData('id_anymarket'), $headers, $param);
 
                 if($returnProd['error'] == '0'){
