@@ -30,6 +30,7 @@
 "Gram","Grama"
 "Select will be treated as their weight in shipment to the Anymarket.","Selecione como sera tratado seu peso no envio para o Anymarket."
 "Synchronize","Sincronizar"
+"Error synchronizing, code anymarket invalid.","Erro ao sincronizar, codigo anymarket inválido."
 "Simple product Created","Produto Simples Criado"
 "Error on get feed products ","Erro ao obter feed de produtos "
 "Error on import products from anymarket ","Erro ao importar produtos do Anymarket "
