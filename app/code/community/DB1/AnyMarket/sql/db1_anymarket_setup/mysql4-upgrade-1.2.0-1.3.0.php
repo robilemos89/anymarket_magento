@@ -16,8 +16,7 @@ function _tableExists($table, $resource)
     return $resource->getConnection('core_write')->isTableExists($table);
 }
 
-
-
+$sql = '';
 $table = 'db1_anymarket_anymarketattributes01';
 if (_tableExists($table, $resource)) {
 	$sql = "ALTER TABLE db1_anymarket_anymarketattributes01 RENAME db1_anymarket_anymarketattributes;";
@@ -63,5 +62,7 @@ if (_tableExists($table, $resource)) {
 	$sql .= "ALTER TABLE `db1_anymarket_anymarketproducts_store` ADD CONSTRAINT `fk13_anymarketcategories_id` FOREIGN KEY ( `anymarketcategories_id` ) REFERENCES `db1_anymarket_anymarketcategories` ( `entity_id` );";
 }
 
-$installer->run($sql);
+if ($sql != '') {
+	$installer->run($sql);
+}
 $installer->endSetup();
