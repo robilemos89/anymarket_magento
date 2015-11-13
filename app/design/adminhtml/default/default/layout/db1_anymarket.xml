@@ -9,15 +9,6 @@
         </reference>
     </catalog_product_view>
 
-    <default>
-        <reference name="head">
-            <action method="addItem">
-                <type>js</type>
-                <name>DB1/base.js</name>
-            </action>
-        </reference>
-    </default>
-
     <adminhtml_anymarket_anymarketlog_index>
         <reference name="menu">
             <action method="setActive">
@@ -58,6 +49,9 @@
             </action>
         </reference>
         <reference name="content">
+            <block type="adminhtml/store_switcher" name="store_switcher" as="store_switcher">
+                <action method="setUseConfirm"><params>0</params></action>
+            </block>
             <block type="db1_anymarket/adminhtml_anymarketproducts" name="anymarketproducts" />
         </reference>
     </adminhtml_anymarket_anymarketproducts_index>
@@ -155,8 +149,10 @@
             </action>
         </reference>
         <reference name="content">
+            <block type="adminhtml/store_switcher" name="store_switcher" as="store_switcher">
+                <action method="setUseConfirm"><params>0</params></action>
+            </block>
             <block type="db1_anymarket/adminhtml_anymarketcategories" name="anymarketcategories" />
-
         </reference>
     </adminhtml_anymarket_anymarketcategories_index>
     <adminhtml_anymarket_anymarketcategories_grid>
