@@ -223,7 +223,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
 	//ENVIA PRODUTO PARA O ANYMARKET
     public function sendProductToAnyMarket($idProduct){
-        //obter configuracoes
+        //obter configuracoes - MultLoja
         $product =  Mage::getModel('catalog/product')->load($idProduct);
         //$storeIds = $_product->getStoreIds();
         //foreach ($storeIds as $store) {
