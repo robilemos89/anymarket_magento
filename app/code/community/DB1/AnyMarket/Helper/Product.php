@@ -299,7 +299,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     foreach ($attributesConf as $attribute){
                         $options = Mage::getResourceModel('eav/entity_attribute_option_collection');
                         $valuesAttr  = $options->setAttributeFilter($attribute['attribute_id'])
-                                    ->setStoreFilter(Mage::app()->getStore()->getId())
+                                    ->setStoreFilter(1)
                                     ->toOptionArray();
 
                         foreach ($valuesAttr as $value){
@@ -315,7 +315,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($SimpleConfigProd);
                     $ArrSimpleConfigProd[] = array(
                         "urlImages" => $itemsIMGSimp,
-                        "variationValues" => $ArrVariationValues,//$ArrVariationValues,
+                        "variationValues" => $ArrVariationValues,
                         "stockPrice" => $stkPrice,
                         "stockAmount" => $stock->getQty(),
                         "ean" => $SimpleConfigProd->getData($ean),
