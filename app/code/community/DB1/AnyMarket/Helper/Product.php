@@ -223,7 +223,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
 	//ENVIA PRODUTO PARA O ANYMARKET
     public function sendProductToAnyMarket($idProduct){
-        //obter configuracoes - MultLoja
+        //obter configuracoes - Util MultLoja
         $product =  Mage::getModel('catalog/product')->load($idProduct);
         //$storeIds = $_product->getStoreIds();
         //foreach ($storeIds as $store) {
@@ -264,7 +264,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 }
             }
 
-
             //obtem os produtos configs - verifica se e configurable
             $ArrSimpleConfigProd = array();
             $ArrayVariations = array();
@@ -298,10 +297,15 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     //obtem os atributos
                     $ArrVariationValues = array();
                     foreach ($attributesConf as $attribute){
-                        foreach ($attribute['values'] as $value){
+                        $options = Mage::getResourceModel('eav/entity_attribute_option_collection');
+                        $valuesAttr  = $options->setAttributeFilter($attribute['attribute_id'])
+                                    ->setStoreFilter(1)
+                                    ->toOptionArray();
+
+                        foreach ($valuesAttr as $value){
                             $childValue = $child->getData($attribute['attribute_code']);
-                            if ($value['value_index'] == $childValue){
-                                $ArrVariationValues[$attribute['store_label']] = $value['store_label'];
+                            if ($value['value'] == $childValue){
+                                $ArrVariationValues[$attribute['store_label']] = $value['label'];
                             }
                         }
                     }
@@ -311,7 +315,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($SimpleConfigProd);
                     $ArrSimpleConfigProd[] = array(
                         "urlImages" => $itemsIMGSimp,
-                        "variationValues" => $ArrVariationValues,//$ArrVariationValues,
+                        "variationValues" => $ArrVariationValues,
                         "stockPrice" => $stkPrice,
                         "stockAmount" => $stock->getQty(),
                         "ean" => $SimpleConfigProd->getData($ean),
@@ -390,13 +394,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 if($attrCheck->getData('nma_id_attr') != null){
                     if($attrCheck->getData('status') == 1){
                         if( ($attribute->getAttributeCode() != $brand) && ($attribute->getAttributeCode() != $model) ){
+                            
                             if($confID == ""){
-                                $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $product->getData( $attribute->getAttributeCode() ));
+                                $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1));
                                 $contIndexAttr = $contIndexAttr+1;
                             }else{
                                 foreach ($attributesConf as $attributeConf){
                                     if(!in_array($attribute->getAttributeCode(), $attributeConf)){
-                                        $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $product->getData( $attribute->getAttributeCode() ));
+                                        $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1));
                                         $contIndexAttr = $contIndexAttr+1;
                                     }
                                 }
@@ -446,7 +451,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
             if( ($product->getData('id_anymarket') == '') || ($product->getData('id_anymarket') == '0') ){
                 $returnProd = $this->CallAPICurl("POST", $HOST."/rest/api/v1/products/", $headers, $param);
-     
+                $IDinAnymarket = '0';
                 if($returnProd['error'] != '1'){
                     $SaveLog = $returnProd['return'];
                     $IDinAnymarket = json_encode($SaveLog->id);
