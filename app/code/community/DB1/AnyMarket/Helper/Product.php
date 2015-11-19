@@ -297,10 +297,15 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     //obtem os atributos
                     $ArrVariationValues = array();
                     foreach ($attributesConf as $attribute){
-                        foreach ($attribute['values'] as $value){
+                        $options = Mage::getResourceModel('eav/entity_attribute_option_collection');
+                        $valuesAttr  = $options->setAttributeFilter($attribute['attribute_id'])
+                                    ->setStoreFilter(Mage::app()->getStore()->getId())
+                                    ->toOptionArray();
+
+                        foreach ($valuesAttr as $value){
                             $childValue = $child->getData($attribute['attribute_code']);
-                            if ($value['value_index'] == $childValue){
-                                $ArrVariationValues[$attribute['store_label']] = $value['store_label'];
+                            if ($value['value'] == $childValue){
+                                $ArrVariationValues[$attribute['store_label']] = $value['label'];
                             }
                         }
                     }
