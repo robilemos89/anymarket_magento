@@ -544,12 +544,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     public function updateOrderAnyMarket($Order){
         $ImportOrderSession = Mage::getSingleton('core/session')->getImportOrdersVariable();
         if( $ImportOrderSession != 'false' ) {
-            $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', Mage::app()->getStore()->getId());             
-            if($ConfigOrder == 0){
-                $idOrder = $Order->getIncrementId();
-                $status = $Order->getStatus();
 
-                $anymarketorderupdt = Mage::getModel('db1_anymarket/anymarketorders')->load($idOrder, 'nmo_id_order');
+            $idOrder = $Order->getIncrementId();
+            $status = $Order->getStatus();
+            $anymarketorderupdt = Mage::getModel('db1_anymarket/anymarketorders')->load($idOrder, 'nmo_id_order');
+            if( ($ConfigOrder == 0) || ($anymarketorderupdt->getData('nmo_status_int') == 'Integrado') ){
 
                 $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', Mage::app()->getStore()->getId());
                 $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', Mage::app()->getStore()->getId()); 
