@@ -109,16 +109,14 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
 
         foreach ($productAttrs as $productAttr) {
             if($productAttr->getFrontendLabel() != null){
-                if($productAttr->getIsRequired() == 0){
-                    $attrCheck =  Mage::getModel('db1_anymarket/anymarketattributes')->load($productAttr->getAttributeId(), 'nma_id_attr');
+                $attrCheck =  Mage::getModel('db1_anymarket/anymarketattributes')->load($productAttr->getAttributeId(), 'nma_id_attr');
 
-                    if($attrCheck->getData('nma_id_attr') == null){
-                        $anymarketattribute = Mage::getModel('db1_anymarket/anymarketattributes');
-                        $anymarketattribute->setNmaIdAttr( $productAttr->getAttributeId() );
-                        $anymarketattribute->setNmaDesc( $productAttr->getFrontendLabel() );
-                        $anymarketattribute->setStatus( "0" );
-                        $anymarketattribute->save();
-                    }
+                if($attrCheck->getData('nma_id_attr') == null){
+                    $anymarketattribute = Mage::getModel('db1_anymarket/anymarketattributes');
+                    $anymarketattribute->setNmaIdAttr( $productAttr->getAttributeId() );
+                    $anymarketattribute->setNmaDesc( $productAttr->getFrontendLabel() );
+                    $anymarketattribute->setStatus( "0" );
+                    $anymarketattribute->save();
                 }
             }
         }
