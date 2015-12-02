@@ -391,14 +391,12 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $ArrAttributesCtrl = array();
             $contIndexAttr = 0;
             foreach ($attributes as $attribute){
-
                 if (!in_array($attribute->getFrontendLabel(), $ArrAttributesCtrl)) {
                     array_push($ArrAttributesCtrl, $attribute->getFrontendLabel());
                     $attrCheck =  Mage::getModel('db1_anymarket/anymarketattributes')->load($attribute->getAttributeId(), 'nma_id_attr');
                     if($attrCheck->getData('nma_id_attr') != null){
                         if($attrCheck->getData('status') == 1){
                             if( ($attribute->getAttributeCode() != $brand) && ($attribute->getAttributeCode() != $model) ){
-                                
                                 if($confID == ""){
                                     $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1));
                                     $contIndexAttr = $contIndexAttr+1;
