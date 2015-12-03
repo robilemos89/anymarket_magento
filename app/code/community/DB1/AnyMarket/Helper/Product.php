@@ -310,7 +310,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }
                     }
 
-                    $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeIds));
+                    $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', Mage::app()->getStore()->getId()));
                     $stkPrice = $SimpleConfigProd->getData($filter);
                     $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($SimpleConfigProd);
                     $ArrSimpleConfigProd[] = array(
