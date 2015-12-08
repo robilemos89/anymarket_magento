@@ -310,7 +310,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }
                     }
 
-                    $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeIds));
+                    $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', Mage::app()->getStore()->getId()));
                     $stkPrice = $SimpleConfigProd->getData($filter);
                     $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($SimpleConfigProd);
                     $ArrSimpleConfigProd[] = array(
@@ -391,14 +391,12 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $ArrAttributesCtrl = array();
             $contIndexAttr = 0;
             foreach ($attributes as $attribute){
-
                 if (!in_array($attribute->getFrontendLabel(), $ArrAttributesCtrl)) {
                     array_push($ArrAttributesCtrl, $attribute->getFrontendLabel());
                     $attrCheck =  Mage::getModel('db1_anymarket/anymarketattributes')->load($attribute->getAttributeId(), 'nma_id_attr');
                     if($attrCheck->getData('nma_id_attr') != null){
                         if($attrCheck->getData('status') == 1){
                             if( ($attribute->getAttributeCode() != $brand) && ($attribute->getAttributeCode() != $model) ){
-                                
                                 if($confID == ""){
                                     $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1));
                                     $contIndexAttr = $contIndexAttr+1;
