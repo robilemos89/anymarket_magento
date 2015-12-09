@@ -28,7 +28,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories extends Mage_Adminhtml_B
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function __construct()
     {
@@ -44,6 +44,5 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories extends Mage_Adminhtml_B
             'onclick' => "setLocation('{$this->getUrl('*/*/sincCategs')}')",
             'class'   => 'add'
         ));
-
     }
 }

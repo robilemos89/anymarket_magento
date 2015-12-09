@@ -27,7 +27,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Edit_Tabs extends Mage_A
      * Initialize Tabs
      *
      * @access public
-     * @author Ultimate Module Creator
+     
      */
     public function __construct()
     {
@@ -42,7 +42,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Edit_Tabs extends Mage_A
      *
      * @access protected
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Edit_Tabs
-     * @author Ultimate Module Creator
+     
      */
     protected function _beforeToHtml()
     {
@@ -78,7 +78,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Edit_Tabs extends Mage_A
      *
      * @access public
      * @return DB1_AnyMarket_Model_Anymarketcategories
-     * @author Ultimate Module Creator
+     
      */
     public function getAnymarketcategories()
     {

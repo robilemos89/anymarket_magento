@@ -52,6 +52,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketcategoriesController extends DB
         $this->loadLayout();
         $this->_title(Mage::helper('db1_anymarket')->__('AnyMarket'))
              ->_title(Mage::helper('db1_anymarket')->__('Anymarket Categories'));
+
         $this->renderLayout();
     }
 
@@ -65,8 +66,10 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketcategoriesController extends DB
      */
     public function sincCategsAction()
     {
+        $storeID = Mage::getSingleton('core/session')->getStoreCategVariable();
+        Mage::app()->setCurrentStore($storeID);
         Mage::helper('db1_anymarket/category')->getCategories();
-        
+
         Mage::getSingleton('adminhtml/session')->addSuccess(
             Mage::helper('db1_anymarket')->__('Successfully synchronized categories.')
         );

@@ -117,8 +117,10 @@
             </action>
         </reference>
         <reference name="content">
+            <block type="adminhtml/store_switcher" name="store_switcher" as="store_switcher">
+                <action method="setUseConfirm"><params>0</params></action>
+            </block>
             <block type="db1_anymarket/adminhtml_anymarketorders" name="anymarketorders" />
-
         </reference>
     </adminhtml_anymarket_anymarketorders_index>
     <adminhtml_anymarket_anymarketorders_grid>

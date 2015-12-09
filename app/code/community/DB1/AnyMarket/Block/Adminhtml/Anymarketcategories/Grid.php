@@ -27,7 +27,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid extends Mage_Adminh
      * constructor
      *
      * @access public
-     * @author Ultimate Module Creator
+     
      */
     public function __construct()
     {
@@ -40,14 +40,31 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid extends Mage_Adminh
     }
 
     /**
+     * get current store scope
+     *
+     * @access protected
+     * @return store view
+     
+     */
+    protected function _getStore()
+    {
+        $storeId = (int) $this->getRequest()->getParam('store', 0);
+        return Mage::app()->getStore($storeId);
+    }
+
+    /**
      * prepare collection
      *
      * @access protected
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid
-     * @author Ultimate Module Creator
+     
      */
     protected function _prepareCollection()
     {
+        $store_id = $this->_getStore();
+        Mage::app()->setCurrentStore($store_id);
+        $store_id = Mage::app()->getStore()->getId();
+        Mage::getSingleton('core/session')->setStoreCategVariable($store_id);
         $collection = Mage::getModel('db1_anymarket/anymarketcategories')
             ->getCollection();
         
@@ -60,7 +77,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid extends Mage_Adminh
      *
      * @access protected
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid
-     * @author Ultimate Module Creator
+     
      */
     protected function _prepareColumns()
     {
@@ -162,6 +179,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid extends Mage_Adminh
                 'sortable'  => false,
             )
         );
+
         $this->addExportType('*/*/exportCsv', Mage::helper('db1_anymarket')->__('CSV'));
         $this->addExportType('*/*/exportExcel', Mage::helper('db1_anymarket')->__('Excel'));
         $this->addExportType('*/*/exportXml', Mage::helper('db1_anymarket')->__('XML'));
@@ -173,10 +191,11 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid extends Mage_Adminh
      *
      * @access protected
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid
-     * @author Ultimate Module Creator
+     
      */
     protected function _prepareMassaction()
     {
+
         $this->setMassactionIdField('entity_id');
         $this->getMassactionBlock()->setFormFieldName('anymarketcategories');
         $this->getMassactionBlock()->addItem(
@@ -206,6 +225,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid extends Mage_Adminh
                 )
             )
         );
+
         return $this;
     }
 
@@ -215,7 +235,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid extends Mage_Adminh
      * @access public
      * @param DB1_AnyMarket_Model_Anymarketcategories
      * @return string
-     * @author Ultimate Module Creator
+     
      */
     public function getRowUrl($row)
     {
@@ -227,7 +247,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid extends Mage_Adminh
      *
      * @access public
      * @return string
-     * @author Ultimate Module Creator
+     
      */
     public function getGridUrl()
     {
@@ -239,7 +259,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid extends Mage_Adminh
      *
      * @access protected
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid
-     * @author Ultimate Module Creator
+     
      */
     protected function _afterLoadCollection()
     {
@@ -254,7 +274,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid extends Mage_Adminh
      * @param DB1_AnyMarket_Model_Resource_Anymarketcategories_Collection $collection
      * @param Mage_Adminhtml_Block_Widget_Grid_Column $column
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid
-     * @author Ultimate Module Creator
+     
      */
     protected function _filterStoreCondition($collection, $column)
     {

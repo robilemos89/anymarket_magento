@@ -28,7 +28,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Edit extends Mage_Adminh
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function __construct()
     {
@@ -66,7 +66,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Edit extends Mage_Adminh
      *
      * @access public
      * @return string
-     * @author Ultimate Module Creator
+     
      */
     public function getHeaderText()
     {

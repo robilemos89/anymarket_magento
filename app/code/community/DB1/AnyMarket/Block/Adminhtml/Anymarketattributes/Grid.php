@@ -81,7 +81,6 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketattributes_Grid extends Mage_Adminh
                 )
             )
         );
-
         $this->addExportType('*/*/exportCsv', Mage::helper('db1_anymarket')->__('CSV'));
         $this->addExportType('*/*/exportExcel', Mage::helper('db1_anymarket')->__('Excel'));
         $this->addExportType('*/*/exportXml', Mage::helper('db1_anymarket')->__('XML'));

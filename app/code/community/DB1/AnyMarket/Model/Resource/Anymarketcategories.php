@@ -28,7 +28,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketcategories extends Mage_Core_Model_R
      * constructor
      *
      * @access public
-     * @author Ultimate Module Creator
+     
      */
     public function _construct()
     {
@@ -41,7 +41,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketcategories extends Mage_Core_Model_R
      * @access public
      * @param int $anymarketcategoriesId
      * @return array
-     * @author Ultimate Module Creator
+     
      */
     public function lookupStoreIds($anymarketcategoriesId)
     {
@@ -58,7 +58,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketcategories extends Mage_Core_Model_R
      * @access public
      * @param Mage_Core_Model_Abstract $object
      * @return DB1_AnyMarket_Model_Resource_Anymarketcategories
-     * @author Ultimate Module Creator
+     
      */
     protected function _afterLoad(Mage_Core_Model_Abstract $object)
     {
@@ -100,7 +100,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketcategories extends Mage_Core_Model_R
      * @access protected
      * @param Mage_Core_Model_Abstract $object
      * @return DB1_AnyMarket_Model_Resource_Anymarketcategories
-     * @author Ultimate Module Creator
+     
      */
     protected function _afterSave(Mage_Core_Model_Abstract $object)
     {

@@ -41,7 +41,7 @@ class DB1_AnyMarket_Model_Anymarketqueue_Api extends Mage_Api_Model_Resource_Abs
      * @access public
      * @param mixed $filters
      * @return array
-     * @author Ultimate Module Creator
+     
      */
     public function items($filters = null)
     {
@@ -68,7 +68,7 @@ class DB1_AnyMarket_Model_Anymarketqueue_Api extends Mage_Api_Model_Resource_Abs
      * @access public
      * @param array $data
      * @return array
-     * @author Ultimate Module Creator
+     
      */
     public function add($data)
     {
@@ -95,7 +95,7 @@ class DB1_AnyMarket_Model_Anymarketqueue_Api extends Mage_Api_Model_Resource_Abs
      * @param int $anymarketqueueId
      * @param array $data
      * @return bool
-     * @author Ultimate Module Creator
+     
      */
     public function update($anymarketqueueId, $data)
     {
@@ -118,7 +118,7 @@ class DB1_AnyMarket_Model_Anymarketqueue_Api extends Mage_Api_Model_Resource_Abs
      * @access public
      * @param int $anymarketqueueId
      * @return bool
-     * @author Ultimate Module Creator
+     
      */
     public function remove($anymarketqueueId)
     {
@@ -137,7 +137,7 @@ class DB1_AnyMarket_Model_Anymarketqueue_Api extends Mage_Api_Model_Resource_Abs
      * @access public
      * @param int $anymarketqueueId
      * @return array
-     * @author Ultimate Module Creator
+     
      */
     public function info($anymarketqueueId)
     {
@@ -153,7 +153,7 @@ class DB1_AnyMarket_Model_Anymarketqueue_Api extends Mage_Api_Model_Resource_Abs
      * @access protected
      * @param DB1_AnyMarket_Model_Anymarketqueue $anymarketqueue
      * @return array()
-     * @author Ultimate Module Creator
+     
      */
     protected function _getApiData(DB1_AnyMarket_Model_Anymarketqueue $anymarketqueue)
     {

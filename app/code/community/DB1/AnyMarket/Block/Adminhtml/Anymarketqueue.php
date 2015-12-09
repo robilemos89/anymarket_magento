@@ -27,7 +27,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue extends Mage_Adminhtml_Block_
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function __construct()
     {

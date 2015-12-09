@@ -41,7 +41,7 @@ class DB1_AnyMarket_Model_Anymarketcategories_Api extends Mage_Api_Model_Resourc
      * @access public
      * @param mixed $filters
      * @return array
-     * @author Ultimate Module Creator
+     
      */
     public function items($filters = null)
     {
@@ -68,7 +68,7 @@ class DB1_AnyMarket_Model_Anymarketcategories_Api extends Mage_Api_Model_Resourc
      * @access public
      * @param array $data
      * @return array
-     * @author Ultimate Module Creator
+     
      */
     public function add($data)
     {
@@ -95,7 +95,7 @@ class DB1_AnyMarket_Model_Anymarketcategories_Api extends Mage_Api_Model_Resourc
      * @param int $anymarketcategoriesId
      * @param array $data
      * @return bool
-     * @author Ultimate Module Creator
+     
      */
     public function update($anymarketcategoriesId, $data)
     {
@@ -118,7 +118,7 @@ class DB1_AnyMarket_Model_Anymarketcategories_Api extends Mage_Api_Model_Resourc
      * @access public
      * @param int $anymarketcategoriesId
      * @return bool
-     * @author Ultimate Module Creator
+     
      */
     public function remove($anymarketcategoriesId)
     {
@@ -137,7 +137,7 @@ class DB1_AnyMarket_Model_Anymarketcategories_Api extends Mage_Api_Model_Resourc
      * @access public
      * @param int $anymarketcategoriesId
      * @return array
-     * @author Ultimate Module Creator
+     
      */
     public function info($anymarketcategoriesId)
     {
@@ -153,7 +153,7 @@ class DB1_AnyMarket_Model_Anymarketcategories_Api extends Mage_Api_Model_Resourc
      * @access protected
      * @param DB1_AnyMarket_Model_Anymarketcategories $anymarketcategories
      * @return array()
-     * @author Ultimate Module Creator
+     
      */
     protected function _getApiData(DB1_AnyMarket_Model_Anymarketcategories $anymarketcategories)
     {

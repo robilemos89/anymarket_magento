@@ -22,7 +22,7 @@ class DB1_AnyMarket_Model_Anymarketqueue_Api_V2 extends DB1_AnyMarket_Model_Anym
      * @access public
      * @param int $anymarketqueueId
      * @return object
-     * @author Ultimate Module Creator
+     
      */
     public function info($anymarketqueueId)
     {

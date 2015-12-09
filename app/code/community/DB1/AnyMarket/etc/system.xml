@@ -24,7 +24,7 @@
                     <comment>
                         <![CDATA[
                             <div>
-                                <h3>v. 1.8.0 Desenvolvido por<br> NovaPC - Tecnologia da Informação.</h3>
+                                <h3>v. 2.0.0 Desenvolvido por<br> NovaPC - Tecnologia da Informação.</h3>
                                 <img src="http://novapc.com.br/images/logo.png" alt="Smiley face" height="200" width="300">
                                 <br>
                                 <br>
@@ -34,6 +34,7 @@
                                 <br>
                                 Telefone: 14-2104-5600
                                 <br>
+                                <b>Acesse o github do projeto: <a target="_blank" href="https://github.com/AnyMarket/magento">https://github.com/AnyMarket/magento</a></b>
                                 <hr>
                                 <br>
                             </div>
@@ -199,17 +200,16 @@
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
                     <fields>
-                        <anymarket_desc_field translate="label tooltip comment">
-                            <label>Description</label>
-                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
-                            <frontend_model>db1_anymarket/system_config_source_products_values</frontend_model>
-                            <sort_order>0</sort_order>
+                        <anymarket_customer_group_field translate="label tooltip comment">
+                            <label>Customer Group (Customer)</label>
+                            <comment>Customer group that will be registered when imported from Anymarket.</comment>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Selecione o(s) atributo(s) que devem ser enviado ao Anymarket</comment>
-                            <tooltip>Se selecionado mais que 1(um), será concatenado todos os campos.</tooltip>
-                        </anymarket_desc_field>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>0</sort_order>
+                            <source_model>db1_anymarket/system_config_source_attributes_customer_group_values</source_model>
+                        </anymarket_customer_group_field>
 
                         <anymarket_doc_type_field translate="label tooltip comment">
                             <label>Document Type (Customer)</label>
@@ -218,9 +218,21 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
-                            <sort_order>0</sort_order>
+                            <sort_order>1</sort_order>
                             <source_model>db1_anymarket/system_config_source_attributes_customer_values</source_model>
                         </anymarket_doc_type_field>
+
+                        <anymarket_desc_field translate="label tooltip comment">
+                            <label>Description</label>
+                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
+                            <frontend_model>db1_anymarket/system_config_source_products_values</frontend_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Selecione o(s) atributo(s) que devem ser enviado ao Anymarket</comment>
+                            <tooltip>Se selecionado mais que 1(um), será concatenado todos os campos.</tooltip>
+                        </anymarket_desc_field>
 
                         <anymarket_preco_field translate="label tooltip comment">
                             <label>Price</label>
@@ -230,6 +242,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
+                            <sort_order>3</sort_order>
                             <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
                         </anymarket_preco_field>
 
@@ -241,6 +254,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
+                            <sort_order>4</sort_order>
                             <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
                         </anymarket_vol_comp_field>
 
@@ -252,6 +266,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
+                            <sort_order>5</sort_order>
                             <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
                         </anymarket_vol_alt_field>
 
@@ -263,6 +278,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
+                            <sort_order>6</sort_order>
                             <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
                         </anymarket_vol_larg_field>
 
@@ -274,6 +290,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
+                            <sort_order>7</sort_order>
                             <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
                         </anymarket_video_url_field>
 
@@ -285,6 +302,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
+                            <sort_order>8</sort_order>
                             <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
                         </anymarket_nbm_field>
 
@@ -296,6 +314,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
+                            <sort_order>9</sort_order>
                             <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
                         </anymarket_nbm_origin_field>
 
@@ -307,6 +326,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
+                            <sort_order>10</sort_order>
                             <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
                         </anymarket_ean_field>
 
@@ -318,6 +338,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
+                            <sort_order>11</sort_order>
                             <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
                         </anymarket_warranty_text_field>
 
@@ -329,6 +350,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
+                            <sort_order>12</sort_order>
                             <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
                         </anymarket_warranty_time_field>
 
@@ -340,6 +362,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
+                            <sort_order>13</sort_order>                            
                             <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
                         </anymarket_brand_field>
                         
@@ -351,6 +374,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_type>select</frontend_type>
+                            <sort_order>14</sort_order>
                             <source_model>db1_anymarket/system_config_source_attributes_product_values</source_model>
                         </anymarket_model_field>
 

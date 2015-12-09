@@ -30,7 +30,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketcategories_Collection extends Mage_C
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     protected function _construct()
     {
@@ -46,7 +46,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketcategories_Collection extends Mage_C
      * @param int|Mage_Core_Model_Store $store
      * @param bool $withAdmin
      * @return DB1_AnyMarket_Model_Resource_Anymarketcategories_Collection
-     * @author Ultimate Module Creator
+     
      */
     public function addStoreFilter($store, $withAdmin = true)
     {
@@ -71,7 +71,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketcategories_Collection extends Mage_C
      *
      * @access protected
      * @return DB1_AnyMarket_Model_Resource_Anymarketcategories_Collection
-     * @author Ultimate Module Creator
+     
      */
     protected function _renderFiltersBefore()
     {
@@ -98,7 +98,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketcategories_Collection extends Mage_C
      * @param string $labelField
      * @param array $additional
      * @return array
-     * @author Ultimate Module Creator
+     
      */
     protected function _toOptionArray($valueField='entity_id', $labelField='nmc_cat_desc', $additional=array())
     {
@@ -112,7 +112,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketcategories_Collection extends Mage_C
      * @param string $valueField
      * @param string $labelField
      * @return array
-     * @author Ultimate Module Creator
+     
      */
     protected function _toOptionHash($valueField='entity_id', $labelField='nmc_cat_desc')
     {
@@ -125,7 +125,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketcategories_Collection extends Mage_C
      *
      * @access public
      * @return Varien_Db_Select
-     * @author Ultimate Module Creator
+     
      */
     public function getSelectCountSql()
     {
