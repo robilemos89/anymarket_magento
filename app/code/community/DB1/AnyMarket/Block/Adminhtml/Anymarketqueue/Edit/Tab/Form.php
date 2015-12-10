@@ -27,7 +27,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Edit_Tab_Form extends Mage_Ad
      *
      * @access protected
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Edit_Tab_Form
-     * @author Ultimate Module Creator
+     
      */
     protected function _prepareForm()
     {

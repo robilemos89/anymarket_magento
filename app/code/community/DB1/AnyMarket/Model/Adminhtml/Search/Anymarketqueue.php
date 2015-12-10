@@ -28,7 +28,7 @@ class DB1_AnyMarket_Model_Adminhtml_Search_Anymarketqueue extends Varien_Object
      *
      * @access public
      * @return DB1_AnyMarket_Model_Adminhtml_Search_Anymarketqueue
-     * @author Ultimate Module Creator
+     
      */
     public function load()
     {

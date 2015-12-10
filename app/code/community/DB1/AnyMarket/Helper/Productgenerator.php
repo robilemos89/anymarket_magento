@@ -176,6 +176,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
      * 
      */
     public function createConfigurableProduct($dataProdConfig = array() ,$simpleProducts = array(), $AttributeIds = array()){
+        $storeID = Mage::app()->getStore()->getId();
         $confProduct = Mage::getModel('catalog/product')->setSku($dataProdConfig['sku']);
         $confProduct->setTypeId('configurable');
 
@@ -205,7 +206,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
         $confProduct->setConfigurableAttributesData($configurableAttributesData);
 
         $confProduct->setCanSaveConfigurableAttributes(true);
-        $confProduct->setStoreId(0)
+        $confProduct->setStoreId($storeID)
                      ->setAttributeSetId(4)
                      ->setStockData($dataProdConfig['stock'])
                      ->setPrice($dataProdConfig['price'])
@@ -238,7 +239,8 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
      * 
      */
     public function updateConfigurableProduct($idProd, $dataProdConfig = array() ,$simpleProducts = array(), $AttributeIds = array()){
-        $confProduct = Mage::getModel('catalog/product')->load( $idProd );
+        $storeID = Mage::app()->getStore()->getId();
+        $confProduct = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $idProd );
         $confProduct->setTypeId('configurable');
 
         $confProduct->getTypeInstance()->setUsedProductAttributeIds($AttributeIds);
@@ -266,7 +268,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
         $confProduct->setConfigurableProductsData($configurableProductsData);
 //        $confProduct->setConfigurableAttributesData($configurableAttributesData);
         $confProduct->setCanSaveConfigurableAttributes(true);
-        $confProduct->setStoreId(0)
+        $confProduct->setStoreId($storeID)
                      ->setAttributeSetId(4)
                      ->setStockData($dataProdConfig['stock'])
                      ->setPrice($dataProdConfig['price'])

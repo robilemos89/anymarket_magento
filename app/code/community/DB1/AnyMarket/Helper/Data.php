@@ -28,6 +28,36 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * get all store data
+     *
+     * @access public
+     * @return array
+     * 
+     */
+    public function getAllStores($websiteID = null)
+    {
+        $arrStores = array();
+        if(!$websiteID){
+            foreach (Mage::app()->getWebsites() as $website) {
+                foreach ($website->getGroups() as $group) {
+                    $stores = $group->getStores();
+                    foreach ($stores as $store) {
+                        array_push($arrStores, $store->getData());
+                    }
+                }
+            }
+        }else{
+            $website = Mage::getModel('core/website')->load($websiteID);
+
+            foreach ($website->getStoreIds() as $storeid) {
+                $storeDat = Mage::getModel('core/store')->load($storeid);
+                array_push($arrStores, $storeDat->getData());
+            }
+        }
+        return $arrStores;
+    }
+
+    /**
      * call curl
      *
      * @access public
@@ -106,6 +136,7 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function massInsertAttribute(){
         $productAttrs = Mage::getResourceModel('catalog/product_attribute_collection');
+        $storeID = Mage::app()->getStore()->getId();
 
         foreach ($productAttrs as $productAttr) {
             if($productAttr->getFrontendLabel() != null){
@@ -116,6 +147,7 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
                     $anymarketattribute->setNmaIdAttr( $productAttr->getAttributeId() );
                     $anymarketattribute->setNmaDesc( $productAttr->getFrontendLabel() );
                     $anymarketattribute->setStatus( "0" );
+                    $anymarketattribute->setStores(array($storeID));
                     $anymarketattribute->save();
                 }
             }

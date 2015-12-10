@@ -11,8 +11,9 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
      * 
      */
     public function getCategories(){
-        $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', Mage::app()->getStore()->getId());
-        $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', Mage::app()->getStore()->getId());
+        $storeID = Mage::app()->getStore()->getId();
+        $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
+        $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
         $headers = array( 
             "Content-type: application/json",
@@ -51,13 +52,14 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
                         $anymarketcategories->setNmcCatRootId( '000' );
                         $anymarketcategories->setStatus('1');
                         $anymarketcategories->setNmcCatDesc( $category->name );
+                        $anymarketcategories->setStores(array($storeID));
                         $anymarketcategories->save();
                     }else{
                         $anymarketcategoriesUpdt->setNmcCatDesc( $category->name );
                         $anymarketcategoriesUpdt->save();
                     }
 
-                    $this->getChildCat($HOST, $headers, $category->id, $IDCat);
+                    $this->getChildCat($HOST, $headers, $category->id, $IDCat, $storeID);
                 }
 
             }
@@ -75,7 +77,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
      * @return void
      * 
      */
-    private function getChildCat($HOST, $headers, $catID, $IDCatRoot){
+    private function getChildCat($HOST, $headers, $catID, $IDCatRoot, $id_store){
         $returnCatSpecific = $this->CallAPICurl("GET", $HOST."/rest/api/v2/categories/".$catID, $headers, null);
         $CatSpecifivJSON = $returnCatSpecific['return'];
         if($returnCatSpecific['error'] == '0'){
@@ -89,13 +91,14 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
                         $anymarketcategories->setNmcCatRootId( $IDCatRoot );
                         $anymarketcategories->setStatus('1');
                         $anymarketcategories->setNmcCatDesc( $catChild->name );
+                        $anymarketcategories->setStores(array($id_store));
                         $anymarketcategories->save();
                     }else{
                         $anymarketcategoriesUpdt->setNmcCatDesc( $catChild->name );
                         $anymarketcategoriesUpdt->save();
                     }
 
-                    $this->getChildCat($HOST, $headers, $catChild->id, $catChild->id);
+                    $this->getChildCat($HOST, $headers, $catChild->id, $catChild->id, $id_store);
                 }
             }
         }else{

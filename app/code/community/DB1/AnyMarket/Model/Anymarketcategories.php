@@ -49,7 +49,7 @@ class DB1_AnyMarket_Model_Anymarketcategories extends Mage_Core_Model_Abstract
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function _construct()
     {
@@ -62,7 +62,7 @@ class DB1_AnyMarket_Model_Anymarketcategories extends Mage_Core_Model_Abstract
      *
      * @access protected
      * @return DB1_AnyMarket_Model_Anymarketcategories
-     * @author Ultimate Module Creator
+     
      */
     protected function _beforeSave()
     {
@@ -80,7 +80,7 @@ class DB1_AnyMarket_Model_Anymarketcategories extends Mage_Core_Model_Abstract
      *
      * @access public
      * @return DB1_AnyMarket_Model_Anymarketcategories
-     * @author Ultimate Module Creator
+     
      */
     protected function _afterSave()
     {
@@ -92,7 +92,7 @@ class DB1_AnyMarket_Model_Anymarketcategories extends Mage_Core_Model_Abstract
      *
      * @access public
      * @return array
-     * @author Ultimate Module Creator
+     
      */
     public function getDefaultValues()
     {

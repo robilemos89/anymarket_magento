@@ -26,7 +26,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid extends Mage_Adminhtml_B
      * constructor
      *
      * @access public
-     * @author Ultimate Module Creator
+     
      */
     public function __construct()
     {
@@ -43,7 +43,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid extends Mage_Adminhtml_B
      *
      * @access protected
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid
-     * @author Ultimate Module Creator
+     
      */
     protected function _prepareCollection()
     {
@@ -59,7 +59,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid extends Mage_Adminhtml_B
      *
      * @access protected
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid
-     * @author Ultimate Module Creator
+     
      */
     protected function _prepareColumns()
     {
@@ -148,7 +148,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid extends Mage_Adminhtml_B
      *
      * @access protected
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid
-     * @author Ultimate Module Creator
+     
      */
     protected function _prepareMassaction()
     {
@@ -171,7 +171,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid extends Mage_Adminhtml_B
      * @access public
      * @param DB1_AnyMarket_Model_Anymarketqueue
      * @return string
-     * @author Ultimate Module Creator
+     
      */
     public function getRowUrl($row)
     {
@@ -183,7 +183,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid extends Mage_Adminhtml_B
      *
      * @access public
      * @return string
-     * @author Ultimate Module Creator
+     
      */
     public function getGridUrl()
     {
@@ -195,7 +195,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid extends Mage_Adminhtml_B
      *
      * @access protected
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid
-     * @author Ultimate Module Creator
+     
      */
     protected function _afterLoadCollection()
     {
@@ -210,7 +210,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid extends Mage_Adminhtml_B
      * @param DB1_AnyMarket_Model_Resource_Anymarketqueue_Collection $collection
      * @param Mage_Adminhtml_Block_Widget_Grid_Column $column
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid
-     * @author Ultimate Module Creator
+     
      */
     protected function _filterStoreCondition($collection, $column)
     {

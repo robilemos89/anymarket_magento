@@ -44,7 +44,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function indexAction()
     {
@@ -59,7 +59,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function gridAction()
     {
@@ -71,7 +71,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function editAction()
     {
@@ -108,7 +108,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function newAction()
     {
@@ -120,7 +120,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function saveAction()
     {
@@ -165,7 +165,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function deleteAction()
     {
@@ -201,7 +201,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function massDeleteAction()
     {
@@ -236,7 +236,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function massStatusAction()
     {
@@ -273,7 +273,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function exportCsvAction()
     {
@@ -288,7 +288,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function exportExcelAction()
     {
@@ -303,7 +303,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access public
      * @return void
-     * @author Ultimate Module Creator
+     
      */
     public function exportXmlAction()
     {
@@ -318,7 +318,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access protected
      * @return boolean
-     * @author Ultimate Module Creator
+     
      */
     protected function _isAllowed()
     {

@@ -40,6 +40,19 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid extends Mage_Adminhtm
     }
 
     /**
+     * get current store scope
+     *
+     * @access protected
+     * @return store view
+     
+     */
+    protected function _getStore()
+    {
+        $storeId = (int) $this->getRequest()->getParam('store', 0);
+        return Mage::app()->getStore($storeId);
+    }
+
+    /**
      * prepare collection
      *
      * @access protected
@@ -48,6 +61,10 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid extends Mage_Adminhtm
      */
     protected function _prepareCollection()
     {
+        $store_id = $this->_getStore();
+        Mage::app()->setCurrentStore($store_id);
+        $store_id = Mage::app()->getStore()->getId();
+        Mage::getSingleton('core/session')->setStoreListProdVariable($store_id);
         $collection = Mage::getModel('db1_anymarket/anymarketproducts')
             ->getCollection();
         

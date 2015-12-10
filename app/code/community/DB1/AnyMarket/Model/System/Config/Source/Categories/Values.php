@@ -35,9 +35,17 @@ class DB1_AnyMarket_Model_System_Config_Source_Categories_Values extends Mage_Ea
 
     public function getAllOptions()
     {
-        $categories = Mage::getModel('db1_anymarket/anymarketcategories')->getCollection()
-                      ->addFilter('nmc_cat_root_id','000')
-                      ->setOrder('nmc_cat_desc', 'ASC');
+        if (!Mage::app()->isSingleStoreMode()){
+            $store = Mage::app()->getRequest()->getParam('store');
+            $categories = Mage::getModel('db1_anymarket/anymarketcategories')->getCollection()
+                          ->addFilter('nmc_cat_root_id','000')
+                          ->addStoreFilter($store)
+                          ->setOrder('nmc_cat_desc', 'ASC');
+        }else{
+            $categories = Mage::getModel('db1_anymarket/anymarketcategories')->getCollection()
+                          ->addFilter('nmc_cat_root_id','000')
+                          ->setOrder('nmc_cat_desc', 'ASC');
+        }
 
         array_push($this->retornArray, array( 'value' => null, 'label' => ' ' ) );
         foreach($categories as $category) {

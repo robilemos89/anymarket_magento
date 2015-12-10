@@ -27,7 +27,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketqueue extends Mage_Core_Model_Resour
      * constructor
      *
      * @access public
-     * @author Ultimate Module Creator
+     
      */
     public function _construct()
     {
@@ -40,7 +40,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketqueue extends Mage_Core_Model_Resour
      * @access public
      * @param int $anymarketqueueId
      * @return array
-     * @author Ultimate Module Creator
+     
      */
     public function lookupStoreIds($anymarketqueueId)
     {
@@ -57,7 +57,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketqueue extends Mage_Core_Model_Resour
      * @access public
      * @param Mage_Core_Model_Abstract $object
      * @return DB1_AnyMarket_Model_Resource_Anymarketqueue
-     * @author Ultimate Module Creator
+     
      */
     protected function _afterLoad(Mage_Core_Model_Abstract $object)
     {
@@ -99,7 +99,7 @@ class DB1_AnyMarket_Model_Resource_Anymarketqueue extends Mage_Core_Model_Resour
      * @access protected
      * @param Mage_Core_Model_Abstract $object
      * @return DB1_AnyMarket_Model_Resource_Anymarketqueue
-     * @author Ultimate Module Creator
+     
      */
     protected function _afterSave(Mage_Core_Model_Abstract $object)
     {

@@ -21,7 +21,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Edit_Tab_Form extends Ma
      *
      * @access protected
      * @return DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Edit_Tab_Form
-     * @author Ultimate Module Creator
+     
      */
     protected function _prepareForm()
     {
