@@ -253,7 +253,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         if($originData == null || $originData == ''){
            array_push($arrProd, 'AnyMarket_Origin');
         }
-        $this->procAttrConfig($warranty_time, $product->getData( $warranty_time ), 1) ?: array_push($arrProd, 'AnyMarket_WarrantyTime');
+
+        $warrTime = $this->procAttrConfig($warranty_time, $product->getData( $warranty_time ), 1);
+        if($warrTime == null || $warrTime == ''){
+           array_push($arrProd, 'AnyMarket_WarrantyTime');
+        }
 
         if( !empty($arrProd) ){
             $returnProd['error'] = '1';
