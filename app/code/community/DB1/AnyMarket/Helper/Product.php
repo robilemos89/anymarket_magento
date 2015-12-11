@@ -45,11 +45,13 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 	//GERA LOG DOS PRODUTOS
     public function saveLogsProds($returnProd, $product){
         $storeID = Mage::app()->getStore()->getId();
-        $anymarketproductsUpdt = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->getId(), 'nmp_id');        
+        $anymarketproductsUpdt = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->getId(), 'nmp_id');
+
+        $StoreIDAmProd = array_shift(array_values($anymarketproductsUpdt->getData('store_id')));
         $returnMet = "";
         if($returnProd['error'] == '1'){ //RETORNOU ERRO
             $JSONError = $returnProd['return'];
-            if($anymarketproductsUpdt->getData('nmp_sku') == null){
+            if( ($anymarketproductsUpdt->getData('nmp_sku') == null) || ($StoreIDAmProd != $storeID) ){
                 $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts');
                 $anymarketproducts->setNmpId( $product->getId() );
                 $anymarketproducts->setNmpSku( $product->getSku() );
