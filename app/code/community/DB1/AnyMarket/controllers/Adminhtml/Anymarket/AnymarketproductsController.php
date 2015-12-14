@@ -378,7 +378,8 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketproductsController extends DB1_
                 $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts');
                 $anymarketproducts->load($anymarketproductsId);
 
-                $storeID = array_shift(array_values($anymarketproducts->getStoreId()));
+                $arrValueStore = array_values($anymarketproducts->getStoreId());
+                $storeID = array_shift($arrValueStore);
                 Mage::app()->setCurrentStore($storeID);
 
                 $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
