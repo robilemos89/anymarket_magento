@@ -2,6 +2,14 @@
 
 class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 {
+    private function checkArrayAttributes($arrAttr, $key, $value){
+        foreach ($arrAttr as $arrVal) {
+            if( $arrVal[$key] == $value ){
+                return true;
+            }
+        }
+        return false;
+    }
 
     public function getConfigs($IDStore){
         $ConfigsReturn = array(
@@ -249,19 +257,18 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $warranty_text =      Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_warranty_text_field', $storeID);
         $warranty_time =      Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_warranty_time_field', $storeID);
 
-//  CHECA SE AS INFOS ESTAO PREENCHIDAS
         $arrProd = array();
         $product->getData('categoria_anymarket') != null ?: array_push($arrProd, 'AnyMarket_Category');
         $originData = $this->procAttrConfig($nbm_origin, $product->getData( $nbm_origin ), 1);
         if($originData == null || $originData == ''){
            array_push($arrProd, 'AnyMarket_Origin');
         }
-
+/*
         $warrTime = $this->procAttrConfig($warranty_time, $product->getData( $warranty_time ), 1);
         if($warrTime == null || $warrTime == ''){
            array_push($arrProd, 'AnyMarket_WarrantyTime');
         }
-
+*/
         if( !empty($arrProd) ){
             $returnProd['error'] = '1';
             $returnProd['json'] = '';
@@ -422,25 +429,23 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             ->getItems();
 
             $ArrAttributes = array();
-            $ArrAttributesCtrl = array();
             $contIndexAttr = 0;
             foreach ($attributes as $attribute){
-
-                if (!in_array($attribute->getFrontendLabel(), $ArrAttributesCtrl)) {
-                    array_push($ArrAttributesCtrl, $attribute->getFrontendLabel());
-                    $attrCheck =  Mage::getModel('db1_anymarket/anymarketattributes')->load($attribute->getAttributeId(), 'nma_id_attr');
-                    if($attrCheck->getData('nma_id_attr') != null){
-                        if($attrCheck->getData('status') == 1){
-                            if( ($attribute->getAttributeCode() != $brand) && ($attribute->getAttributeCode() != $model) ){
-                                
+                $attrCheck =  Mage::getModel('db1_anymarket/anymarketattributes')->load($attribute->getAttributeId(), 'nma_id_attr');
+                if($attrCheck->getData('nma_id_attr') != null){
+                    if($attrCheck->getData('status') == 1){
+                        if( ($attribute->getAttributeCode() != $brand) && ($attribute->getAttributeCode() != $model) ){
+                            if(!$this->checkArrayAttributes($ArrAttributes, "name", $attribute->getFrontendLabel())){
                                 if($confID == ""){
                                     $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1));
                                     $contIndexAttr = $contIndexAttr+1;
                                 }else{
                                     foreach ($attributesConf as $attributeConf){
                                         if(!in_array($attribute->getAttributeCode(), $attributeConf)){
-                                            $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1));
-                                            $contIndexAttr = $contIndexAttr+1;
+                                            if(!$this->checkArrayAttributes($ArrAttributes, "name", $attribute->getFrontendLabel())){
+                                                $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1));
+                                                $contIndexAttr = $contIndexAttr+1;
+                                            }
                                         }
                                     }
                                 }
