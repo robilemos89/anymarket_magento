@@ -30,7 +30,9 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
             $IdItemQueue = $item['nmq_id'];
 
             $anymarketQueue = Mage::getModel('db1_anymarket/anymarketqueue')->load($item['entity_id']);
-            $storeID = array_shift(array_values($anymarketQueue->getStoreId()));
+
+            $arrValueStore = array_values($anymarketQueue->getStoreId());
+            $storeID = array_shift($arrValueStore);
             Mage::app()->setCurrentStore($storeID);
             $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
             $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
