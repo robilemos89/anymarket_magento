@@ -55,8 +55,13 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $storeID = Mage::app()->getStore()->getId();
         $anymarketproductsUpdt = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->getId(), 'nmp_id');
 
-        $arrValuesProds = array_values($anymarketproductsUpdt->getData('store_id'));
-        $StoreIDAmProd = array_shift($arrValuesProds);
+        if(is_array($anymarketproductsUpdt->getData('store_id'))){
+            $arrValuesProds = array_values($anymarketproductsUpdt->getData('store_id'));
+            $StoreIDAmProd = array_shift($arrValuesProds);
+        }else{
+            $StoreIDAmProd = $anymarketproductsUpdt->getData('store_id');
+        }
+
         $returnMet = "";
         if($returnProd['error'] == '1'){ //RETORNOU ERRO
             $JSONError = $returnProd['return'];
