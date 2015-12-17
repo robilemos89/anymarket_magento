@@ -55,8 +55,13 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $storeID = Mage::app()->getStore()->getId();
         $anymarketproductsUpdt = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->getId(), 'nmp_id');
 
-        $arrValuesProds = array_values($anymarketproductsUpdt->getData('store_id'));
-        $StoreIDAmProd = array_shift($arrValuesProds);
+        if(is_array($anymarketproductsUpdt->getData('store_id'))){
+            $arrValuesProds = array_values($anymarketproductsUpdt->getData('store_id'));
+            $StoreIDAmProd = array_shift($arrValuesProds);
+        }else{
+            $StoreIDAmProd = $anymarketproductsUpdt->getData('store_id');
+        }
+
         $returnMet = "";
         if($returnProd['error'] == '1'){ //RETORNOU ERRO
             $JSONError = $returnProd['return'];
@@ -185,11 +190,15 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $_product = Mage::getModel('catalog/product');
         $attr = $_product->getResource()->getAttribute($attrCode);
 
-        if ($attr->usesSource()) {
-            if($typeProc == 0){
-                return $attr->getSource()->getOptionId((string)$attrVal);
+        if($attr){
+            if ($attr->usesSource()) {
+                if($typeProc == 0){
+                    return $attr->getSource()->getOptionId((string)$attrVal);
+                }else{
+                    return $attr->getSource()->getOptionText($attrVal);
+                }
             }else{
-                return $attr->getSource()->getOptionText($attrVal);
+                return $attrVal;
             }
         }else{
             return $attrVal;
@@ -1080,7 +1089,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         foreach ($ProdsJSON->content as $product) {
                             $anymarketproductsUpdt =  Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->id, 'nmp_id');
                             if(is_array($anymarketproductsUpdt->getData('store_id'))){
-                                $StoreIDAmProd = array_shift(array_values($anymarketproductsUpdt->getData('store_id')));
+                                $varStore = array_values($anymarketproductsUpdt->getData('store_id'));
+                                $StoreIDAmProd = array_shift($varStore);
                             }else{
                                 $StoreIDAmProd = $anymarketproductsUpdt->getData('store_id');
                             }
