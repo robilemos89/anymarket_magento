@@ -378,10 +378,14 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketproductsController extends DB1_
                 $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts');
                 $anymarketproducts->load($anymarketproductsId);
 
-                $arrValueStore = array_values($anymarketproducts->getStoreId());
-                $storeID = array_shift($arrValueStore);
-                Mage::app()->setCurrentStore($storeID);
+                if(is_array($anymarketproducts->getStoreId())){
+                    $arrValueStore = array_values($anymarketproducts->getStoreId());
+                    $storeID = array_shift($arrValueStore);
+                }else{
+                    $storeID = $anymarketproducts->getStoreId();
+                }
 
+                Mage::app()->setCurrentStore($storeID);
                 $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
                 if($typeSincProd == 1){
                     Mage::helper('db1_anymarket/queue')->addQueue($anymarketproducts->getNmpId(), 'IMP', 'PRODUCT');

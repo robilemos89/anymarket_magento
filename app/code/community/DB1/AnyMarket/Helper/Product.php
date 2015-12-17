@@ -131,8 +131,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $ArrtratValue1 = explode("_", $value_1['ctrl']);
                 $ArrtratValue2 = explode("_", $value_2['ctrl']);                
 
-                $tratValue1 = array_shift(array_values($ArrtratValue1));
-                $tratValue2 = array_shift(array_values($ArrtratValue2));
+                $tratval1 = array_values($ArrtratValue1);
+                $tratValue1 = array_shift($tratval1);
+                $tratval2 = array_values($ArrtratValue2);
+                $tratValue2 = array_shift($tratval2);
                 if( $tratValue1 == $tratValue2 ){
                     $hSamVal = true;
                     break;
@@ -1041,7 +1043,12 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                     if (!$parentIds) {
                         $anymarketproductsUpdt =  Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->getId(), 'nmp_id');
-                        $StoreIDAmProd = array_shift(array_values($anymarketproductsUpdt->getData('store_id')));
+                        if(is_array($anymarketproductsUpdt->getData('store_id'))){
+                            $arrvar = array_values($anymarketproductsUpdt->getData('store_id'));
+                            $StoreIDAmProd = array_shift($arrvar);
+                        }else{
+                            $StoreIDAmProd = $anymarketproductsUpdt->getData('store_id');
+                        }
                         if( ($anymarketproductsUpdt->getData('nmp_id') == null) || ($StoreIDAmProd != $storeID) ){
 
                             $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );

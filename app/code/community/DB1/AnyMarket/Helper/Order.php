@@ -463,7 +463,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     if(isset($TracCodeArr[$TrCarrier]) ){
                         $trackmodel = Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId, $TrCarrier, $TrCarrier, $TrNumber);
                     }else{
-                        $trackmodel = Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId,  array_shift(array_keys($TracCodeArr)), 'Não Econtrado('.$TrCarrier.')', $TrNumber);
+                        $arrVar = array_keys($TracCodeArr);
+                        $trackmodel = Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId,  array_shift($arrVar), 'Não Econtrado('.$TrCarrier.')', $TrNumber);
                     }
                 }
             }
