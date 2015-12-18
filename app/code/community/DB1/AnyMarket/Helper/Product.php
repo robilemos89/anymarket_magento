@@ -115,9 +115,17 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         }
 
         $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-        $anymarketlog->setLogDesc( $returnMet );
+        if(is_array($returnMet)){
+            $anymarketlog->setLogDesc( json_encode($returnMet) );
+        }else{
+            $anymarketlog->setLogDesc( $returnMet );
+        }
         $anymarketlog->setLogId( $product->getSku() );
-        $anymarketlog->setLogJson( $returnProd['json'] );
+        if(is_array($returnProd['json'])){
+            $anymarketlog->setLogJson( json_encode($returnProd['json']) );
+        }else{
+            $anymarketlog->setLogJson( $returnProd['json'] );
+        }
         $anymarketlog->setStatus("1");
         $anymarketlog->setStores(array($storeID));
         $anymarketlog->save();
