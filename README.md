@@ -20,10 +20,6 @@ Instalação
  - Faça o logof e logue novamente
  - Estará disponível a opção **Sistema > AnyMarket** (System > AnyMarket)
  
-Desinstalação
-----------
-Siga as instruções da pasta **uninstall**
- 
 Requisitos mínimos
 ------------------
  - [PHP] 5.4+
