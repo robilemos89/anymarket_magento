@@ -7,6 +7,9 @@ class DB1_AnyMarket_Model_Observer {
         if( $ExportProdSession != 'false' ) {
            	$productOld = $observer->getEvent()->getProduct();
             $storeID = $productOld->getStoreId();
+            if($storeID == null){
+                $storeID = 0;
+            }
 
             $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($productOld->getId());
 
@@ -93,6 +96,10 @@ class DB1_AnyMarket_Model_Observer {
             $_item = $event->getItem();
 
             $storeID = $_item->getData('store_id');
+            if($storeID == null){
+                $storeID = 0;
+            }
+
             Mage::app()->setCurrentStore($storeID);
             $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
             if($typeSincProd == 0){
@@ -148,6 +155,9 @@ class DB1_AnyMarket_Model_Observer {
         $creditmemo = $observer->getEvent()->getCreditmemo();
 
         $storeID = $creditmemo->getStoreId();
+        if($storeID == null){
+            $storeID = 0;
+        }
         Mage::app()->setCurrentStore($storeID);
 
         $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
