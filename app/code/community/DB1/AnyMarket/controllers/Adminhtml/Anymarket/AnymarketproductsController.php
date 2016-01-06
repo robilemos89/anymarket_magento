@@ -424,10 +424,12 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketproductsController extends DB1_
                     $anymarketproducts->setStatus('1')->setIsMassupdate(true)->save();
 
                     $product = Mage::getModel('catalog/product')->loadByAttribute('sku', $anymarketproducts->getNmpSku());
-                    $productID = $product->getId();
+                    if($product){
+                        $productID = $product->getId();
 
-                    $product->setIntegraAnymarket( $this->getRequest()->getParam('status') );
-                    $product->save();
+                        $product->setIntegraAnymarket( $this->getRequest()->getParam('status') );
+                        $product->save();
+                    }
                 }
                 $this->_getSession()->addSuccess(
                     $this->__('Total of %d anymarket products were successfully updated.', count($anymarketproductsIds))
