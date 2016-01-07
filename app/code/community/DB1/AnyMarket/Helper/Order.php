@@ -67,7 +67,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @return order
      * 
      */
-    private function create_order($products, $customer, $IDAnyMarket, $IDSeqAnyMarket, $infoMetPag, $Billing, $Shipping)
+    private function create_order($products, $customer, $IDAnyMarket, $IDSeqAnyMarket, $infoMetPag, $Billing, $Shipping, $shippValue)
     {
         $orderGenerator = Mage::helper('db1_anymarket/ordergenerator');
         $orderGenerator->_storeId = 1;
@@ -75,6 +75,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         $orderGenerator->setShippingMethod('freeshipping_freeshipping');
         $orderGenerator->setPaymentMethod('db1_anymarket');
         $orderGenerator->setAdditionalInformation($infoMetPag);
+        $orderGenerator->setShippingValue($shippValue);
         $orderGenerator->setShipAddress($Shipping);
         $orderGenerator->setBillAddress($Billing);
         $orderGenerator->setCustomer($customer);
@@ -351,7 +352,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             }
 
                             if ( $OrderJSON->shipping->zipCode != null ) {
-                                $OrderIDMage = $this->create_order($_products, $customer, $IDOrderAnyMarket, $idSeqAnyMarket, $infoMetPag, $AddressShipBill, $AddressShipBill);
+                                $OrderIDMage = $this->create_order($_products, $customer, $IDOrderAnyMarket, $idSeqAnyMarket, $infoMetPag, $AddressShipBill, $AddressShipBill, $OrderJSON->shipValue);
                                 $OrderCheck = Mage::getModel('sales/order')->loadByIncrementId($OrderIDMage);
 
                                 if( $OrderCheck->getId() ){

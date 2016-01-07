@@ -10,12 +10,18 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
     protected $_shippingDescription = 'À Combinar - A forma de entrega será definida no momento do fechamento do pedido.'; //ALTERADO POR JOSE EDUARDO
     protected $_billing = null;
     protected $_shipping = null;
+    protected $_shippingValue = 0;
 
     protected $_customer = self::CUSTOMER_RANDOM;
 
     protected $_subTotal = 0;
     protected $_order;
     public $_storeId;
+
+    public function setShippingValue($value)
+    {
+        $this->_shippingValue = $value;
+    }
 
     public function setShippingMethod($methodName)
     {
@@ -107,7 +113,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
             ->setStoreId($this->_storeId)
             ->setQuoteId(0)
             ->setDiscountAmount(0)
-            ->setShippingAmount(0)
+            ->setShippingAmount((float)$this->_shippingValue)//
             ->setShippingTaxAmount(0)
             ->setBaseDiscountAmount(0)
             ->setIsVirtual(0)
@@ -118,7 +124,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
             ->setBaseToOrderRate(1)
             ->setStoreToBaseRate(1)
             ->setStoreToOrderRate(1)
-            ->setTaxAmount(1)
+            ->setTaxAmount(0)//
             ->setGlobalCurrencyCode($currencyCode)
             ->setBaseCurrencyCode($currencyCode)
             ->setStoreCurrencyCode($currencyCode)
@@ -203,7 +209,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
 
         $this->_order->setSubtotal($this->_subTotal)
             ->setBaseSubtotal($this->_subTotal)
-            ->setGrandTotal($this->_subTotal)
+            ->setGrandTotal( (float)$this->_subTotal+(float)$this->_shippingValue )
             ->setBaseGrandTotal($this->_subTotal);
 
         $transaction->addObject($this->_order);

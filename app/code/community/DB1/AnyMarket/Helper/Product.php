@@ -50,7 +50,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         return trim($descComplete);
     }
 
-	//GERA LOG DOS PRODUTOS
+    //GERA LOG DOS PRODUTOS
     public function saveLogsProds($returnProd, $product){
         $storeID = Mage::app()->getStore()->getId();
         $anymarketproductsUpdt = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->getId(), 'nmp_id');
@@ -256,7 +256,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         }
     }
 
-	//ENVIA PRODUTO PARA O ANYMARKET
+    //ENVIA PRODUTO PARA O ANYMARKET
     public function sendProductToAnyMarket($idProduct){
         //obter configuracoes
         $storeID = Mage::app()->getStore()->getId();
@@ -277,17 +277,18 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $warranty_time =      Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_warranty_time_field', $storeID);
 
         $arrProd = array();
-        $product->getData('categoria_anymarket') != null ?: array_push($arrProd, 'AnyMarket_Category');
+        // verifica categoria null ou em branco
+        $categProd = $product->getData('categoria_anymarket');
+        if($categProd == null || $categProd == ''){
+            array_push($arrProd, 'AnyMarket_Category');
+        }
+
+        // verifica Origin null ou em branco
         $originData = $this->procAttrConfig($nbm_origin, $product->getData( $nbm_origin ), 1);
         if($originData == null || $originData == ''){
            array_push($arrProd, 'AnyMarket_Origin');
         }
-/*
-        $warrTime = $this->procAttrConfig($warranty_time, $product->getData( $warranty_time ), 1);
-        if($warrTime == null || $warrTime == ''){
-           array_push($arrProd, 'AnyMarket_WarrantyTime');
-        }
-*/
+
         if( !empty($arrProd) ){
             $returnProd['error'] = '1';
             $returnProd['json'] = '';
@@ -300,6 +301,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product with inconsistency:').$emptyFields;
             $this->saveLogsProds($returnProd, $product);
         }else{
+            $arrProd = array();
+
             $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
             $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
@@ -379,6 +382,13 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                     $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                     $stkPrice = $SimpleConfigProd->getData($filter);
+                    // verificacao dos dados de price
+                    if(($stkPrice == null) || ($stkPrice == '') || ((float)$stkPrice <= 0)){
+                        array_push($arrProd, 'Price');
+                    }
+
+                    $simpConfProdSku = $SimpleConfigProd->getSku();
+
                     $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($SimpleConfigProd);
                     $ArrSimpleConfigProd[] = array(
                         "urlImages" => $itemsIMGSimp,
@@ -389,7 +399,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         "id" => null,
                         "title" => $SimpleConfigProd->getName(),
                         "idProduct" => null,
-                        "internalId" => $SimpleConfigProd->getSku(),
+                        "internalId" => $simpConfProdSku,
                     );
 
                 }
@@ -409,6 +419,12 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                 $stkPrice = $product->getData($filter);
+
+                // verificacao dos dados de price
+                if(($stkPrice == null) || ($stkPrice == '')  || ((float)$stkPrice <= 0)){
+                    array_push($arrProd, 'Price');
+                }
+
                 $ArrSimpleConfigProd[] = array(
                     "urlImages" => null,
                     "variationValues" => null,
@@ -518,55 +534,68 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 "variations" => $ArrayVariations
             );
 
-            if( ($product->getData('id_anymarket') == '') || ($product->getData('id_anymarket') == '0') ){
-                $returnProd = $this->CallAPICurl("POST", $HOST."/rest/api/v1/products/", $headers, $param);
-     
-                $IDinAnymarket = '0';
-                if($returnProd['error'] != '1'){
-                    $SaveLog = $returnProd['return'];
-                    $IDinAnymarket = json_encode($SaveLog->id);
+            if( !empty($arrProd) ){
+                $returnProd['error'] = '1';
+                $returnProd['json'] = '';
 
-                    if($IDinAnymarket != '0'){
-                        $product->setIdAnymarket($IDinAnymarket);
-                    }
-                    $product->save();
+                $emptyFields = ' ';
+                foreach ($arrProd as $field) {
+                    $emptyFields .= $field.', ';
+                }
 
-                    if($product->getTypeID() == "configurable"){
-                        $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
+                $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product with inconsistency:').$emptyFields;
+                $this->saveLogsProds($returnProd, $product);
+            }else{
+                if( ($product->getData('id_anymarket') == '') || ($product->getData('id_anymarket') == '0') ){
+                    $returnProd = $this->CallAPICurl("POST", $HOST."/rest/api/v1/products/", $headers, $param);
+         
+                    $IDinAnymarket = '0';
+                    if($returnProd['error'] != '1'){
+                        $SaveLog = $returnProd['return'];
+                        $IDinAnymarket = json_encode($SaveLog->id);
 
-                        foreach($childProducts as $child) {
-                            $productC = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $child->getId() );
-
-                            if($productC->getIntegraAnymarket() != '1'){
-                                $productC->setIntegraAnymarket('1');
-                            }
-                            if($IDinAnymarket != '0'){
-                                $productC->setIdAnymarket($IDinAnymarket);
-                            }
-                            $productC->save();
+                        if($IDinAnymarket != '0'){
+                            $product->setIdAnymarket($IDinAnymarket);
                         }
-                    }
+                        $product->save();
 
-                    if($IDinAnymarket != '0'){
-                        $this->saveLogsProds($returnProd, $product);
+                        if($product->getTypeID() == "configurable"){
+                            $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
+
+                            foreach($childProducts as $child) {
+                                $productC = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $child->getId() );
+
+                                if($productC->getIntegraAnymarket() != '1'){
+                                    $productC->setIntegraAnymarket('1');
+                                }
+                                if($IDinAnymarket != '0'){
+                                    $productC->setIdAnymarket($IDinAnymarket);
+                                }
+                                $productC->save();
+                            }
+                        }
+
+                        if($IDinAnymarket != '0'){
+                            $this->saveLogsProds($returnProd, $product);
+                        }else{
+                            $returnProd['error'] = '1';
+                            $returnProd['return'] = Mage::helper('db1_anymarket')->__('Error synchronizing, code anymarket invalid.');
+                            $this->saveLogsProds($returnProd, $product);
+                        }                    
+
                     }else{
-                        $returnProd['error'] = '1';
-                        $returnProd['return'] = Mage::helper('db1_anymarket')->__('Error synchronizing, code anymarket invalid.');
                         $this->saveLogsProds($returnProd, $product);
-                    }                    
+                    }
 
                 }else{
+                    $returnProd = $this->CallAPICurl("PUT", $HOST."/rest/api/v1/products/".$product->getData('id_anymarket'), $headers, $param);
+
+                    if($returnProd['error'] == '0'){
+                        $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product Updated');
+                    }
+                    
                     $this->saveLogsProds($returnProd, $product);
                 }
-
-            }else{
-                $returnProd = $this->CallAPICurl("PUT", $HOST."/rest/api/v1/products/".$product->getData('id_anymarket'), $headers, $param);
-
-                if($returnProd['error'] == '0'){
-                    $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product Updated');
-                }
-                
-                $this->saveLogsProds($returnProd, $product);
             }
         }
 
