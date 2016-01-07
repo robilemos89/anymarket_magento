@@ -28,6 +28,23 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * get substring between two caracter
+     *
+     * @access public
+     * @return string
+     * 
+     */
+    public function getBetweenCaract($content, $start, $end)
+    {
+        $r = explode($start, $content);
+        if (isset($r[1])){
+            $r = explode($end, $r[1]);
+            return $r[0];
+        }
+        return '';
+    }
+
+    /**
      * get all store data
      *
      * @access public

@@ -289,8 +289,22 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
            array_push($arrProd, 'AnyMarket_Origin');
         }
 
-        //validacao de tipos de campo
-        //nao deixar bater 2x o mesmo erro
+        //trata para nao enviar novamente solicitacao quando o erro for o mesmo
+        $prodErrorCtrl = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)
+                                                                          ->load($product->getId(), 'nmp_id');
+        if( $prodErrorCtrl->getData('nmp_id') != null ){
+            $descError = $prodErrorCtrl->getData('nmp_desc_error');
+
+            // Trata para nao ficar disparando em cima da Duplicadade de SKU
+            $mesgDuplSku = strrpos($descError, "Duplicidade de SKU:");
+            if ($mesgDuplSku !== false) {
+                $oldSkuErr = $this->getBetweenCaract($descError, '"', '"');
+
+                if($oldSkuErr == $product->getSku()){
+                    array_push($arrProd, Mage::helper('db1_anymarket')->__('Already existing SKU in anymarket').' ('.$oldSkuErr.')');
+                }
+            }
+        }
 
         if( !empty($arrProd) ){
             $returnProd['error'] = '1';

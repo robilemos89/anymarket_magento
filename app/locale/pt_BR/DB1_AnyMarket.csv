@@ -28,6 +28,7 @@
 "CSV","CSV"
 "Kilogram","Quilograma"
 "Gram","Grama"
+"Already existing SKU in anymarket","SKU ja existente no Anymarket"
 "Product with inconsistency:","Produto com inconsistência:"
 "Document Type (Customer)","Tipo de Documento (Cliente)"
 "Customer group that will be registered when imported from Anymarket.","Grupo de cliente que irá ser cadastrado quando importado do Anymarket."
