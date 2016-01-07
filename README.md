@@ -1,6 +1,10 @@
 Módulo de integração AnyMarket e Magento
 ===========================================
 ---
+Versão atual:
+---------
+2.3.0
+
 Descrição
 ---------
 Olá! Com o módulo de integração [AnyMarket] instalado e configurado será possível a integração automática de:

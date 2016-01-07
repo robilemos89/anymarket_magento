@@ -28,6 +28,23 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * get substring between two caracter
+     *
+     * @access public
+     * @return string
+     * 
+     */
+    public function getBetweenCaract($content, $start, $end)
+    {
+        $r = explode($start, $content);
+        if (isset($r[1])){
+            $r = explode($end, $r[1]);
+            return $r[0];
+        }
+        return '';
+    }
+
+    /**
      * get all store data
      *
      * @access public
@@ -95,8 +112,27 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
             if($err){
                 $retorno = array("error" => "1", "json" => $data_string,"return" => 'Error Curl: '.$err );
             }else{
-                $retCurlResp = utf8_encode($curl_response);
-                $retorno = array("error" => "1", "json" => $data_string, "return" => 'Error Execute: '.$retCurlResp );
+                $retJsonCurlResp = json_decode($curl_response);
+
+                $retString = '';
+                if( isset($retJsonCurlResp->message) ){
+                    $retString = 'Message: '.utf8_encode($retJsonCurlResp->message);
+                }
+
+                if( isset($retJsonCurlResp->details) ){
+                    $retString .= '; Details: '.utf8_encode($retJsonCurlResp->details);
+                }
+
+                if( isset($retJsonCurlResp->fieldErrors) ){
+                    $retString .= '; Field Erros: (';
+                    foreach ($retJsonCurlResp->fieldErrors as $error) {
+                        $retString .= 'Field: '.utf8_encode($error->field);
+                        $retString .= ', Message: '.utf8_encode($error->message).';';
+                    }
+                    $retString .= ')';
+                }
+
+                $retorno = array("error" => "1", "json" => $data_string, "return" => $retString );
             }
 
         }

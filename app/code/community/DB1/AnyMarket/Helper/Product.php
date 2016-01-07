@@ -289,6 +289,23 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
            array_push($arrProd, 'AnyMarket_Origin');
         }
 
+        //trata para nao enviar novamente solicitacao quando o erro for o mesmo
+        $prodErrorCtrl = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)
+                                                                          ->load($product->getId(), 'nmp_id');
+        if( $prodErrorCtrl->getData('nmp_id') != null ){
+            $descError = $prodErrorCtrl->getData('nmp_desc_error');
+
+            // Trata para nao ficar disparando em cima da Duplicadade de SKU
+            $mesgDuplSku = strrpos($descError, "Duplicidade de SKU:");
+            if ($mesgDuplSku !== false) {
+                $oldSkuErr = $this->getBetweenCaract($descError, '"', '"');
+
+                if($oldSkuErr == $product->getSku()){
+                    array_push($arrProd, Mage::helper('db1_anymarket')->__('Already existing SKU in anymarket').' ('.$oldSkuErr.')');
+                }
+            }
+        }
+
         if( !empty($arrProd) ){
             $returnProd['error'] = '1';
             $returnProd['json'] = '';
@@ -300,6 +317,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
             $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product with inconsistency:').$emptyFields;
             $this->saveLogsProds($returnProd, $product);
+
+            return false;
         }else{
             $arrProd = array();
 
@@ -354,7 +373,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     $galleryDataSimp = $SimpleConfigProd->getMediaGalleryImages();
                     $itemsIMGSimp = array();
                     foreach($galleryDataSimp as $g_imageSimp) {
-                        $itemsIMGSimp[] = $g_imageSimp['url'];
+                        $infoImg = getimagesize($g_imageSimp['url']);
+                        $imgSize = filesize($g_imageSimp['path']);
+
+                        if( (float)$infoImg[0] < 400 || (float)$infoImg[1] < 400 || $imgSize > 4100000 ){
+                            array_push($arrProd, 'Image('.$g_imageSimp['url'].')');
+                        }else{
+                            $itemsIMGSimp[] = $g_imageSimp['url'];
+                        }
                     }
 
                     //obtem os atributos
@@ -388,6 +414,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     }
 
                     $simpConfProdSku = $SimpleConfigProd->getSku();
+                    // verificacao dos dados de SKU
+                    $cValid = array('-', '_'); 
+                    if(!ctype_alnum(str_replace($cValid, '', $simpConfProdSku))) { 
+                        array_push($arrProd, 'SKU');
+                    }
 
                     $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($SimpleConfigProd);
                     $ArrSimpleConfigProd[] = array(
@@ -410,7 +441,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $itemsIMG = array();
             $galleryData = $product->getMediaGalleryImages();
             foreach($galleryData as $g_image) {
-                $itemsIMG[] = $g_image['url'];
+                $infoImg = getimagesize($g_image['url']);
+                $imgSize = filesize($g_image['path']);
+
+                if( (float)$infoImg[0] < 400 || (float)$infoImg[1] < 400 || $imgSize > 4100000 ){
+                    array_push($arrProd, 'Image('.$g_image['url'].')');
+                }else{
+                    $itemsIMG[] = $g_image['url'];
+                }
             }
 
             //ajusta o array de skus
@@ -425,6 +463,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     array_push($arrProd, 'Price');
                 }
 
+                $prodSkuJ = $product->getSku();
+
+                // verificacao dos dados de SKU
+                $cValid = array('-', '_'); 
+                if(!ctype_alnum(str_replace($cValid, '', $prodSkuJ))) { 
+                    array_push($arrProd, 'SKU');
+                }
+
                 $ArrSimpleConfigProd[] = array(
                     "urlImages" => null,
                     "variationValues" => null,
@@ -434,7 +480,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     "id" => null,
                     "title" => $product->getName(),
                     "idProduct" => null,
-                    "internalId" => $product->getSku(),
+                    "internalId" => $prodSkuJ,
                 );
 
                 $ArrayVariations = null;
@@ -545,6 +591,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product with inconsistency:').$emptyFields;
                 $this->saveLogsProds($returnProd, $product);
+
+                return false;
             }else{
                 if( ($product->getData('id_anymarket') == '') || ($product->getData('id_anymarket') == '0') ){
                     $returnProd = $this->CallAPICurl("POST", $HOST."/rest/api/v1/products/", $headers, $param);
@@ -596,6 +644,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     
                     $this->saveLogsProds($returnProd, $product);
                 }
+                return true;
             }
         }
 
