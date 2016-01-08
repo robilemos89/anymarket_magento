@@ -132,7 +132,11 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
                     $retString .= ')';
                 }
 
-                $retorno = array("error" => "1", "json" => $data_string, "return" => $retString );
+                if($retString != ''){
+                    $retorno = array("error" => "1", "json" => $data_string, "return" => $retString );
+                }else{
+                    $retorno = array("error" => "1", "json" => $data_string, "return" => utf8_encode($curl_response) );
+                }
             }
 
         }
