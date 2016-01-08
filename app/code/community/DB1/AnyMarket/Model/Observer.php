@@ -12,39 +12,38 @@ class DB1_AnyMarket_Model_Observer {
             }
 
             $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($productOld->getId());
+            if( $product->getData('integra_anymarket') == 1 ){
+               	$sincronize = false;
+                $parentIds = null;
+               	if($product->getTypeID() == "configurable"){
+                    if($product->getStatus() == 1){ //se nao esta com o status enabled
+                        Mage::getModel('catalog/product_type_configurable')->getProduct($product)->unsetData('_cache_instance_products');
+                   		$childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
 
-           	$sincronize = false;
-            $parentIds = null;
-           	if($product->getTypeID() == "configurable"){
-                if($product->getStatus() == 1){ //se nao esta com o status enabled
-                    Mage::getModel('catalog/product_type_configurable')->getProduct($product)->unsetData('_cache_instance_products');
-               		$childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
+                   		if(count($childProducts) > 0){
+                   			$sincronize = true;
+                   		}
+                    }
+               	}else{
+                    if($product->getStatus() == 1){ //se nao esta com o status enabled
+                        if($product->getVisibility() == 1){ //nao exibido individualmente
+                            $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
 
-               		if(count($childProducts) > 0){
-               			$sincronize = true;
-               		}
-                }
-           	}else{
-                if($product->getStatus() == 1){ //se nao esta com o status enabled
-                    if($product->getVisibility() == 1){ //nao exibido individualmente
-                        $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
-
-                        if ($parentIds) {
-                            $sincronize = true;
-                        }else if( $product->getTypeID() != 'simple'){
+                            if ($parentIds) {
+                                $sincronize = true;
+                            }else if( $product->getTypeID() != 'simple'){
+                                $sincronize = true;
+                                $parentIds = 0;
+                            }
+                        }else{
                             $sincronize = true;
                             $parentIds = 0;
                         }
-                    }else{
-                        $sincronize = true;
-                        $parentIds = 0;
                     }
-                }
 
-           	}
+               	}
 
-           	if($sincronize == true){
-              	if( $product->getData('integra_anymarket') == 1 ){
+               	if($sincronize == true){
                     Mage::app()->setCurrentStore($storeID);
 
                     $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
@@ -61,9 +60,8 @@ class DB1_AnyMarket_Model_Observer {
                             }
                         }
                     }
-      	        }
-
-         	}
+             	}
+            }
         }
 
     }
