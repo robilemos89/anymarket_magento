@@ -141,8 +141,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketlog_Grid extends Mage_Adminhtml_Blo
      */
     public function getRowUrl($row)
     {
-//        return $this->getUrl('*/*/edit', array('id' => $row->getId()));
-        return null;
+        return $this->getUrl('*/*/edit', array('id' => $row->getId()));
     }
 
     /**

@@ -57,19 +57,6 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketlog_Edit_Tabs extends Mage_Adminhtm
                 ->toHtml(),
             )
         );
-        if (!Mage::app()->isSingleStoreMode()) {
-            $this->addTab(
-                'form_store_anymarketlog',
-                array(
-                    'label'   => Mage::helper('db1_anymarket')->__('Store views'),
-                    'title'   => Mage::helper('db1_anymarket')->__('Store views'),
-                    'content' => $this->getLayout()->createBlock(
-                        'db1_anymarket/adminhtml_anymarketlog_edit_tab_stores'
-                    )
-                    ->toHtml(),
-                )
-            );
-        }
         return parent::_beforeToHtml();
     }
 
