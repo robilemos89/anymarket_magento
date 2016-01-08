@@ -301,7 +301,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $oldSkuErr = $this->getBetweenCaract($descError, '"', '"');
 
                 if($oldSkuErr == $product->getSku()){
-                    array_push($arrProd, Mage::helper('db1_anymarket')->__('Already existing SKU in anymarket').' ('.$oldSkuErr.')');
+                    array_push($arrProd, 'Duplicidade de SKU: '.Mage::helper('db1_anymarket')->__('Already existing SKU in anymarket').' "'.$oldSkuErr.'".');
                 }
             }
         }
