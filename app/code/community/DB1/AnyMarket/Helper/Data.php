@@ -28,6 +28,22 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * check if module is enabled
+     *
+     * @access public
+     * @return boolean
+     * 
+     */
+    public function anymarketModuleIsEnabled()
+    {
+        $outputPath = "advanced/modules_disable_output/DB1_AnyMarket";
+
+        $enableConfig = new Mage_Core_Model_Config();
+        $enableConfig->saveConfig($outputPath, "1");
+        unset($enableConfig);
+    }
+
+    /**
      * get substring between two caracter
      *
      * @access public
