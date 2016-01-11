@@ -47,13 +47,15 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                         //Import
                         if( $anymarketorders->getNmoStatusInt() != "Não integrado (Magento)") {
                             $idAnyMarket = $anymarketorders->getNmoIdSeqAnymarket();
-                            $IDOrderAnyMarket = $anymarketorders->getNmoIdAnymarket();
-                            $idReg = $anymarketorders->getId();
-                            $idOrderMage = $anymarketorders->getNmoIdOrder();
+                            if($idAnyMarket){
+                                $IDOrderAnyMarket = $anymarketorders->getNmoIdAnymarket();
+                                $idReg = $anymarketorders->getId();
+                                $idOrderMage = $anymarketorders->getNmoIdOrder();
 
-                            $anymarketordersDel = Mage::getModel('db1_anymarket/anymarketorders');
-                            $anymarketordersDel->setId( $idReg )->delete();
-                            Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($idAnyMarket, $IDOrderAnyMarket, $idOrderMage);
+                                $anymarketordersDel = Mage::getModel('db1_anymarket/anymarketorders');
+                                $anymarketordersDel->setId( $idReg )->delete();
+                                Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($idAnyMarket, $IDOrderAnyMarket, $idOrderMage);
+                            }
                         }
 
                     }else{
