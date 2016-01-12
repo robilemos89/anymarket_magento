@@ -54,6 +54,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
 
                                 $anymarketordersDel = Mage::getModel('db1_anymarket/anymarketorders');
                                 $anymarketordersDel->setId( $idReg )->delete();
+    
                                 Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($idAnyMarket, $IDOrderAnyMarket, $idOrderMage);
                             }
                         }
