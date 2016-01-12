@@ -88,6 +88,9 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketordersController extends DB1_An
      */
     public function listOrdersAction()
     {
+        $storeID = Mage::getSingleton('core/session')->getStoreListOrderVariable();
+        Mage::app()->setCurrentStore($storeID);
+
         $count = Mage::helper('db1_anymarket/order')->listOrdersFromAnyMarketMagento();
 
         Mage::getSingleton('adminhtml/session')->addSuccess(
@@ -114,6 +117,9 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketordersController extends DB1_An
             try {
                 $cont = 0;
                 Mage::getSingleton('core/session')->setImportOrdersVariable('true');
+                $storeID = Mage::getSingleton('core/session')->getStoreListOrderVariable();
+                Mage::app()->setCurrentStore($storeID);
+
                 foreach ($anymarketOrdersIds as $anymarketOrderId) {
                     $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
                     $anymarketorders->load($anymarketOrderId);

@@ -22,7 +22,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $OrderReturn = $StatusOrderRow['orderStatusMG'];
                         break;
                     }
-
                 }
             }
         }
@@ -300,7 +299,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                             ),  
                                             'city' => $OrderJSON->shipping->city,
                                             'country_id' => 'BR',
-                                            'region_id' => '12', //precisa arrumar aqui
+                                            'region_id' => '12',
                                             'region' => $OrderJSON->shipping->state,
                                             'postcode' => $OrderJSON->shipping->zipCode,
                                             'telephone' => $OrderJSON->buyer->phone,
@@ -391,6 +390,22 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $anymarketorders->setNmoIdOrder('');
                         $anymarketorders->save();
                     }
+                }else{
+                    $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
+                    $anymarketorders->setStatus("0");
+                    $anymarketorders->setNmoStatusInt('ERROR 01');
+                    $anymarketorders->setNmoDescError('Not registered product in magento.');
+                    $anymarketorders->setNmoIdSeqAnymarket($idSeqAnyMarket);
+                    $anymarketorders->setNmoIdAnymarket( $IDOrderAnyMarket );
+                    $anymarketorders->setNmoIdOrder('');
+                    $anymarketorders->setStores(array($storeID));
+                    $anymarketorders->save();
+
+                    $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                    $anymarketlog->setLogDesc('Not registered product in magento.');
+                    $anymarketlog->setLogId( $IDOrderAnyMarket ); 
+                    $anymarketlog->setStatus("1");
+                    $anymarketlog->save();                    
                 }
             }else{
                 $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');

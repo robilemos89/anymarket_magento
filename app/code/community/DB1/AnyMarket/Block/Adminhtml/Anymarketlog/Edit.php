@@ -35,30 +35,9 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketlog_Edit extends Mage_Adminhtml_Blo
         parent::__construct();
         $this->_blockGroup = 'db1_anymarket';
         $this->_controller = 'adminhtml_anymarketlog';
-        $this->_updateButton(
-            'save',
-            'label',
-            Mage::helper('db1_anymarket')->__('Save AnyMarket Log')
-        );
-        $this->_updateButton(
-            'delete',
-            'label',
-            Mage::helper('db1_anymarket')->__('Delete AnyMarket Log')
-        );
-        $this->_addButton(
-            'saveandcontinue',
-            array(
-                'label'   => Mage::helper('db1_anymarket')->__('Save And Continue Edit'),
-                'onclick' => 'saveAndContinueEdit()',
-                'class'   => 'save',
-            ),
-            -100
-        );
-        $this->_formScripts[] = "
-            function saveAndContinueEdit() {
-                editForm.submit($('edit_form').action+'back/edit/');
-            }
-        ";
+        $this->_removeButton('save');
+        $this->_removeButton('delete');
+        $this->_removeButton('reset');
     }
 
     /**
@@ -71,12 +50,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketlog_Edit extends Mage_Adminhtml_Blo
     public function getHeaderText()
     {
         if (Mage::registry('current_anymarketlog') && Mage::registry('current_anymarketlog')->getId()) {
-            return Mage::helper('db1_anymarket')->__(
-                "Edit AnyMarket Log '%s'",
-                $this->escapeHtml(Mage::registry('current_anymarketlog')->getLogDesc())
-            );
-        } else {
-            return Mage::helper('db1_anymarket')->__('Add AnyMarket Log');
+            return Mage::helper('db1_anymarket')->__('Log of ID Order/Product: '.  $this->escapeHtml(Mage::registry('current_anymarketlog')->getLogId()));
         }
     }
 }

@@ -42,33 +42,35 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketlog_Edit_Tab_Form extends Mage_Admi
         );
 
         $fieldset->addField(
-            'log_desc',
+            'created_at',
             'text',
+            array(
+                'label' => Mage::helper('db1_anymarket')->__('Created At'),
+                'name'  => 'created_at',
+            'readonly' => true,
+           )
+        );
+
+        $fieldset->addField(
+            'log_desc',
+            'textarea',
             array(
                 'label' => Mage::helper('db1_anymarket')->__('Log Description'),
                 'name'  => 'log_desc',
-            'required'  => true,
-            'class' => 'required-entry',
-
+            'readonly' => true,
+            'style'   => "width: 600px",
            )
         );
+
         $fieldset->addField(
-            'status',
-            'select',
+            'log_json',
+            'textarea',
             array(
-                'label'  => Mage::helper('db1_anymarket')->__('Status'),
-                'name'   => 'status',
-                'values' => array(
-                    array(
-                        'value' => 1,
-                        'label' => Mage::helper('db1_anymarket')->__('Enabled'),
-                    ),
-                    array(
-                        'value' => 0,
-                        'label' => Mage::helper('db1_anymarket')->__('Disabled'),
-                    ),
-                ),
-            )
+                'label' => Mage::helper('db1_anymarket')->__('JSON'),
+                'name'  => 'log_json',
+            'readonly' => true,
+            'style'   => "width: 600px",
+           )
         );
         if (Mage::app()->isSingleStoreMode()) {
             $fieldset->addField(
