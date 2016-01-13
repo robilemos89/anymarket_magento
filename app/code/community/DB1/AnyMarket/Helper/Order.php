@@ -223,19 +223,23 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         if($returnProd['error'] == '0'){
                             Mage::helper('db1_anymarket/product')->createProducts($ProdsJSON);
 
-                            $productLoaded = Mage::getModel('catalog/product')->loadByAttribute('sku', $item->skuInClient);
+                            if($item->skuInClient != null){
+                                $skuSearch = $item->skuInClient;
+                            }else{
+                                $skuSearch = $item->productId;
+                            }
 
+                            $productLoaded = Mage::getModel('catalog/product')->loadByAttribute('sku', $skuSearch);
                             if(!$productLoaded){
                                 $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
                                 $anymarketorders->setStatus("0");
                                 $anymarketorders->setNmoStatusInt('ERROR 01');
-                                $anymarketorders->setNmoDescError('Erro no produto('.$item->skuInClient.'), verifique os logs.');
+                                $anymarketorders->setNmoDescError('Erro no produto('.$skuSearch.'), verifique os logs.');
                                 $anymarketorders->setNmoIdSeqAnymarket($idSeqAnyMarket);
                                 $anymarketorders->setNmoIdAnymarket( $IDOrderAnyMarket );
                                 $anymarketorders->setNmoIdOrder('');
                                 $anymarketorders->setStores(array($storeID));
                                 $anymarketorders->save();
-
                                 $stateProds = false;
                             }else{
                                 $IDProdCrt = $productLoaded->getId();
@@ -391,16 +395,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $anymarketorders->save();
                     }
                 }else{
-                    $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
-                    $anymarketorders->setStatus("0");
-                    $anymarketorders->setNmoStatusInt('ERROR 01');
-                    $anymarketorders->setNmoDescError('Not registered product in magento.');
-                    $anymarketorders->setNmoIdSeqAnymarket($idSeqAnyMarket);
-                    $anymarketorders->setNmoIdAnymarket( $IDOrderAnyMarket );
-                    $anymarketorders->setNmoIdOrder('');
-                    $anymarketorders->setStores(array($storeID));
-                    $anymarketorders->save();
-
                     $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                     $anymarketlog->setLogDesc('Not registered product in magento.');
                     $anymarketlog->setLogId( $IDOrderAnyMarket ); 
