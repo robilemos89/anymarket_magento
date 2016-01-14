@@ -64,6 +64,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
         $returnMet = "";
         if($returnProd['error'] == '1'){ //RETORNOU ERRO
+
             $JSONError = $returnProd['return'];
             if( ($anymarketproductsUpdt->getData('nmp_sku') == null) || ($StoreIDAmProd != $storeID) ){
                 $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts');
@@ -113,19 +114,20 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
             $returnMet = $returnProd['return'];
         }
-
         $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
         if(is_array($returnMet)){
             $anymarketlog->setLogDesc( json_encode($returnMet) );
         }else{
             $anymarketlog->setLogDesc( $returnMet );
         }
+
         $anymarketlog->setLogId( $product->getSku() );
         if(is_array($returnProd['json'])){
             $anymarketlog->setLogJson( json_encode($returnProd['json']) );
         }else{
             $anymarketlog->setLogJson( $returnProd['json'] );
         }
+
         $anymarketlog->setStatus("1");
         $anymarketlog->setStores(array($storeID));
         $anymarketlog->save();
@@ -626,6 +628,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }
 
                         if($IDinAnymarket != '0'){
+                            $returnProd['error'] = '0';
+                            $returnProd['return'] = Mage::helper('db1_anymarket')->__('Successfully synchronized product.');
                             $this->saveLogsProds($returnProd, $product);
                         }else{
                             $returnProd['error'] = '1';
@@ -643,7 +647,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     if($returnProd['error'] == '0'){
                         $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product Updated');
                     }
-                    
+
                     $this->saveLogsProds($returnProd, $product);
                 }
                 return true;
