@@ -205,9 +205,19 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         if($attr){
             if ($attr->usesSource()) {
                 if($typeProc == 0){
-                    return $attr->getSource()->getOptionId((string)$attrVal);
+                    $returnAttr = $attr->getSource()->getOptionId((string)$attrVal);
+                    if($returnAttr){
+                        return $returnAttr;
+                    }else{
+                        return $attrVal;
+                    }
                 }else{
-                    return $attr->getSource()->getOptionText($attrVal);
+                    $returnAttr = $attr->getSource()->getOptionText($attrVal);
+                    if($returnAttr){
+                        return $returnAttr;
+                    }else{
+                        return $attrVal;
+                    }
                 }
             }else{
                 return $attrVal;
