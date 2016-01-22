@@ -867,6 +867,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                         if($varAttr != ''){
                             $dataPrd = array(
+                                    'attribute_set_id' => Mage::getModel('catalog/product')->getDefaultAttributeSetId(),
                                     'type_id' =>  'simple',
                                     'sku' => $IDSKUProd,
                                     'name' => $sku->title,
@@ -1040,6 +1041,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
             if(!$product){
                 $dataPrd = array(
+                    'attribute_set_id' => Mage::getModel('catalog/product')->getDefaultAttributeSetId(),
                     'type_id' =>  'simple',
                     'sku' => $IDSkuJsonProd,
                     'name' => $skuProd->title,
