@@ -4,7 +4,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
 {
     protected $_defaultData = array(
         'product' => array(
-            'attribute_set_id' =>  '4',
+            'attribute_set_id' => '4',
             'type_id' =>  'simple',
             'sku' =>  '0124ASF3',
             'has_options' =>  '0', 
@@ -102,7 +102,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
         $product->setData($data['product']);
         $product->setStockData($data['stock_item']);
         $product->setForceConfirmed(true);
-        $prodSaved = $product->save(); 
+        $prodSaved = $product->save();
 
         $sku = $data['product']['sku'];
 
@@ -207,7 +207,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
 
         $confProduct->setCanSaveConfigurableAttributes(true);
         $confProduct->setStoreId($storeID)
-                     ->setAttributeSetId(4)
+                     ->setAttributeSetId( Mage::getModel('catalog/product')->getDefaultAttributeSetId() )
                      ->setStockData($dataProdConfig['stock'])
                      ->setPrice($dataProdConfig['price'])
                      ->setName($dataProdConfig['name'])
@@ -269,7 +269,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
 //        $confProduct->setConfigurableAttributesData($configurableAttributesData);
         $confProduct->setCanSaveConfigurableAttributes(true);
         $confProduct->setStoreId($storeID)
-                     ->setAttributeSetId(4)
+                     ->setAttributeSetId( Mage::getModel('catalog/product')->getDefaultAttributeSetId() )
                      ->setStockData($dataProdConfig['stock'])
                      ->setPrice($dataProdConfig['price'])
                      ->setName($dataProdConfig['name'])
