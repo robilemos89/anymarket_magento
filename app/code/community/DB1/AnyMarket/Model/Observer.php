@@ -70,13 +70,26 @@ class DB1_AnyMarket_Model_Observer {
         $ImportOrderSession = Mage::getSingleton('core/session')->getImportOrdersVariable();
 
         $OrderID = $observer->getEvent()->getOrder()->getIncrementId();
-        if(Mage::registry('order_save_observer_executed_'.$OrderID )){
+        if(Mage::registry( 'order_save_observer_executed_'.$OrderID )){
             return $this;
         }
 
         Mage::register('order_save_observer_executed_'.$OrderID, true);
         Mage::app()->setCurrentStore( $observer->getEvent()->getOrder()->getStoreId() );
-        Mage::helper('db1_anymarket/order')->updateOrderAnyMarket( $observer->getEvent()->getOrder() );
+        $order = $observer->getEvent()->getOrder();
+        Mage::helper('db1_anymarket/order')->updateOrderAnyMarket( $order );
+
+        //DECREMENTA STOCK ANYMARKET
+        $orderItems = $order->getItemsCollection();
+        $storeID = Mage::app()->getStore()->getId();
+        $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+        foreach ($orderItems as $item){
+            $product_id = $item->product_id;
+            $_product = Mage::getModel('catalog/product')->load($product_id);
+
+            $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($_product);
+            Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($product_id, $stock->getQty(), $_product->getData($filter));
+        }
     }
 
     public function removeProdAnyMarketControl($observer){

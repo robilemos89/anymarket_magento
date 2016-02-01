@@ -652,10 +652,25 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     }
 
                 }else{
+                    //ATUALIZA O PRODUTO
                     $returnProd = $this->CallAPICurl("PUT", $HOST."/rest/api/v1/products/".$product->getData('id_anymarket'), $headers, $param);
-
                     if($returnProd['error'] == '0'){
                         $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product Updated');
+                    }
+
+                    //ADICIONA UM NOVO SKU
+                    $paramSku = array();
+                    foreach ($ArrSimpleConfigProd as $skuPut) {
+                        $skuProdReturn = $this->CallAPICurl("POST", $HOST."/rest/api/v1/products/".$product->getData('id_anymarket')."/skus", $headers, $skuPut);
+                        if($skuProdReturn['error'] == '0'){
+                            $skuProdReturn['return'] = Mage::helper('db1_anymarket')->__('SKU Created').' ('.$skuPut['internalId'].')';
+                            $this->saveLogsProds($skuProdReturn, $product);
+                        }else{
+                            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                            $productSku = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $skuPut['internalId'] );
+                            $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($productSku);
+                            Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($productSku->getId(), $stock->getQty(), $productSku->getData($filter));
+                        }
                     }
 
                     $this->saveLogsProds($returnProd, $product);
@@ -755,13 +770,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $returnProdSpecific = $this->CallAPICurl("GET", $HOST."/rest/api/v1/products/".$IDProd, $headers, null);
         if($returnProdSpecific['error'] == '0'){
             $productCreated = $this->createProducts($returnProdSpecific['return']);
-
+/*
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
             $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('Product Created') );
             $anymarketlog->setLogId(); 
             $anymarketlog->setStatus("1");
             $anymarketlog->setStores(array($storeID));
             $anymarketlog->save();
+*/
         }else{
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
             $anymarketlog->setLogDesc( $returnProdSpecific['return'] );
@@ -778,7 +794,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
         return $productCreated;
     }
-
 
     //CRIA PRODUTO NO MG
     public function createProducts($ProdsJSON){
@@ -811,13 +826,16 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
             $variationArray = array();
             $sinc = '';
+
             foreach ($ProdsJSON->variations as $variation) {
                 $variationArray[$variation->id] = strtolower($variation->name);
+
                 $AttrCtlr = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product', strtolower($variation->name));
                 if(!$AttrCtlr->getData()){
                     $sinc = strtolower($variation->name);
                     break;
                 }
+
             }
 
             if($sinc == ''){
@@ -1288,6 +1306,12 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 "Accept: */*",
                                 "gumgaToken: ".$TOKEN
                             );
+
+                            if($Price == null){
+                                $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                                $Price = $product->getData($filter);
+                            }
+
                             $params = array(
                                 "quantity" => $QtdStock,
                                 "cost" => $Price
