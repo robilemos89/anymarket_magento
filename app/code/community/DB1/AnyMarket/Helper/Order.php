@@ -614,7 +614,9 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         if( ($invoiceData['number'] != "") && ($statuAM == 'INVOICED') ){
                             $params["invoice"] = $invoiceData;
                         }else{
-                            $params["tracking"] = $trackingData;
+                            if($trackingData['number'] != ''){
+                                $params["tracking"] = $trackingData;
+                            }
                         }
 
                         $IDOrderAnyMarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
