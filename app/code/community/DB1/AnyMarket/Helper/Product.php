@@ -429,7 +429,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                     $simpConfProdSku = $SimpleConfigProd->getSku();
                     // verificacao dos dados de SKU
-                    $cValid = array('-', '_'); 
+                    $cValid = array('.', '-', '_'); 
                     if(!ctype_alnum(str_replace($cValid, '', $simpConfProdSku))) { 
                         array_push($arrProd, 'SKU');
                     }
@@ -480,7 +480,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $prodSkuJ = $product->getSku();
 
                 // verificacao dos dados de SKU
-                $cValid = array('-', '_'); 
+                $cValid = array('.', '-', '_'); 
                 if(!ctype_alnum(str_replace($cValid, '', $prodSkuJ))) { 
                     array_push($arrProd, 'SKU');
                 }
@@ -692,7 +692,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             "gumgaToken: ".$TOKEN
         );
 
-        $returnProd = $this->CallAPICurl("GET", "http://sandbox-api.anymarket.com.br/v2/products/feeds/", $headers, null);
+        $returnProd = $this->CallAPICurl("GET", $HOST."/rest/api/v2/products/feeds/", $headers, null);
 
         if($returnProd['error'] == '1'){
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
