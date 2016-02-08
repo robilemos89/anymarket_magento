@@ -103,15 +103,15 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             "gumgaToken: ".$TOKEN
         );
 
-        $returnProd = $this->CallAPICurl("GET", "http://sandbox-api.anymarket.com.br/v2/orders/feeds/", $headers, null);
+        $returnOFeed = $this->CallAPICurl("GET", $HOST."/rest/api/v2/orders/feeds/", $headers, null);
 
-        if($returnProd['error'] == '1'){
+        if($returnOFeed['error'] == '1'){
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-            $anymarketlog->setLogDesc( 'Error on get feed orders '. $returnProd['return'] );
+            $anymarketlog->setLogDesc( 'Error on get feed orders '. $returnOFeed['return'] );
             $anymarketlog->setStatus("1");
             $anymarketlog->save();
         }else{
-            $listOrders = $returnProd['return'];
+            $listOrders = $returnOFeed['return'];
             foreach ($listOrders as  $order) {
                 $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->load($order->id, 'nmo_id_seq_anymarket');
                 $this->getSpecificOrderFromAnyMarket($anymarketorders->getData('nmo_id_anymarket'), $order->id, $anymarketorders->getData('nmo_id_order'));
