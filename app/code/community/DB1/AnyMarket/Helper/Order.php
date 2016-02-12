@@ -278,11 +278,24 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         ->addFieldToFilter($AttrToDoc, $document)->load()->getFirstItem();
 
                             $AddressShipBill = null;
+
+                            $firstName = $OrderJSON->buyer->name;
+                            $lastName = 'Lastname';
+                            if($firstName != ''){
+                                $nameComplete = explode(" ", $firstName);
+
+                                $lastNameP = array_slice($nameComplete, 1);
+                                $lastNameImp = implode(" ", $lastNameP);
+
+                                $firstName = array_shift($nameComplete);
+                                $lastName = $lastNameImp == '' ? 'Lastname' : $lastNameImp;
+                            }
+
                             if($customer->getId() == null){
                                 $_DataCustomer = array (
                                     'account' => array(
-                                        'firstname' => $OrderJSON->buyer->name,
-                                        'lastname' => 'Lastname', //OBRIGATORIO
+                                        'firstname' => $firstName,
+                                        'lastname' => $lastName,
                                         'email' => $email,
                                         'taxvat' => '',
                                         $AttrToDoc => $document,
@@ -295,8 +308,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     ),
                                     'address' => array(
                                        '_item1' => array(
-                                            'firstname' => $OrderJSON->buyer->name,
-                                            'lastname' => 'Lastname', //OBRIGATORIO
+                                            'firstname' => $firstName,
+                                            'lastname' => $lastName,
                                             'street' => array(
                                                 0 => $OrderJSON->shipping->address,
                                                 1 => '',
@@ -328,8 +341,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     $address = Mage::getModel('customer/address');
 
                                     $addressData =  array(
-                                        'firstname' => $OrderJSON->buyer->name,
-                                        'lastname' => 'Lastname', //OBRIGATORIO
+                                        'firstname' => $firstName,
+                                        'lastname' => $lastName,
                                         'street' => $OrderJSON->shipping->address,
                                         'city' => $OrderJSON->shipping->city,
                                         'country_id' => 'BR',
