@@ -282,7 +282,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                 $_DataCustomer = array (
                                     'account' => array(
                                         'firstname' => $OrderJSON->buyer->name,
-                                        'lastname' => 'Lastname', //OBRIGATORIO
+                                        'lastname' => '.', //OBRIGATORIO
                                         'email' => $email,
                                         'taxvat' => '',
                                         $AttrToDoc => $document,
@@ -296,7 +296,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     'address' => array(
                                        '_item1' => array(
                                             'firstname' => $OrderJSON->buyer->name,
-                                            'lastname' => 'Lastname', //OBRIGATORIO
+                                            'lastname' => '.', //OBRIGATORIO
                                             'street' => array(
                                                 0 => $OrderJSON->shipping->address,
                                                 1 => '',
@@ -329,7 +329,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                                     $addressData =  array(
                                         'firstname' => $OrderJSON->buyer->name,
-                                        'lastname' => 'Lastname', //OBRIGATORIO
+                                        'lastname' => '.', //OBRIGATORIO
                                         'street' => $OrderJSON->shipping->address,
                                         'city' => $OrderJSON->shipping->city,
                                         'country_id' => 'BR',
