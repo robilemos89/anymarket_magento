@@ -11,28 +11,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         return false;
     }
 
-    public function getConfigs($IDStore){
-        $ConfigsReturn = array(
-            "REQUIRED_NBM" => Mage::getStoreConfig('anymarket_section/anymarket_general_group/anymarket_NBM_required_field', $IDStore),
-            "REQUIRED_EAN" => Mage::getStoreConfig('anymarket_section/anymarket_general_group/anymarket_EAN_required_field', $IDStore),
-
-            "brand" => Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_brand_field', $IDStore),
-            "model" => Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_model_field', $IDStore),
-
-            "volume_comprimento" => Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_vol_comp_field', $IDStore),
-            "volume_altura" => Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_vol_alt_field', $IDStore),
-            "volume_largura" => Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_vol_larg_field', $IDStore),
-            "video_url" => Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_video_url_field', $IDStore),
-            "nbm" => Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_nbm_field', $IDStore),
-            "nbm_origin" => Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_nbm_origin_field', $IDStore),
-            "ean" => Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_ean_field', $IDStore),
-            "warranty_text" => Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_warranty_text_field', $IDStore),
-            "warranty_time" => Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_warranty_time_field', $IDStore)
-        );
-
-        return $ConfigsReturn;
-    }
-
     public function getFullDescription($product){
         $ConfigDescProd = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_desc_field', Mage::app()->getStore()->getId());
         $descComplete = "";
@@ -62,10 +40,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $StoreIDAmProd = $anymarketproductsUpdt->getData('store_id');
         }
 
-        $returnMet = "";
         if($returnProd['error'] == '1'){ //RETORNOU ERRO
 
-            $JSONError = $returnProd['return'];
             if( ($anymarketproductsUpdt->getData('nmp_sku') == null) || ($StoreIDAmProd != $storeID) ){
                 $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts');
                 $anymarketproducts->setNmpId( $product->getId() );
@@ -91,26 +67,16 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $this->addMessageInBox('Erro ao sincronizar produtos AnyMarket', $returnProd['return'], $URL);
             $returnMet = $returnProd['return'];
         }else{ //FOI BEM SUCEDIDO
-            if($anymarketproductsUpdt->getData('nmp_sku') == null){
-                $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts');
-                $anymarketproducts->setNmpId( $product->getId() );
-                $anymarketproducts->setNmpSku( $product->getSku() );
-                $anymarketproducts->setNmpName( $product->getName() );
-                $anymarketproducts->setNmpDescError("");
-                $anymarketproducts->setNmpStatusInt("Integrado");
-                $anymarketproducts->setStatus("1");
-                $anymarketproducts->setStores(array($storeID));
-                $anymarketproducts->save();
-            }else{
-                $anymarketproductsUpdt->setNmpId( $product->getId() );
-                $anymarketproductsUpdt->setNmpSku( $product->getSku() );
-                $anymarketproductsUpdt->setNmpName( $product->getName() );
-                $anymarketproductsUpdt->setNmpDescError("");
-                $anymarketproductsUpdt->setNmpStatusInt("Integrado");
-                $anymarketproductsUpdt->setStatus("1");
-                $anymarketproductsUpdt->setStores(array($storeID));
-                $anymarketproductsUpdt->save();
-            }
+            $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->load($product->getSku(), 'nmp_sku');
+            $anymarketproducts->setNmpId( $product->getId() );
+            $anymarketproducts->setNmpSku( $product->getSku() );
+            $anymarketproducts->setNmpName( $product->getName() );
+            $anymarketproducts->setNmpDescError("");
+            $anymarketproducts->setNmpStatusInt("Integrado");
+            $anymarketproducts->setStatus("1");
+            $anymarketproducts->setStores(array($storeID));
+            $anymarketproducts->save();
+
 
             $returnMet = $returnProd['return'];
         }
@@ -390,7 +356,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $infoImg = getimagesize($g_imageSimp['url']);
                         $imgSize = filesize($g_imageSimp['path']);
 
-                        if( (float)$infoImg[0] < 400 || (float)$infoImg[1] < 400 || $imgSize > 4100000 ){
+                        if( (float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000 ){
                             array_push($arrProd, 'Image('.$g_imageSimp['url'].')');
                         }else{
                             $itemsIMGSimp[] = $g_imageSimp['url'];
@@ -429,7 +395,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                     $simpConfProdSku = $SimpleConfigProd->getSku();
                     // verificacao dos dados de SKU
-                    $cValid = array('.', '-', '_'); 
+                    $cValid = array('.', '-', '_');
                     if(!ctype_alnum(str_replace($cValid, '', $simpConfProdSku))) { 
                         array_push($arrProd, 'SKU');
                     }
@@ -458,7 +424,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $infoImg = getimagesize($g_image['url']);
                 $imgSize = filesize($g_image['path']);
 
-                if( (float)$infoImg[0] < 400 || (float)$infoImg[1] < 400 || $imgSize > 4100000 ){
+                if( (float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000 ){
                     array_push($arrProd, 'Image('.$g_image['url'].')');
                 }else{
                     $itemsIMG[] = $g_image['url'];
@@ -539,14 +505,20 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         if( ($attribute->getAttributeCode() != $brand) && ($attribute->getAttributeCode() != $model) ){
                             if(!$this->checkArrayAttributes($ArrAttributes, "name", $attribute->getFrontendLabel())){
                                 if($confID == ""){
-                                    $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1));
-                                    $contIndexAttr = $contIndexAttr+1;
+                                    $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1);
+                                    if( $valAttr != null || $valAttr !== ''  ){
+                                        $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $valAttr);
+                                        $contIndexAttr = $contIndexAttr+1;
+                                    }
                                 }else{
                                     foreach ($attributesConf as $attributeConf){
                                         if(!in_array($attribute->getAttributeCode(), $attributeConf)){
                                             if(!$this->checkArrayAttributes($ArrAttributes, "name", $attribute->getFrontendLabel())){
-                                                $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1));
-                                                $contIndexAttr = $contIndexAttr+1;
+                                                $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1);
+                                                if( $valAttr !== null || $valAttr !== '' ){
+                                                    $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1));
+                                                    $contIndexAttr = $contIndexAttr+1;
+                                                }
                                             }
                                         }
                                     }
@@ -610,7 +582,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             }else{
                 if( ($product->getData('id_anymarket') == '') || ($product->getData('id_anymarket') == '0') ){
                     $returnProd = $this->CallAPICurl("POST", $HOST."/rest/api/v1/products/", $headers, $param);
-         
+
                     $IDinAnymarket = '0';
                     if($returnProd['error'] != '1'){
                         $SaveLog = $returnProd['return'];
@@ -659,7 +631,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     }
 
                     //ADICIONA UM NOVO SKU
-                    $paramSku = array();
                     foreach ($ArrSimpleConfigProd as $skuPut) {
                         $skuProdReturn = $this->CallAPICurl("POST", $HOST."/rest/api/v1/products/".$product->getData('id_anymarket')."/skus", $headers, $skuPut);
                         if($skuProdReturn['error'] == '0'){
@@ -721,8 +692,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
         $startRec = 0;
         $countRec = 1;
-        $arrOrderCod = null;
-
         Mage::getSingleton('core/session')->setImportProdsVariable('false');
         $cont = 0;
         while ($startRec <= $countRec) {
@@ -770,14 +739,29 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $returnProdSpecific = $this->CallAPICurl("GET", $HOST."/rest/api/v1/products/".$IDProd, $headers, null);
         if($returnProdSpecific['error'] == '0'){
             $productCreated = $this->createProducts($returnProdSpecific['return']);
-/*
-            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-            $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('Product Created') );
-            $anymarketlog->setLogId(); 
-            $anymarketlog->setStatus("1");
-            $anymarketlog->setStores(array($storeID));
-            $anymarketlog->save();
-*/
+
+            if($productCreated){
+                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('Imported Product SKU: ').$productCreated->getData('sku') );
+                $anymarketlog->setLogId( $productCreated->getId() ); 
+                $anymarketlog->setStatus("0");
+                $anymarketlog->setStores(array($storeID));
+                $anymarketlog->save();
+
+                $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->load($IDProd, 'nmp_id');
+                if ($anymarketproducts->getNmpId() == null){
+                    $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->load($productCreated->getId(), 'nmp_id');
+                }
+
+                $anymarketproducts->setNmpId( $productCreated->getId() );
+                $anymarketproducts->setNmpSku( $productCreated->getData('sku') );
+                $anymarketproducts->setNmpName( $productCreated->getData('name') );
+                $anymarketproducts->setNmpDescError("");
+                $anymarketproducts->setNmpStatusInt("Integrado");
+                $anymarketproducts->setStatus("1");
+                $anymarketproducts->setStores(array($storeID));
+                $anymarketproducts->save();
+            }
         }else{
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
             $anymarketlog->setLogDesc( $returnProdSpecific['return'] );
@@ -785,11 +769,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $anymarketlog->setStatus("1");
             $anymarketlog->setStores(array($storeID));
             $anymarketlog->save();
-
-            $anymarketproductsUpdt = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($IDProd, 'nmp_id');
-            $anymarketproductsUpdt->setNmpDescError( $returnProdSpecific['return'] );
-            $anymarketproductsUpdt->setNmpStatusInt("Erro");
-            $anymarketproductsUpdt->save();
         }
 
         return $productCreated;
@@ -799,6 +778,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
     public function createProducts($ProdsJSON){
         $ProdCrt = null;
         $storeID = Mage::app()->getStore()->getId();
+        Mage::app()->setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);
         $websiteID = Mage::getModel('core/store')->load($storeID)->getWebsiteId();
 
         $priceField = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
@@ -839,6 +819,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             }
 
             if($sinc == ''){
+                $descVarAttr = '';
                 foreach ($ProdsJSON->skus as  $sku) {
                     $IDSKUProd = $sku->idInClient != null ? $sku->idInClient : $sku->idProduct;
                     $ProdCrt = '';
@@ -965,6 +946,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $product->setData($warranty_text, $this->procAttrConfig($warranty_text, $ProdsJSON->warranty, 0));
                         $product->setData('id_anymarket', $sku->idProduct);
                         $product->setData('categoria_anymarket', $ProdsJSON->category->id);
+                        $product->setData('name', $ProdsJSON->title);
 
                         foreach ($ProdsJSON->attributes as  $attrProd) {
                             $product->setData( strtolower($attrProd->name), $this->procAttrConfig(strtolower($attrProd->name), $attrProd->value, 0));
@@ -1128,6 +1110,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $product->setData($warranty_text, $this->procAttrConfig($warranty_text, $ProdsJSON->warranty, 0));
                 $product->setData('id_anymarket', $ProdsJSON->id);
                 $product->setData('categoria_anymarket', $ProdsJSON->category->id);
+                $product->setData('name', $ProdsJSON->title);
+
 
                 foreach ($ProdsJSON->attributes as  $attrProd) {
                     $product->setData( strtolower($attrProd->name), $this->procAttrConfig(strtolower($attrProd->name), $attrProd->value, 0));
@@ -1145,6 +1129,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             }
 
         }
+        Mage::app()->setCurrentStore($storeID);
 
         return $ProdCrt;
     }
@@ -1179,7 +1164,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 $sku  = $product->getSku();
                                 $IDProd  = $product->getId();
 
-                                $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts');
+                                $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->load($sku ,'nmp_sku');
                                 $anymarketproducts->setNmpId( $IDProd );
                                 $anymarketproducts->setNmpSku( $sku );
                                 $anymarketproducts->setNmpName( $name );
@@ -1279,10 +1264,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
     }
 
     public function updatePriceStockAnyMarket($IDProd, $QtdStock, $Price){
-        $ImportProdSession = Mage::getSingleton('core/session')->getImportProdsVariable();
-        if( $ImportProdSession != 'false' ) {
-            $storeID = Mage::app()->getStore()->getId();
-            $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $IDProd );
+        $storeID = Mage::app()->getStore()->getId();
+        $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $IDProd );
+        if($product->getTypeID() != "configurable"){
             if( ($product->getStatus() == 1) && ($product->getData('integra_anymarket') == 1) ){
                 $anymarketproductsUpdt =  Mage::getModel('db1_anymarket/anymarketproducts')->load($product->getId(), 'nmp_id');
                 if( ($anymarketproductsUpdt->getData('nmp_status_int') != 'Não integrado (Magento)') ){
