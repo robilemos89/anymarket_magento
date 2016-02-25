@@ -66,20 +66,8 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         if ($customer instanceof Mage_Customer_Model_Customer){
             $this->_customer = $customer;
         }
-        if (is_numeric($customer)){
-            $this->_customer = Mage::getModel('customer/customer')->load($customer);
-        }
-        else if ($customer === self::CUSTOMER_RANDOM){
-            $customers = Mage::getResourceModel('customer/customer_collection');
-
-            $customers
-                ->getSelect()
-                ->limit(1)
-                ->order('RAND()');
-
-            $id = $customers->getFirstItem()->getId();
-            
-            $this->_customer = Mage::getModel('customer/customer')->load($id);
+        if (is_numeric($customer->getId())){
+            $this->_customer = Mage::getModel('customer/customer')->load($customer->getId());
         }
     }
 

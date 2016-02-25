@@ -23,8 +23,6 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
 
         $startRec = 0;
         $countRec = 1;
-        $arrOrderCod = null;
-
         while ($startRec <= $countRec) {
             $returnCat = $this->CallAPICurl("GET", $HOST."/rest/api/v2/categories/?offset=".$startRec."&limit=30", $headers, null);
 

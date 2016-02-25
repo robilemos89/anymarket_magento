@@ -87,6 +87,7 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
                 array_push($arrStores, $storeDat->getData());
             }
         }
+        array_push($arrStores, array("store_id" => 0) );
         return $arrStores;
     }
 

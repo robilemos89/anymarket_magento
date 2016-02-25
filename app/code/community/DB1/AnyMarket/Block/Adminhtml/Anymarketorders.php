@@ -37,12 +37,6 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketorders extends Mage_Adminhtml_Block
         $this->_headerText         = Mage::helper('db1_anymarket')->__('Anymarket Orders');
         $this->_removeButton('add');
 
-//        $this->_addButton('sinc_orders', array(
-//            'label'   => Mage::helper('db1_anymarket')->__('Sync Orders'),
-//            'onclick' => "setLocation('{$this->getUrl('*/*/sincOrders')}')",
-//            'class'   => 'add'
-//        ));
-
         $this->_addButton('list_orders', array(
             'label'   => Mage::helper('db1_anymarket')->__('Orders list'),
             'onclick' => "setLocation('{$this->getUrl('*/*/listOrders')}')",

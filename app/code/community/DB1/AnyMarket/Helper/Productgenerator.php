@@ -58,6 +58,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
             'is_salable' =>  '1',
             'integra_anymarket' => '1',
             'categoria_anymarket' => '',
+            'category_ids' => array(2,3,4),
         ),
         'images' => array(),
         'stock_item' => array(
@@ -68,7 +69,6 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
             'is_in_stock' => '1',
             'qty' => '9999',
         ),
-        'category' => array(2,3,4),
     );
 
     /**
@@ -213,7 +213,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
                      ->setName($dataProdConfig['name'])
                      ->setShortDescription($dataProdConfig['short'])
                      ->setDescription($dataProdConfig['description'])
-                     ->setCategoryIds(array(3))
+                     ->setCategoryIds(array(2,3,4))
                      ->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH)
                      ->setBrand($dataProdConfig['brand'])
                      ->setStatus(1)
@@ -275,7 +275,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
                      ->setName($dataProdConfig['name'])
                      ->setShortDescription($dataProdConfig['short'])
                      ->setDescription($dataProdConfig['description'])
-                     ->setCategoryIds(array(3))
+                     ->setCategoryIds(array(2,3,4))
                      ->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH)
                      ->setBrand($dataProdConfig['brand'])
                      ->setStatus(1)

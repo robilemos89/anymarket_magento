@@ -2,7 +2,7 @@
 <config>
     <modules>
         <DB1_AnyMarket>
-            <version>2.3.5</version>
+            <version>2.3.6</version>
         </DB1_AnyMarket>
     </modules>
     <global>
@@ -100,7 +100,46 @@
                 </entities>
             </db1_anymarket_resource>
         </models>
+        <!-- OBSERVERS -->
         <events>
+            <!-- PRODUTO -->
+            <catalog_product_save_after>
+                <observers>
+                    <db1_anymarket>
+                        <class>db1_anymarket/observer</class>
+                        <method>sendProdAnyMarket</method>
+                    </db1_anymarket>
+                </observers>
+            </catalog_product_save_after>
+
+            <catalog_product_delete_after>
+                <observers>
+                    <db1_anymarket>
+                        <class>db1_anymarket/observer</class>
+                        <method>removeProdAnyMarketControl</method>
+                    </db1_anymarket>
+                </observers>
+            </catalog_product_delete_after>
+
+            <!-- ORDER -->
+            <sales_order_creditmemo_save_after>
+                <observers>
+                    <db1_anymarket>
+                        <class>db1_anymarket/observer</class>
+                        <method>refundOrderInventory</method>
+                    </db1_anymarket>
+                </observers>
+            </sales_order_creditmemo_save_after>
+
+            <sales_order_save_after>
+                <observers>
+                    <db1_anymarket>
+                        <class>db1_anymarket/observer</class>
+                        <method>updateOrderAnyMarketObs</method>
+                    </db1_anymarket>
+                </observers>
+            </sales_order_save_after>
+
             <sales_order_save_commit_after>
                 <observers>
                     <sales_order_save_commit_after_handler>
@@ -111,7 +150,46 @@
                     </sales_order_save_commit_after_handler>
                 </observers>
             </sales_order_save_commit_after>
+
+            <!-- ESTOQUE -->
+            <cataloginventory_stock_item_save_commit_after>
+                <observers>
+                    <db1_anymarket>
+                        <class>db1_anymarket/observer</class>
+                        <method>catalogInventorySave</method>
+                    </db1_anymarket>
+                </observers>
+            </cataloginventory_stock_item_save_commit_after>
+
+            <sales_model_service_quote_submit_before>
+                <observers>
+                    <db1_anymarket>
+                        <class>db1_anymarket/observer</class>
+                        <method>subtractQuoteInventory</method>
+                    </db1_anymarket>
+                </observers>
+            </sales_model_service_quote_submit_before>
+
+            <sales_model_service_quote_submit_failure>
+                <observers>
+                    <db1_anymarket>
+                        <class>db1_anymarket/observer</class>
+                        <method>revertQuoteInventory</method>
+                    </db1_anymarket>
+                </observers>
+            </sales_model_service_quote_submit_failure>
+
+            <sales_order_item_cancel>
+                <observers>
+                    <db1_anymarket>
+                        <class>db1_anymarket/observer</class>
+                        <method>cancelOrderItem</method>
+                    </db1_anymarket>
+                </observers>
+            </sales_order_item_cancel>
+
         </events>
+        <!-- OBSERVERS -->
 
     </global>
    <default>
@@ -169,85 +247,6 @@
 
     <adminhtml>
 
-        <!-- Observer INI -->
-        <events>
-            <!-- PRODUTO -->
-            <catalog_product_save_after>
-                <observers>
-                    <db1_anymarket>
-                        <class>db1_anymarket/observer</class>
-                        <method>sendProdAnyMarket</method>
-                    </db1_anymarket>
-                </observers>
-            </catalog_product_save_after>
-
-            <catalog_product_delete_after>
-                <observers>
-                    <db1_anymarket>
-                        <class>db1_anymarket/observer</class>
-                        <method>removeProdAnyMarketControl</method>
-                    </db1_anymarket>
-                </observers>
-            </catalog_product_delete_after>
-
-            <!-- ORDER -->
-            <sales_order_save_after>
-                <observers>
-                    <db1_anymarket>
-                        <class>db1_anymarket/observer</class>
-                        <method>updateOrderAnyMarketObs</method>
-                    </db1_anymarket>
-                </observers>
-            </sales_order_save_after>
-
-            <!-- ESTOQUE -->
-             <cataloginventory_stock_item_save_commit_after>
-                <observers>
-                    <db1_anymarket>
-                        <class>db1_anymarket/observer</class>
-                        <method>catalogInventorySave</method>
-                    </db1_anymarket>
-                </observers>
-            </cataloginventory_stock_item_save_commit_after>
-
-            <sales_model_service_quote_submit_before>
-                <observers>
-                    <db1_anymarket>
-                        <class>db1_anymarket/observer</class>
-                        <method>subtractQuoteInventory</method>
-                    </db1_anymarket>
-                </observers>
-            </sales_model_service_quote_submit_before>
-
-            <sales_model_service_quote_submit_failure>
-                <observers>
-                    <db1_anymarket>
-                        <class>db1_anymarket/observer</class>
-                        <method>revertQuoteInventory</method>
-                    </db1_anymarket>
-                </observers>
-            </sales_model_service_quote_submit_failure>
-
-            <sales_order_item_cancel>
-                <observers>
-                    <db1_anymarket>
-                        <class>db1_anymarket/observer</class>
-                        <method>cancelOrderItem</method>
-                    </db1_anymarket>
-                </observers>
-            </sales_order_item_cancel>
-
-            <sales_order_creditmemo_save_after>
-                <observers>
-                    <db1_anymarket>
-                        <class>db1_anymarket/observer</class>
-                        <method>refundOrderInventory</method>
-                    </db1_anymarket>
-                </observers>
-            </sales_order_creditmemo_save_after>
-        </events>
-        <!-- Observer END -->
-        
         <layout>
             <updates>
                 <db1_anymarket>
