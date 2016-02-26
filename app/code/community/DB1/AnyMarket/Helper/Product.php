@@ -338,7 +338,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 foreach($attrs as $attr) {
                     $ArrayVariations[] = array(
                                                "id" => null,
-                                               "name" => $attr['label']
+                                               "name" => $attr['store_label']
                                               );
                 }
 
