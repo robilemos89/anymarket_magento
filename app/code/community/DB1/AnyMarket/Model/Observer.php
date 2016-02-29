@@ -114,9 +114,8 @@ class DB1_AnyMarket_Model_Observer {
             if($typeSincProd == 0){
                 $product = Mage::getModel('catalog/product')->load( $_item->getProductId() );
                 if ( $product->getId() ) {
-                    if ((int)$_item->getData('qty') != (int)$_item->getOrigData('qty')) {
-                        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($_item->getProductId(), $_item->getQty(), null);
-                    }
+                    $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                    Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($_item->getProductId(), $_item->getQty(), $product->getData($filter));
                 }
             }
         }

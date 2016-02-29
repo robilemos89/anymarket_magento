@@ -99,6 +99,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     private function create_order($products, $customer, $IDAnyMarket, $IDSeqAnyMarket, $infoMetPag, $Billing, $Shipping, $shippValue)
     {
         $storeID = Mage::app()->getStore()->getId();
+        $AttrToDoc = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_doc_type_field', $storeID));
         $orderGenerator = Mage::helper('db1_anymarket/ordergenerator');
         $orderGenerator->_storeId = $storeID > 0 ? $storeID : 1;
 
@@ -109,6 +110,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         $orderGenerator->setShipAddress($Shipping);
         $orderGenerator->setBillAddress($Billing);
         $orderGenerator->setCustomer($customer);
+        $orderGenerator->setCpfCnpj( $customer->getData($AttrToDoc) );
 
         $CodOrder = $orderGenerator->createOrder( $products );
 
@@ -262,7 +264,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                                 'firstname' => $firstName,
                                                 'lastname' => $lastName,
                                                 'email' => $email,
-                                                'taxvat' => '',
                                                 $AttrToDoc => $document,
                                                 'password' => 'a111111',
                                                 'default_billing' => '_item1',
@@ -456,8 +457,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $history->setIsCustomerNotified(false);
                 $order->save();
             }else{
-                $order->setStatus($statusMage, true);
-                $order->save();
+                if( $statusMage != 'new' ) {
+                    $order->setData('state', $statusMage);
+                    $order->setStatus($statusMage, true);
+                    $order->save();
+                }
             }
 
             $this->saveLogOrder('nmo_id_anymarket', $JSON->idInMarketPlace, 'Integrado', '', $JSON->id, $JSON->idInMarketPlace, $IDOrderMagento, $storeID);
