@@ -11,12 +11,18 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
     protected $_billing = null;
     protected $_shipping = null;
     protected $_shippingValue = 0;
+    protected $_cpfcnpj = null;
 
     protected $_customer = self::CUSTOMER_RANDOM;
 
     protected $_subTotal = 0;
     protected $_order;
     public $_storeId;
+
+    public function setCpfCnpj($value)
+    {
+        $this->_cpfcnpj = $value;
+    }
 
     public function setShippingValue($value)
     {
@@ -66,20 +72,8 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         if ($customer instanceof Mage_Customer_Model_Customer){
             $this->_customer = $customer;
         }
-        if (is_numeric($customer)){
-            $this->_customer = Mage::getModel('customer/customer')->load($customer);
-        }
-        else if ($customer === self::CUSTOMER_RANDOM){
-            $customers = Mage::getResourceModel('customer/customer_collection');
-
-            $customers
-                ->getSelect()
-                ->limit(1)
-                ->order('RAND()');
-
-            $id = $customers->getFirstItem()->getId();
-            
-            $this->_customer = Mage::getModel('customer/customer')->load($id);
+        if (is_numeric($customer->getId())){
+            $this->_customer = Mage::getModel('customer/customer')->load($customer->getId());
         }
     }
 
@@ -135,6 +129,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
             ->setCustomerFirstname($this->_customer->getFirstname())
             ->setCustomerLastname($this->_customer->getLastname())
             ->setCustomerGroupId($this->_customer->getGroupId())
+            ->setCustomerTaxvat($this->_cpfcnpj)
             ->setCustomerIsGuest(0)
             ->setCustomer($this->_customer);
 

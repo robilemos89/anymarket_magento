@@ -147,6 +147,6 @@ class DB1_AnyMarket_Helper_CustomerGenerator extends DB1_AnyMarket_Helper_Data
             ->cleanAllAddresses()
         ;
 
-        return $customer;
+        return array ("customer" => $customer, "addr" => $address  );
     }
 }
