@@ -47,20 +47,16 @@ class DB1_AnyMarket_Model_Observer {
                     Mage::app()->setCurrentStore($storeID);
 
                     $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
-                    $sendProd = false;
                     if( ($typeSincProd == 0) && (!$parentIds) ){
-          	   		    $sendProd = Mage::helper('db1_anymarket/product')->sendProductToAnyMarket( $product->getId());
+          	   		    Mage::helper('db1_anymarket/product')->sendProductToAnyMarket( $product->getId());
                     }
 
-                    if($sendProd){
-                        $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
-                        if ($product->getData($filter) != $productOld->getOrigData($filter)){
-                            if( $typeSincProd == 0 ){
-                                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($product->getId(), $product->getStockItem()->getQty(), $product->getData($filter));
-                            }
-                        }
-                    }
              	}
+
+                if( $typeSincProd == 0 ){
+                    $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                    Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($product->getId(), $product->getStockItem()->getQty(), $product->getData($filter));
+                }
             }
         }
 
