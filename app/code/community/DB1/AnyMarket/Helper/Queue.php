@@ -22,9 +22,9 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
     public function processQueue(){
         $qtyItensImport = (int)Mage::getConfig()->getNode('default/queue_qty/qty');
         $itens = Mage::getModel('db1_anymarket/anymarketqueue')
-                ->getCollection()
-                ->setPageSize($qtyItensImport)
-                ->setCurPage(1);
+            ->getCollection()
+            ->setPageSize($qtyItensImport)
+            ->setCurPage(1);
 
         foreach($itens->getData() as $item) {
             $IdItemQueue = $item['nmq_id'];
@@ -41,8 +41,8 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                 try {
                     Mage::getSingleton('core/session')->setImportOrdersVariable('true');
 
-                    $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
                     if($typImp == 'IMP'){
+                        $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->setStoreId($storeID);
                         $anymarketorders->load($IdItemQueue, 'nmo_id_anymarket');
                         //Import
                         if( $anymarketorders->getNmoStatusInt() != "Não integrado (Magento)") {
@@ -52,18 +52,19 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                                 $idReg = $anymarketorders->getId();
                                 $idOrderMage = $anymarketorders->getNmoIdOrder();
 
-                                $anymarketordersDel = Mage::getModel('db1_anymarket/anymarketorders');
-                                $anymarketordersDel->setId( $idReg )->delete();
-    
+                                //$anymarketordersDel = Mage::getModel('db1_anymarket/anymarketorders');
+                                //$anymarketordersDel->setId( $idReg )->delete();
+
                                 Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($idAnyMarket, $IDOrderAnyMarket, $idOrderMage);
                             }
                         }
                     }else{
+                        $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->setStoreId($storeID);
                         $anymarketorders->load($IdItemQueue, 'nmo_id_order');
                         //Export
                         if( $anymarketorders->getNmoStatusInt() != "Não integrado (AnyMarket)" ){
                             $Order = Mage::getModel('sales/order')->loadByIncrementId( $anymarketorders->getNmoIdOrder() );
-                            Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($Order); 
+                            Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($Order);
                         }
                     }
 
@@ -74,8 +75,9 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                 // IMPORT PRODUCT
                 if( ($typImp == 'IMP') && ($typeSincProd == 1) ){
 
-                     try {
-                        $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->load($IdItemQueue, 'nmp_id');
+                    try {
+                        $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID);
+                        $anymarketproducts->load($IdItemQueue, 'nmp_id');
 
                         $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $anymarketproducts->getNmpId() );
                         $needDel = false;
@@ -103,7 +105,8 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                     }
                 }else if( ($typImp == 'EXP') && ($typeSincProd == 0) ){
                     try {
-                        $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->load($IdItemQueue, 'nmp_id');
+                        $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID);
+                        $anymarketproducts->load($IdItemQueue, 'nmp_id');
 
                         $anymarketproducts->setStatus('1')->setIsMassupdate(true)->save();
 
