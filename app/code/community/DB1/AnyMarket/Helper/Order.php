@@ -75,7 +75,9 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      *
      */
     private function saveLogOrder($fieldFilter, $fieldDataFilter, $statusInt, $descError, $idSeqAnyMarket, $IDOrderAnyMarket, $nmoIdOrder, $storeID){
-        $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->load($fieldDataFilter, $fieldFilter);
+        $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->setStoreId($storeID);
+        $anymarketorders->load($fieldDataFilter, $fieldFilter);
+
         $anymarketorders->setStatus("0");
         $anymarketorders->setNmoStatusInt($statusInt);
         $anymarketorders->setNmoDescError($descError);
