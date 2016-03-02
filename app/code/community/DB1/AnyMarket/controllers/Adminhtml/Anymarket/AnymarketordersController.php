@@ -146,6 +146,11 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketordersController extends DB1_An
                 $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
                 $anymarketorders->load($anymarketOrderId);
 
+                if( is_array($anymarketorders->getData('store_id')) ){
+                    $storeID = reset($anymarketorders->getData('store_id'));
+                    Mage::app()->setCurrentStore($storeID);
+                }
+
                 if($anymarketorders->getData('nmo_status_int') == 'ERROR 01'){
                     Mage::helper('db1_anymarket/queue')->addQueue($anymarketorders->getNmoIdAnymarket(), 'IMP', 'ORDER');
                 }else if($anymarketorders->getData('nmo_status_int') == 'ERROR 02'){
