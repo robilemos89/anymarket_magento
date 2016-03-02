@@ -806,33 +806,44 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         $contPed = 0;
         while ($startRec <= $countRec) {
             $returnOrder = $this->CallAPICurl("GET", $HOST."/rest/api/v1/erp/orders/?start=".$startRec."&pageSize=30", $headers, null);
-            $JsonReturn = $returnOrder['return'];
 
-            $startRec = $JsonReturn->start+$JsonReturn->pageSize;
-            $countRec = $JsonReturn->count;
+            if($returnOrder['error'] == '1'){
+                $startRec = 1;
+                $countRec = 0;
 
-            foreach ($JsonReturn->values as  $value) {
-                $IDOrderAnyMarket = $value->idInMarketPlace;
+                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('Error on import order from anymarket '). $returnOrder['return'] );
+                $anymarketlog->setStatus("1");
+                $anymarketlog->save();
+            }else {
+                $JsonReturn = $returnOrder['return'];
 
-                if (strpos($STATUSIMPORT, $value->status) !== false) {
-                    $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->load($IDOrderAnyMarket, 'nmo_id_anymarket');
-                    if($anymarketorders->getData('nmo_id_anymarket') == null || (is_array($anymarketorders->getData('store_id')) && !in_array(Mage::app()->getStore()->getId(), $anymarketorders->getData('store_id')) ) ){
-                        $idAnyMarket = $value->id;
+                $startRec = $JsonReturn->start + $JsonReturn->pageSize;
+                $countRec = $JsonReturn->count;
 
-                        $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
-                        $anymarketorders->setStatus("0");
-                        $anymarketorders->setNmoStatusInt('Não integrado (AnyMarket)');
-                        $anymarketorders->setNmoDescError('');
-                        $anymarketorders->setNmoIdSeqAnymarket($idAnyMarket);
-                        $anymarketorders->setNmoIdAnymarket( $IDOrderAnyMarket );
-                        $anymarketorders->setNmoIdOrder('');
-                        $anymarketorders->setNmoIdOrder('');
-                        $anymarketorders->setStores(array($storeID));
-                        $anymarketorders->save();
+                foreach ($JsonReturn->values as $value) {
+                    $IDOrderAnyMarket = $value->idInMarketPlace;
 
-                        $contPed = $contPed+1;
+                    if (strpos($STATUSIMPORT, $value->status) !== false) {
+                        $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->load($IDOrderAnyMarket, 'nmo_id_anymarket');
+                        if ($anymarketorders->getData('nmo_id_anymarket') == null || (is_array($anymarketorders->getData('store_id')) && !in_array(Mage::app()->getStore()->getId(), $anymarketorders->getData('store_id')))) {
+                            $idAnyMarket = $value->id;
+
+                            $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
+                            $anymarketorders->setStatus("0");
+                            $anymarketorders->setNmoStatusInt('Não integrado (AnyMarket)');
+                            $anymarketorders->setNmoDescError('');
+                            $anymarketorders->setNmoIdSeqAnymarket($idAnyMarket);
+                            $anymarketorders->setNmoIdAnymarket($IDOrderAnyMarket);
+                            $anymarketorders->setNmoIdOrder('');
+                            $anymarketorders->setNmoIdOrder('');
+                            $anymarketorders->setStores(array($storeID));
+                            $anymarketorders->save();
+
+                            $contPed = $contPed + 1;
+                        }
+
                     }
-
                 }
             }
         }
