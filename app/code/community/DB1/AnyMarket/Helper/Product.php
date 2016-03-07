@@ -506,7 +506,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             if(!$this->checkArrayAttributes($ArrAttributes, "name", $attribute->getFrontendLabel())){
                                 if($confID == ""){
                                     $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1);
-                                    if( $valAttr != null || $valAttr !== ''  ){
+                                    if( $valAttr != null || $valAttr != ''  ){
                                         $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $valAttr);
                                         $contIndexAttr = $contIndexAttr+1;
                                     }
@@ -515,7 +515,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                         if(!in_array($attribute->getAttributeCode(), $attributeConf)){
                                             if(!$this->checkArrayAttributes($ArrAttributes, "name", $attribute->getFrontendLabel())){
                                                 $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1);
-                                                if( $valAttr !== null || $valAttr !== '' ){
+                                                if( $valAttr != null || $valAttr != '' ){
                                                     $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1));
                                                     $contIndexAttr = $contIndexAttr+1;
                                                 }
