@@ -1,3 +1,5 @@
+*.idea
+*.bak
 desktop.ini
 uninstall
-*.idea
+.sonarsource.properties

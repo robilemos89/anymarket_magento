@@ -3,7 +3,17 @@ Módulo de integração AnyMarket e Magento
 ---
 Versão atual:
 ---------
-2.3.6
+**2.4.2**
+-----
+
+**(IMPORTANTE) ATUALIZAÇÃO**
+========================
+
+> Se há instalado no Magento uma versão anterior a 2.4.x é necessário o
+> contato prévio com o suporte, pois as configurações ficarão
+> obsoletas, sendo necessário uma reconfiguração, caso contrario
+> sua **integração não funcionara corretamente**.
+> **Nenhum dado será perdido da versão anterior.**
 
 Descrição
 ---------
