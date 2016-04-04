@@ -27,14 +27,12 @@
                 <xsd:sequence>
                     <xsd:element name="log_desc" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="anymarketAnymarketlogUpdateEntity">
                 <xsd:sequence>
                     <xsd:element name="log_desc" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="anymarketAnymarketlogInfoEntity">
@@ -42,12 +40,10 @@
                     <xsd:element name="entity_id" type="xsd:string" />
                     <xsd:element name="log_desc" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                     <xsd:element name="created_at" type="xsd:string" />
                     <xsd:element name="updated_at" type="xsd:string" />
                 </xsd:sequence>
             </xsd:complexType>
-        
             <xsd:element name="anymarketAnymarketlogListRequestParam">
                 <xsd:complexType>
                     <xsd:sequence>
@@ -137,7 +133,6 @@
                     <xsd:element name="nmp_desc_error" type="xsd:string" />
                     <xsd:element name="nmp_status_int" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                     <xsd:element name="created_at" type="xsd:string" />
                     <xsd:element name="updated_at" type="xsd:string" />
                 </xsd:sequence>
@@ -149,7 +144,6 @@
                     <xsd:element name="nmp_desc_error" type="xsd:string" />
                     <xsd:element name="nmp_status_int" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="anymarketAnymarketproductsUpdateEntity">
@@ -159,7 +153,6 @@
                     <xsd:element name="nmp_desc_error" type="xsd:string" />
                     <xsd:element name="nmp_status_int" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="anymarketAnymarketproductsInfoEntity">
@@ -170,12 +163,10 @@
                     <xsd:element name="nmp_desc_error" type="xsd:string" />
                     <xsd:element name="nmp_status_int" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                     <xsd:element name="created_at" type="xsd:string" />
                     <xsd:element name="updated_at" type="xsd:string" />
                 </xsd:sequence>
             </xsd:complexType>
-        
             <xsd:element name="anymarketAnymarketproductsListRequestParam">
                 <xsd:complexType>
                     <xsd:sequence>
@@ -383,7 +374,6 @@
                     <xsd:element name="nmo_id_anymarket" type="xsd:string" />
                     <xsd:element name="nmo_id_order" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                     <xsd:element name="created_at" type="xsd:string" />
                     <xsd:element name="updated_at" type="xsd:string" />
                 </xsd:sequence>
@@ -393,7 +383,6 @@
                     <xsd:element name="nmo_id_anymarket" type="xsd:string" />
                     <xsd:element name="nmo_id_order" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="anymarketAnymarketordersUpdateEntity">
@@ -401,7 +390,6 @@
                     <xsd:element name="nmo_id_anymarket" type="xsd:string" />
                     <xsd:element name="nmo_id_order" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="anymarketAnymarketordersInfoEntity">
@@ -410,12 +398,10 @@
                     <xsd:element name="nmo_id_anymarket" type="xsd:string" />
                     <xsd:element name="nmo_id_order" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                     <xsd:element name="created_at" type="xsd:string" />
                     <xsd:element name="updated_at" type="xsd:string" />
                 </xsd:sequence>
             </xsd:complexType>
-        
             <xsd:element name="anymarketAnymarketordersListRequestParam">
                 <xsd:complexType>
                     <xsd:sequence>
@@ -504,7 +490,6 @@
                     <xsd:element name="nmc_cat_root_id" type="xsd:string" />
                     <xsd:element name="nmc_cat_desc" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                     <xsd:element name="created_at" type="xsd:string" />
                     <xsd:element name="updated_at" type="xsd:string" />
                 </xsd:sequence>
@@ -515,7 +500,6 @@
                     <xsd:element name="nmc_cat_root_id" type="xsd:string" />
                     <xsd:element name="nmc_cat_desc" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="anymarketAnymarketcategoriesUpdateEntity">
@@ -524,7 +508,6 @@
                     <xsd:element name="nmc_cat_root_id" type="xsd:string" />
                     <xsd:element name="nmc_cat_desc" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="anymarketAnymarketcategoriesInfoEntity">
@@ -534,12 +517,10 @@
                     <xsd:element name="nmc_cat_root_id" type="xsd:string" />
                     <xsd:element name="nmc_cat_desc" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                     <xsd:element name="created_at" type="xsd:string" />
                     <xsd:element name="updated_at" type="xsd:string" />
                 </xsd:sequence>
             </xsd:complexType>
-        
             <xsd:element name="anymarketAnymarketcategoriesListRequestParam">
                 <xsd:complexType>
                     <xsd:sequence>
@@ -616,7 +597,6 @@
                     </xsd:sequence>
                  </xsd:complexType>
             </xsd:element>
-
                     <xsd:complexType name="anymarketAnymarketqueueEntityArray">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" maxOccurs="unbounded" name="complexObjectArray" type="typens:anymarketAnymarketqueueEntity" />
@@ -629,7 +609,6 @@
                     <xsd:element name="nmq_type" type="xsd:string" />
                     <xsd:element name="nmq_table" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                     <xsd:element name="created_at" type="xsd:string" />
                     <xsd:element name="updated_at" type="xsd:string" />
                 </xsd:sequence>
@@ -640,7 +619,6 @@
                     <xsd:element name="nmq_type" type="xsd:string" />
                     <xsd:element name="nmq_table" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="anymarketAnymarketqueueUpdateEntity">
@@ -649,7 +627,6 @@
                     <xsd:element name="nmq_type" type="xsd:string" />
                     <xsd:element name="nmq_table" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:complexType name="anymarketAnymarketqueueInfoEntity">
@@ -659,12 +636,10 @@
                     <xsd:element name="nmq_type" type="xsd:string" />
                     <xsd:element name="nmq_table" type="xsd:string" />
                     <xsd:element name="status" type="xsd:string" />
-
                     <xsd:element name="created_at" type="xsd:string" />
                     <xsd:element name="updated_at" type="xsd:string" />
                 </xsd:sequence>
             </xsd:complexType>
-        
             <xsd:element name="anymarketAnymarketqueueListRequestParam">
                 <xsd:complexType>
                     <xsd:sequence>
@@ -741,8 +716,122 @@
                     </xsd:sequence>
                  </xsd:complexType>
             </xsd:element>
-
-                </xsd:schema>
+            <xsd:complexType name="anymarketAnymarketbrandsEntityArray">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" maxOccurs="unbounded" name="complexObjectArray" type="typens:anymarketAnymarketbrandsEntity" />
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="anymarketAnymarketbrandsEntity">
+                <xsd:sequence>
+                    <xsd:element name="entity_id" type="xsd:string" />
+                    <xsd:element name="brd_id" type="xsd:string" />
+                    <xsd:element name="brd_name" type="xsd:string" />
+                    <xsd:element name="status" type="xsd:string" />
+                    <xsd:element name="created_at" type="xsd:string" />
+                    <xsd:element name="updated_at" type="xsd:string" />
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="anymarketAnymarketbrandsAddEntity">
+                <xsd:sequence>
+                    <xsd:element name="brd_id" type="xsd:string" />
+                    <xsd:element name="brd_name" type="xsd:string" />
+                    <xsd:element name="status" type="xsd:string" />
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="anymarketAnymarketbrandsUpdateEntity">
+                <xsd:sequence>
+                    <xsd:element name="brd_id" type="xsd:string" />
+                    <xsd:element name="brd_name" type="xsd:string" />
+                    <xsd:element name="status" type="xsd:string" />
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="anymarketAnymarketbrandsInfoEntity">
+                <xsd:sequence>
+                    <xsd:element name="entity_id" type="xsd:string" />
+                    <xsd:element name="brd_id" type="xsd:string" />
+                    <xsd:element name="brd_name" type="xsd:string" />
+                    <xsd:element name="status" type="xsd:string" />
+                    <xsd:element name="created_at" type="xsd:string" />
+                    <xsd:element name="updated_at" type="xsd:string" />
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="anymarketAnymarketbrandsListRequestParam">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="1" maxOccurs="1" name="sessionId" type="xsd:string" />
+                        <xsd:element minOccurs="0" maxOccurs="1" name="filters" type="typens:filters" />
+                    </xsd:sequence>
+                 </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="anymarketAnymarketbrandsListResponseParam">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="0" maxOccurs="1" name="result" type="typens:anymarketAnymarketbrandsEntityArray" />
+                    </xsd:sequence>
+                 </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="anymarketAnymarketbrandsInfoRequestParam">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="1" maxOccurs="1" name="sessionId" type="xsd:string" />
+                        <xsd:element minOccurs="1" maxOccurs="1" name="anymarketbrandsId" type="xsd:string" />
+                    </xsd:sequence>
+                 </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="anymarketAnymarketbrandsInfoResponseParam">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="1" maxOccurs="1" name="result" type="typens:anymarketAnymarketbrandsInfoEntity" />
+                    </xsd:sequence>
+                 </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="anymarketAnymarketbrandsAddRequestParam">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="1" maxOccurs="1" name="sessionId" type="xsd:string" />
+                        <xsd:element minOccurs="1" maxOccurs="1" name="data" type="typens:anymarketAnymarketbrandsAddEntity" />
+                    </xsd:sequence>
+                 </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="anymarketAnymarketbrandsAddResponseParam">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="1" maxOccurs="1" name="result" type="xsd:int" />
+                    </xsd:sequence>
+                 </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="anymarketAnymarketbrandsUpdateRequestParam">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="1" maxOccurs="1" name="sessionId" type="xsd:string" />
+                        <xsd:element minOccurs="1" maxOccurs="1" name="anymarketbrandsId" type="xsd:string" />
+                        <xsd:element minOccurs="1" maxOccurs="1" name="data" type="typens:anymarketAnymarketbrandsUpdateEntity" />
+                    </xsd:sequence>
+                 </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="anymarketAnymarketbrandsUpdateResponseParam">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="1" maxOccurs="1" name="result" type="xsd:boolean" />
+                    </xsd:sequence>
+                 </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="anymarketAnymarketbrandsRemoveRequestParam">
+                <xsd:complexType>
+                    <xsd:sequence>
+                    <xsd:element minOccurs="1" maxOccurs="1" name="sessionId" type="xsd:string" />
+                        <xsd:element minOccurs="1" maxOccurs="1" name="anymarketbrandsId" type="xsd:string" />
+                    </xsd:sequence>
+                 </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="anymarketAnymarketbrandsRemoveResponseParam">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="1" maxOccurs="1" name="result" type="xsd:boolean" />
+                    </xsd:sequence>
+                 </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
     </wsdl:types>
     <wsdl:message name="anymarketAnymarketlogListRequest">
         <wsdl:part name="parameters" element="typens:anymarketAnymarketlogListRequestParam" />
@@ -924,6 +1013,36 @@
     <wsdl:message name="anymarketAnymarketqueueRemoveResponse">
         <wsdl:part name="parameters" element="typens:anymarketAnymarketqueueRemoveResponseParam" />
     </wsdl:message>
+    <wsdl:message name="anymarketAnymarketbrandsListRequest">
+        <wsdl:part name="parameters" element="typens:anymarketAnymarketbrandsListRequestParam" />
+    </wsdl:message>
+    <wsdl:message name="anymarketAnymarketbrandsListResponse">
+        <wsdl:part name="parameters" element="typens:anymarketAnymarketbrandsListResponseParam" />
+    </wsdl:message>
+    <wsdl:message name="anymarketAnymarketbrandsInfoRequest">
+        <wsdl:part name="parameters" element="typens:anymarketAnymarketbrandsInfoRequestParam" />
+    </wsdl:message>
+    <wsdl:message name="anymarketAnymarketbrandsInfoResponse">
+        <wsdl:part name="parameters" element="typens:anymarketAnymarketbrandsInfoResponseParam" />
+    </wsdl:message>
+    <wsdl:message name="anymarketAnymarketbrandsAddRequest">
+        <wsdl:part name="parameters" element="typens:anymarketAnymarketbrandsAddRequestParam" />
+    </wsdl:message>
+    <wsdl:message name="anymarketAnymarketbrandsAddResponse">
+        <wsdl:part name="parameters" element="typens:anymarketAnymarketbrandsAddResponseParam"/>
+    </wsdl:message>
+    <wsdl:message name="anymarketAnymarketbrandsUpdateRequest">
+        <wsdl:part name="parameters" element="typens:anymarketAnymarketbrandsUpdateRequestParam" />
+    </wsdl:message>
+    <wsdl:message name="anymarketAnymarketbrandsUpdateResponse">
+        <wsdl:part name="parameters" element="typens:anymarketAnymarketbrandsUpdateResponseParam"/>
+    </wsdl:message>
+    <wsdl:message name="anymarketAnymarketbrandsRemoveRequest">
+        <wsdl:part name="parameters" element="typens:anymarketAnymarketbrandsRemoveRequestParam" />
+    </wsdl:message>
+    <wsdl:message name="anymarketAnymarketbrandsRemoveResponse">
+        <wsdl:part name="parameters" element="typens:anymarketAnymarketbrandsRemoveResponseParam" />
+    </wsdl:message>
     <wsdl:portType name="{{var wsdl.handler}}PortType">
         <wsdl:operation name="anymarketAnymarketlogList">
             <wsdl:documentation>Retrieve list of anymarket log</wsdl:documentation>
@@ -1075,7 +1194,32 @@
             <wsdl:input message="typens:anymarketAnymarketqueueRemoveRequest" />
             <wsdl:output message="typens:anymarketAnymarketqueueRemoveResponse" />
         </wsdl:operation>
-        </wsdl:portType>
+        <wsdl:operation name="anymarketAnymarketbrandsList">
+            <wsdl:documentation>Retrieve list of anymarketbrand</wsdl:documentation>
+            <wsdl:input message="typens:anymarketAnymarketbrandsListRequest" />
+            <wsdl:output message="typens:anymarketAnymarketbrandsListResponse" />
+        </wsdl:operation>
+        <wsdl:operation name="anymarketAnymarketbrandsInfo">
+            <wsdl:documentation>Retrieve anymarketbrands info</wsdl:documentation>
+            <wsdl:input message="typens:anymarketAnymarketbrandsInfoRequest" />
+            <wsdl:output message="typens:anymarketAnymarketbrandsInfoResponse" />
+        </wsdl:operation>
+        <wsdl:operation name="anymarketAnymarketbrandsAdd">
+            <wsdl:documentation>Add anymarketbrands</wsdl:documentation>
+            <wsdl:input message="typens:anymarketAnymarketbrandsAddRequest" />
+            <wsdl:output message="typens:anymarketAnymarketbrandsAddResponse" />
+        </wsdl:operation>
+        <wsdl:operation name="anymarketAnymarketbrandsUpdate">
+            <wsdl:documentation>Update anymarketbrands</wsdl:documentation>
+            <wsdl:input message="typens:anymarketAnymarketbrandsUpdateRequest" />
+            <wsdl:output message="typens:anymarketAnymarketbrandsUpdateResponse" />
+        </wsdl:operation>
+        <wsdl:operation name="anymarketAnymarketbrandsRemove">
+            <wsdl:documentation>Remove anymarketbrands</wsdl:documentation>
+            <wsdl:input message="typens:anymarketAnymarketbrandsRemoveRequest" />
+            <wsdl:output message="typens:anymarketAnymarketbrandsRemoveResponse" />
+        </wsdl:operation>
+    </wsdl:portType>
     <wsdl:binding name="{{var wsdl.handler}}Binding" type="typens:{{var wsdl.handler}}PortType">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
         <wsdl:operation name="anymarketAnymarketlogList">
@@ -1340,6 +1484,51 @@
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="anymarketAnymarketqueueRemove">
+            <soap:operation soapAction="" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="anymarketAnymarketbrandsList">
+            <soap:operation soapAction="" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="anymarketAnymarketbrandsInfo">
+            <soap:operation soapAction="" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="anymarketAnymarketbrandsAdd">
+            <soap:operation soapAction="" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="anymarketAnymarketbrandsUpdate">
+            <soap:operation soapAction="" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="anymarketAnymarketbrandsRemove">
             <soap:operation soapAction="" />
             <wsdl:input>
                 <soap:body use="literal" />

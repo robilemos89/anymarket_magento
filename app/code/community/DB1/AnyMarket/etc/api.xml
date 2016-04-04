@@ -288,6 +288,52 @@
                     </remove_error>
                 </faults>
             </anymarket_anymarketqueue>
+            <anymarket_anymarketbrands translate="title" module="db1_anymarket">
+                <title>Anymarketbrands API</title>
+                <model>db1_anymarket/anymarketbrands_api</model>
+                <acl>anymarket/anymarketbrands</acl>
+                <methods>
+                    <list translate="title" module="db1_anymarket">
+                        <title>Retrieve list of anymarketbrand</title>
+                        <method>items</method>
+                        <acl>anymarket/anymarketbrands/list</acl>
+                    </list>
+                    <info translate="title" module="db1_anymarket">
+                        <title>Retrieve anymarketbrands info</title>
+                        <acl>anymarket/anymarketbrands/info</acl>
+                    </info>
+                    <add translate="title" module="db1_anymarket">
+                        <title>Add anymarketbrands</title>
+                        <acl>anymarket/anymarketbrands/add</acl>
+                    </add>
+                    <update translate="title" module="db1_anymarket">
+                        <title>Update anymarketbrands</title>
+                        <acl>anymarket/anymarketbrands/update</acl>
+                    </update>
+                    <remove translate="title" module="db1_anymarket">
+                        <title>Remove anymarketbrands</title>
+                        <acl>anymarket/anymarketbrands/remove</acl>
+                    </remove>
+                </methods>
+                <faults module="db1_anymarket">
+                    <anymarketbrands_not_exists>
+                        <code>101</code>
+                        <message>Requested anymarketbrands does not exist.</message>
+                    </anymarketbrands_not_exists>
+                    <invalid_data>
+                        <code>102</code>
+                        <message>Provided data is invalid.</message>
+                    </invalid_data>
+                    <save_error>
+                        <code>103</code>
+                        <message>Error while saving anymarketbrands. Details in error message.</message>
+                    </save_error>
+                    <remove_error>
+                        <code>104</code>
+                        <message>Error while removing anymarketbrands. Details in error message.</message>
+                    </remove_error>
+                </faults>
+            </anymarket_anymarketbrands>
         </resources>
         <resources_alias>
             <anymarketlog>anymarket_anymarketlog</anymarketlog>
@@ -296,6 +342,7 @@
             <anymarketorders>anymarket_anymarketorders</anymarketorders>
             <anymarketcategories>anymarket_anymarketcategories</anymarketcategories>
             <anymarketqueue>anymarket_anymarketqueue</anymarketqueue>
+            <anymarketbrands>anymarket_anymarketbrands</anymarketbrands>
         </resources_alias>
         <v2>
             <resources_function_prefix>
@@ -305,6 +352,7 @@
                 <anymarketorders>anymarketAnymarketorders</anymarketorders>
                 <anymarketcategories>anymarketAnymarketcategories</anymarketcategories>
                 <anymarketqueue>anymarketAnymarketqueue</anymarketqueue>
+                <anymarketbrands>anymarketAnymarketbrands</anymarketbrands>
             </resources_function_prefix>
         </v2>
         <acl>
@@ -425,6 +473,25 @@
                             <title>Remove</title>
                         </remove>
                     </anymarketqueue>
+                    <anymarketbrands translate="title" module="db1_anymarket">
+                        <title>Anymarketbrands</title>
+                        <sort_order>0</sort_order>
+                        <list translate="title" module="db1_anymarket">
+                            <title>List</title>
+                        </list>
+                        <info translate="title" module="db1_anymarket">
+                            <title>Info</title>
+                        </info>
+                        <add translate="title" module="db1_anymarket">
+                            <title>Add</title>
+                        </add>
+                        <update translate="title" module="db1_anymarket">
+                            <title>Update</title>
+                        </update>
+                        <remove translate="title" module="db1_anymarket">
+                            <title>Remove</title>
+                        </remove>
+                    </anymarketbrands>
                 </db1_anymarket>
             </resources>
         </acl>

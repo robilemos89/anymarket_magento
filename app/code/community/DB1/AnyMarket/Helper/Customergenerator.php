@@ -9,7 +9,7 @@ class DB1_AnyMarket_Helper_CustomerGenerator extends DB1_AnyMarket_Helper_Data
             'prefix' => '',
             'firstname' => 'Firstname{id}',
             'middlename' => '',
-            'lastname' => 'Lastname',
+            'lastname' => '.',
             'suffix' => '',
             'email' => 'email{id}@example.net',
             'dob' => '',
@@ -25,7 +25,7 @@ class DB1_AnyMarket_Helper_CustomerGenerator extends DB1_AnyMarket_Helper_Data
                 'prefix' => '',
                 'firstname' => 'Firstname',
                 'middlename' => '',
-                'lastname' => 'Lastname',
+                'lastname' => '.',
                 'suffix' => '',
                 'company' => '',
                 'street' => array(
@@ -53,12 +53,18 @@ class DB1_AnyMarket_Helper_CustomerGenerator extends DB1_AnyMarket_Helper_Data
      */
     protected $_adapter;
 
+    /**
+     * DB1_AnyMarket_Helper_CustomerGenerator constructor.
+     */
     public function __construct()
     {
         $this->_resource = Mage::getResourceSingleton('core/resource');
         $this->_adapter = $this->_resource->getReadConnection();
     }
 
+    /**
+     * @param $data
+     */
     protected function _processTemplates(&$data)
     {
         $config = $this->_adapter->getConfig();
@@ -86,12 +92,8 @@ class DB1_AnyMarket_Helper_CustomerGenerator extends DB1_AnyMarket_Helper_Data
     }
 
     /**
-     * create customer
-     *
-     * @access public
-     * @param $data
-     * @return customer
-     * 
+     * @param array $data
+     * @return array
      */
     public function createCustomer($data = array())
     {

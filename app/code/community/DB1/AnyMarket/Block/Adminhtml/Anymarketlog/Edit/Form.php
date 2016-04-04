@@ -19,6 +19,7 @@
  *
  * @category    DB1
  * @package     DB1_AnyMarket
+
  */
 class DB1_AnyMarket_Block_Adminhtml_Anymarketlog_Edit_Form extends Mage_Adminhtml_Block_Widget_Form
 {

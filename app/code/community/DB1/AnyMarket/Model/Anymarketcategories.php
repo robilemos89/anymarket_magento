@@ -101,4 +101,15 @@ class DB1_AnyMarket_Model_Anymarketcategories extends Mage_Core_Model_Abstract
         return $values;
     }
     
+    /**
+     * Load Specific By IDMagento
+     *
+     * @access public
+     * @return Object
+     * 
+     */
+    public function loadByNmcIdMagento($idMG){
+        return $this->getCollection()->addFieldToFilter('nmc_id_magento', $idMG);
+    }
+
 }

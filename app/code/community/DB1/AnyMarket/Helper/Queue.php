@@ -3,8 +3,15 @@
 class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
 {
 
+    /**
+     * add item in current queue
+     *
+     * @param $IdItem
+     * @param $typeItem
+     * @param $tableItem
+     */
     public function addQueue($IdItem, $typeItem, $tableItem){
-        $storeID = Mage::app()->getStore()->getId(); 
+        $storeID = $this->getCurrentStoreView();
 
         $queueItem = Mage::getModel('db1_anymarket/anymarketqueue');
         $queueItem->setNmqId($IdItem);
@@ -14,17 +21,25 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
         $queueItem->save();
     }
 
+    /**
+     * remove item from queue
+     *
+     * @param $idItem
+     */
     public function removeQueue($idItem){
         $anymarketQueueDel = Mage::getModel('db1_anymarket/anymarketqueue');
         $anymarketQueueDel->setId($idItem)->delete();
     }
 
+    /**
+     * process queue
+     */
     public function processQueue(){
         $qtyItensImport = (int)Mage::getConfig()->getNode('default/queue_qty/qty');
         $itens = Mage::getModel('db1_anymarket/anymarketqueue')
-            ->getCollection()
-            ->setPageSize($qtyItensImport)
-            ->setCurPage(1);
+                ->getCollection()
+                ->setPageSize($qtyItensImport)
+                ->setCurPage(1);
 
         foreach($itens->getData() as $item) {
             $IdItemQueue = $item['nmq_id'];
@@ -39,8 +54,6 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
             $typImp = $item['nmq_type'];
             if($item['nmq_table'] == 'ORDER'){
                 try {
-                    Mage::getSingleton('core/session')->setImportOrdersVariable('true');
-
                     if($typImp == 'IMP'){
                         $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->setStoreId($storeID);
                         $anymarketorders->load($IdItemQueue, 'nmo_id_anymarket');
@@ -48,14 +61,11 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                         if( $anymarketorders->getNmoStatusInt() != "Não integrado (Magento)") {
                             $idAnyMarket = $anymarketorders->getNmoIdSeqAnymarket();
                             if($idAnyMarket){
-                                $IDOrderAnyMarket = $anymarketorders->getNmoIdAnymarket();
                                 $idReg = $anymarketorders->getId();
-                                $idOrderMage = $anymarketorders->getNmoIdOrder();
 
                                 //$anymarketordersDel = Mage::getModel('db1_anymarket/anymarketorders');
                                 //$anymarketordersDel->setId( $idReg )->delete();
-
-                                Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($idAnyMarket, $IDOrderAnyMarket, $idOrderMage);
+                                Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($idAnyMarket, "notoken", $storeID);
                             }
                         }
                     }else{
@@ -64,7 +74,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                         //Export
                         if( $anymarketorders->getNmoStatusInt() != "Não integrado (AnyMarket)" ){
                             $Order = Mage::getModel('sales/order')->loadByIncrementId( $anymarketorders->getNmoIdOrder() );
-                            Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($Order);
+                            Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($Order); 
                         }
                     }
 
@@ -72,38 +82,9 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                     Mage::logException($e);
                 }
             }else if($item['nmq_table'] == 'PRODUCT'){
-                // IMPORT PRODUCT
-                if( ($typImp == 'IMP') && ($typeSincProd == 1) ){
-
-                    try {
-                        $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID);
-                        $anymarketproducts->load($IdItemQueue, 'nmp_id');
-
-                        $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $anymarketproducts->getNmpId() );
-                        $needDel = false;
-
-                        if($product->getIdAnymarket() != ''){
-                            $idProd = $product->getIdAnymarket();
-                        }else{
-                            $needDel = true;
-                            $idProd = $IdItemQueue;
-                        }
-
-                        $idReg = $anymarketproducts->getId();
-                        $prod = Mage::helper('db1_anymarket/product')->getSpecificProductAnyMarket($idProd);
-                        if($prod != null){
-                            if($needDel){
-                                $anymarketproductsUpdt = Mage::getModel('db1_anymarket/anymarketproducts')->load($idReg);
-                                $anymarketproductsUpdt->setNmpStatusInt("Integrado");
-                                $anymarketproductsUpdt->setNmpDescError("");
-                                $anymarketproductsUpdt->setNmpSku( $prod->getSku() );
-                                $anymarketproductsUpdt->save();
-                            }
-                        }
-                    } catch (Exception $e) {
-                        Mage::logException($e);
-                    }
-                }else if( ($typImp == 'EXP') && ($typeSincProd == 0) ){
+                // EXPORT PRODUCT
+                $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
+                if( ($typImp == 'EXP') && ($typeSincProd == 0) ){
                     try {
                         $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID);
                         $anymarketproducts->load($IdItemQueue, 'nmp_id');
@@ -112,14 +93,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
 
                         $product = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $anymarketproducts->getNmpSku());
                         if($product != null){
-                            $amProd = Mage::helper('db1_anymarket/product');
-
-                            $amProd->sendProductToAnyMarket( $product->getId() );
-
-                            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', Mage::app()->getStore()->getId()));
-                            $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
-                            $amProd->updatePriceStockAnyMarket($product->getId(), $ProdStock->getQty(), $product->getData($filter));
-
+                            Mage::helper('db1_anymarket/product')->sendProductToAnyMarket( $product->getId() );
                         }
 
                     } catch (Exception $e) {
@@ -127,11 +101,112 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                     }
                 }
 
-            }
+                // TRATA STOCK
+                if ( $product ) {
+                    if ($typeSincOrder == 1) {
+                        $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $this->getCurrentStoreView()));
+                        $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
+                        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($product->getId(), $ProdStock->getQty(), $product->getData($filter));
+                    }else {
+                        Mage::helper('db1_anymarket/product')->getStockProductAnyMarket($product->getId(), $storeID);
+                    }
+                }
 
+            }
             $this->removeQueue($item['entity_id']);
         }
 
+    }
+
+    /**
+     * process Orders by CRON
+     */
+    public function processOrders(){
+        Mage::getSingleton('core/session')->setImportOrdersVariable('false');
+
+        $allStores = Mage::helper('db1_anymarket')->getAllStores();
+        foreach ($allStores as $store) {
+            $storeID = $store['store_id'];
+            Mage::app()->setCurrentStore($storeID);
+
+            $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
+            if($ConfigOrder == 1){
+                Mage::helper('db1_anymarket/order')->getFeedOrdersFromAnyMarket();
+            }
+
+            $colAnyOrders = Mage::getResourceModel('db1_anymarket/anymarketorders_collection')
+                            ->addFieldToFilter('nmo_status_int', array('like' => 'ERROR%'))
+                            ->load();
+
+            foreach ($colAnyOrders->getItems() as $anymarketorders) {
+                $anymarketorder = Mage::getModel('db1_anymarket/anymarketorders')->load($anymarketorders->getId() );
+                if (is_array($anymarketorder->getData('store_id')) && in_array($storeID, $anymarketorder->getData('store_id'))){
+                    if($anymarketorders->getData('nmo_status_int') == 'ERROR 01'){
+                        Mage::helper('db1_anymarket/queue')->addQueue($anymarketorder->getNmoIdAnymarket(), 'IMP', 'ORDER');
+                    }else if($anymarketorders->getData('nmo_status_int') == 'ERROR 02'){
+                        Mage::helper('db1_anymarket/queue')->addQueue($anymarketorder->getNmoIdOrder(), 'EXP', 'ORDER');
+                    }
+                }
+            }
+
+        }
+        Mage::getSingleton('core/session')->setImportOrdersVariable('true');
+
+    }
+
+    /**
+     * process Products By CRON
+     */
+    public function processProducts(){
+        $allStores = Mage::helper('db1_anymarket')->getAllStores();
+        foreach ($allStores as $store) {
+            $storeID = $store['store_id'];
+            Mage::app()->setCurrentStore($storeID);
+
+            $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
+            if($typeSincProd == 1){
+                Mage::helper('db1_anymarket/product')->getFeedProdsFromAnyMarket();
+            }else{
+                $colAnyProds = Mage::getResourceModel('db1_anymarket/anymarketproducts_collection')
+                    ->addFieldToFilter('nmp_status_int', array('neq' => 'Integrado'))
+                    ->load();
+
+                foreach ($colAnyProds->getItems() as $anymarketproducts) {
+                    if($anymarketproducts->getData('nmp_sku') != null){
+                        $anymarketprod = Mage::getModel('db1_anymarket/anymarketproducts')->load($anymarketproducts->getData('nmp_id'), 'nmp_id');
+                        if (is_array($anymarketprod->getData('store_id')) && in_array($storeID, $anymarketprod->getData('store_id'))){
+
+                            $ProdLoaded = Mage::getModel('catalog/product')->loadByAttribute('sku', $anymarketproducts->getData('nmp_sku'));
+                            if ($ProdLoaded) {
+                                if (($ProdLoaded->getStatus() == 1) && ($ProdLoaded->getData('integra_anymarket') == 1)) {
+                                    Mage::helper('db1_anymarket/queue')->addQueue($anymarketproducts->getData('nmp_id'), 'EXP', 'PRODUCT');
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    /**
+     * process Clean Logs By CRON
+     */
+    public function processCleanLogs(){
+        $from = date("Y-m-d H:m:s", strtotime("-3 months"));
+        $to   = date("Y-m-d H:m:s", strtotime("-73 years"));
+        $collection = Mage::getResourceModel('db1_anymarket/anymarketlog_collection')
+            ->addFieldToFilter('updated_at', array('from'=> $to, 'to'=> $from ))
+            ->load();
+
+        $contLogs = 0;
+        foreach ($collection->getItems() as $anymarketlog) {
+            $anymarketlog->delete();
+            $contLogs += 1;
+        }
+
+        return $contLogs;
     }
 
 }

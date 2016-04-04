@@ -7,13 +7,71 @@
  */
 class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
 {
+
+    /**
+     * @return string
+     */
+    public function getCurrentStoreView(){
+        $storeID = Mage::app()->getStore()->getId();
+        if( $storeID == null || $storeID == 0 ){
+            $storeID = Mage::app()->getDefaultStoreView()->getId();
+            if( $storeID == null ){
+                $storeID = 1;
+            }
+        }
+
+        return $storeID;
+    }
+
+    /**
+     * @param $OI
+     * @return array
+     */
+    public function getTokenByOi($OI) {
+        $allStores = $this->getAllStores();
+
+        $arrStores = array();
+        $OIConfig = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_oi_field', 0);
+        if( $OI == $OIConfig ){
+            $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', 0);
+            array_push($arrStores, array(
+                                          "token" => $TOKEN,
+                                          "storeID" => '0',
+            ));
+        }
+
+        foreach ($allStores as $store) {
+            $storeID = $store['store_id'];
+            $OIConfig = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_oi_field', $storeID);
+            if( $OI == $OIConfig ){
+                $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
+                array_push($arrStores, array(
+                                              "token" => $TOKEN,
+                                              "storeID" => $storeID,
+                ));
+            }
+        }
+
+        return $arrStores;
+    }
+
+    /**
+     * check if module is enabled
+     */
+    public function anymarketModuleIsEnabled()
+    {
+        $outputPath = "advanced/modules_disable_output/DB1_AnyMarket";
+
+        $enableConfig = new Mage_Core_Model_Config();
+        $enableConfig->saveConfig($outputPath, "1");
+        unset($enableConfig);
+    }
+
     /**
      * convert array to options
      *
-     * @access public
      * @param $options
      * @return array
-     * 
      */
     public function convertOptions($options)
     {
@@ -28,27 +86,12 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * check if module is enabled
-     *
-     * @access public
-     * @return boolean
-     * 
-     */
-    public function anymarketModuleIsEnabled()
-    {
-        $outputPath = "advanced/modules_disable_output/DB1_AnyMarket";
-
-        $enableConfig = new Mage_Core_Model_Config();
-        $enableConfig->saveConfig($outputPath, "1");
-        unset($enableConfig);
-    }
-
-    /**
      * get substring between two caracter
      *
-     * @access public
+     * @param $content
+     * @param $start
+     * @param $end
      * @return string
-     * 
      */
     public function getBetweenCaract($content, $start, $end)
     {
@@ -63,9 +106,8 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * get all store data
      *
-     * @access public
+     * @param null $websiteID
      * @return array
-     * 
      */
     public function getAllStores($websiteID = null)
     {
@@ -94,10 +136,11 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * call curl
      *
-     * @access public
-     * @param $options
-     * @return json
-     * 
+     * @param $method
+     * @param $url
+     * @param $headers
+     * @param $params
+     * @return array|string
      */
     public function CallAPICurl($method, $url, $headers, $params){
         $curl = curl_init($url);
@@ -110,9 +153,10 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
             curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
         }else if($method == "PUT"){
             $data_string = json_encode($params);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
             curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
+        }else if($method == "DELETE"){
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
         }
 
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT ,0); 
@@ -123,7 +167,7 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
 
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-        if ( $status == 200 ) {
+        if ( $status == 200 || $status == 204 || $status == 201 ) {
             $retorno = array("error" => "0", "json" => $data_string, "return" => json_decode($curl_response) );
         }else{
             if($err){
@@ -163,16 +207,22 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
 
         curl_close($curl);
 
+/*
+        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+        $anymarketlog->setLogDesc( 'Call(MET: '.$method.' URL: '.$url.' JSON: '.json_encode($params).')');
+        $anymarketlog->setLogJson( json_encode($retorno) );
+        $anymarketlog->setStatus("1");
+        $anymarketlog->save();
+*/
         return $retorno;
     }
 
     /**
      * add message inbox of magento
      *
-     * @access public
-     * @param $title, $Desc, $URL
-     * @return void
-     * 
+     * @param $title
+     * @param $Desc
+     * @param $URL
      */
     public function addMessageInBox($title, $Desc, $URL){
         if(Mage::helper('core')->isModuleEnabled('Mage_AdminNotification')){
@@ -187,16 +237,13 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
         Mage::getSingleton('adminhtml/session')->addError($Desc);
     }
 
+
     /**
-     * add message inbox of magento
      *
-     * @access public
-     * @return void
-     * 
      */
     public function massInsertAttribute(){
         $productAttrs = Mage::getResourceModel('catalog/product_attribute_collection');
-        $storeID = Mage::app()->getStore()->getId();
+        $storeID = $this->getCurrentStoreView();
 
         foreach ($productAttrs as $productAttr) {
             if($productAttr->getFrontendLabel() != null){

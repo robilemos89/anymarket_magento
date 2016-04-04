@@ -2,7 +2,7 @@
 <config>
     <modules>
         <DB1_AnyMarket>
-            <version>2.3.6</version>
+            <version>2.4.2</version>
         </DB1_AnyMarket>
     </modules>
     <global>
@@ -27,6 +27,9 @@
                     <module>DB1_AnyMarket</module>
                     <class>DB1_AnyMarket_Model_Resource_Setup</class>
                 </setup>
+                <connection>
+                    <use>default_setup</use>
+                </connection>
             </db1_anymarket_setup>
 
 <!-- METODO DE PAGAMENTO -->
@@ -79,6 +82,9 @@
                     <anymarketqueue>
                         <table>db1_anymarket_anymarketqueue</table>
                     </anymarketqueue>
+                    <anymarketbrands>
+                        <table>db1_anymarket_anymarketbrands</table>
+                    </anymarketbrands>
                     <anymarketlog_store>
                         <table>db1_anymarket_anymarketlog_store</table>
                     </anymarketlog_store>
@@ -97,12 +103,69 @@
                     <anymarketqueue_store>
                         <table>db1_anymarket_anymarketqueue_store</table>
                     </anymarketqueue_store>
+                    <anymarketbrands_store>
+                        <table>db1_anymarket_anymarketbrands_store</table>
+                    </anymarketbrands_store>
                 </entities>
             </db1_anymarket_resource>
         </models>
-        <!-- OBSERVERS -->
         <events>
+
+            <!-- CONFIGURATIONS -->
+            <admin_system_config_changed_section_anymarket_section>
+                <observers>
+                    <db1_anymarket>
+                        <type>singleton</type>
+                        <class>db1_anymarket/observer</class>
+                        <method>saveConfigurations</method>
+                    </db1_anymarket>
+                </observers>
+            </admin_system_config_changed_section_anymarket_section>
+
+            <sales_order_save_commit_after>
+                <observers>
+                    <sales_order_save_commit_after_handler>
+                        <type>model</type>
+                        <class>db1_anymarket/observer</class>
+                        <method>updateOrderAnyMarketObs</method>
+                        <args></args>
+                    </sales_order_save_commit_after_handler>
+                </observers>
+            </sales_order_save_commit_after>
+
+            <!-- CATEGORIA -->
+            <catalog_category_save_commit_after>
+                <observers>
+                    <db1_anymarket>
+                        <type>singleton</type>
+                        <class>db1_anymarket/observer</class>
+                        <method>updateCategory</method>
+                    </db1_anymarket>
+                </observers>
+            </catalog_category_save_commit_after>
+
+            <catalog_category_delete_before>
+                <observers>
+                    <db1_anymarket>
+                        <type>singleton</type>
+                        <class>db1_anymarket/observer</class>
+                        <method>deleteCategory</method>
+                    </db1_anymarket>
+                </observers>
+            </catalog_category_delete_before>
+
             <!-- PRODUTO -->
+            <controller_action_predispatch_adminhtml_catalog_product_quickCreate>
+                <observers>
+                    <db1_anymarket>
+                        <type>singleton</type>
+                        <class>db1_anymarket/observer</class>
+                        <method>setQuickCreateFlag</method>
+                        <args></args>
+                    </db1_anymarket>
+                </observers>
+            </controller_action_predispatch_adminhtml_catalog_product_quickCreate>
+
             <catalog_product_save_after>
                 <observers>
                     <db1_anymarket>
@@ -122,15 +185,6 @@
             </catalog_product_delete_after>
 
             <!-- ORDER -->
-            <sales_order_creditmemo_save_after>
-                <observers>
-                    <db1_anymarket>
-                        <class>db1_anymarket/observer</class>
-                        <method>refundOrderInventory</method>
-                    </db1_anymarket>
-                </observers>
-            </sales_order_creditmemo_save_after>
-
             <sales_order_save_after>
                 <observers>
                     <db1_anymarket>
@@ -139,17 +193,6 @@
                     </db1_anymarket>
                 </observers>
             </sales_order_save_after>
-
-            <sales_order_save_commit_after>
-                <observers>
-                    <sales_order_save_commit_after_handler>
-                        <type>model</type>
-                        <class>db1_anymarket/observer</class>
-                        <method>updateOrderAnyMarketObs</method>
-                        <args></args>
-                    </sales_order_save_commit_after_handler>
-                </observers>
-            </sales_order_save_commit_after>
 
             <!-- ESTOQUE -->
             <cataloginventory_stock_item_save_commit_after>
@@ -188,8 +231,16 @@
                 </observers>
             </sales_order_item_cancel>
 
+            <sales_order_creditmemo_save_after>
+                <observers>
+                    <db1_anymarket>
+                        <class>db1_anymarket/observer</class>
+                        <method>refundOrderInventory</method>
+                    </db1_anymarket>
+                </observers>
+            </sales_order_creditmemo_save_after>
+
         </events>
-        <!-- OBSERVERS -->
 
     </global>
    <default>
@@ -237,6 +288,10 @@
                 <schedule><cron_expr>0 * * * *</cron_expr></schedule> <!-- 1 hora -->
                 <run><model>db1_anymarket/cron::sincProducts</model></run>
             </db1_anymarket_getprods>
+            <db1_anymarket_cleanlogs>
+                <schedule><cron_expr>5 5 * * 6</cron_expr></schedule>  <!-- 1 vez por semana -->
+                <run><model>db1_anymarket/cron::executeCleanLogs</model></run>
+            </db1_anymarket_cleanlogs>
             <db1_anymarket_execqueue>
                 <schedule><cron_expr>*/15 * * * *</cron_expr></schedule>  <!-- 15 min -->
                 <run><model>db1_anymarket/cron::executeQueue</model></run>
@@ -288,6 +343,10 @@
                 <class>db1_anymarket/adminhtml_search_anymarketqueue</class>
                 <acl>db1_anymarket</acl>
             </anymarketqueue>
+            <anymarketbrands>
+                <class>db1_anymarket/adminhtml_search_anymarketbrands</class>
+                <acl>db1_anymarket</acl>
+            </anymarketbrands>
         </global_search>
     </adminhtml>
     <admin>
@@ -302,17 +361,16 @@
         </routers>
     </admin>
 
-
     <frontend>
         <routers>
-            <categories>
+            <anymarketcallback>
                 <use>standard</use>
                 <args>
                     <module>DB1_AnyMarket</module>
-                    <frontName>categories</frontName>
+                    <frontName>anymarketcallback</frontName>
                 </args>
-            </categories>
-        </routers>
+            </anymarketcallback>
+        </routers>  
     </frontend>
 
 </config>

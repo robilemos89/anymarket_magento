@@ -67,11 +67,16 @@ class DB1_AnyMarket_Model_Anymarketlog extends Mage_Core_Model_Abstract
     protected function _beforeSave()
     {
         parent::_beforeSave();
-        $now = Mage::getSingleton('core/date')->gmtDate();
-        if ($this->isObjectNew()) {
-            $this->setCreatedAt($now);
+
+        if( strpos($this->getLogDesc(), "Error Curl: <url> malformed") === false ) {
+            $now = Mage::getSingleton('core/date')->gmtDate();
+            if ($this->isObjectNew()) {
+                $this->setCreatedAt($now);
+            }
+            $this->setUpdatedAt($now);
+        }else {
+            $this->_dataSaveAllowed = false;
         }
-        $this->setUpdatedAt($now);
         return $this;
     }
 

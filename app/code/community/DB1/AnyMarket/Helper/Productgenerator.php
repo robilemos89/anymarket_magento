@@ -21,11 +21,11 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
             'tax_class_id' =>  '0', 
             'is_recurring' =>  '0', 
             'weight' =>  '1.0000',
-            'price' =>  '10.0000',
-            'cost' =>  '10.0000',
+            'price' =>  '0',
+            'cost' =>  '0',
             'special_price' => null,
             'msrp' => null,
-            'name' =>  'teste' ,
+            'name' =>  'product no name' ,
             'url_key' =>  '',
             'coun1_of_manufacture' => null,
             'video_url' => null,
@@ -74,28 +74,24 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
     /**
      * update images in MG
      *
-     * @access public
-     * @param $product, $data
-     * @return void
-     * 
+     * @param $product
+     * @param $data
      */
-    public function updateImages($product, $data){ 
+    public function updateImages($product, $data){
         $sku = $data['sku'];
         foreach ($data['images'] as $image) {
             $this->importImages($product, $image, $sku);
         }
     }
 
+
     /**
      * create simple prod in MG
      *
-     * @access public
-     * @param $data
-     * @return product object
-     * 
+     * @param array $data
+     * @return Mage_Catalog_Model_Product
      */
     public function createSimpleProduct($data = array()){
-
         $data = array_replace_recursive($this->_defaultData, $data);
 
         $product = Mage::getModel('catalog/product');
@@ -116,12 +112,11 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
     }
 
     /**
-     * import images
+     * import Images
      *
-     * @access public
-     * @param $product, $image, $sku
-     * @return void
-     * 
+     * @param $product
+     * @param $image
+     * @param $sku
      */
     private function importImages($product, $image, $sku){
 
@@ -130,6 +125,11 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
         $image_type = substr(strrchr($image_url,"."),1);
         $split =  explode("?", $image_type);
         $image_type = $split[0];
+        $split =  explode("/", $image_type);
+        $image_type = $split[0];
+
+        $image_url  = substr($image_url, 0,strpos($image_url, $image_type)+strlen($image_type));
+
         $imgName = basename($image_url);
         $imgName = str_replace('.'.$image_type, "", $imgName);
         $filename  = md5($imgName . $sku).'.'.$image_type;
@@ -170,13 +170,13 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
     /**
      * create configurable product in MG
      *
-     * @access public
-     * @param $dataProdConfig, $simpleProducts, $AttributeIds
-     * @return product object
-     * 
+     * @param array $dataProdConfig
+     * @param array $simpleProducts
+     * @param array $AttributeIds
+     * @return Mage_Catalog_Model_Product
      */
-    public function createConfigurableProduct($dataProdConfig = array() ,$simpleProducts = array(), $AttributeIds = array()){
-        $storeID = Mage::app()->getStore()->getId();
+    public function createConfigurableProduct($dataProdConfig = array() , $simpleProducts = array(), $AttributeIds = array()){
+        $storeID = $this->getCurrentStoreView();
         $confProduct = Mage::getModel('catalog/product')->setSku($dataProdConfig['sku']);
         $confProduct->setTypeId('configurable');
 
@@ -206,6 +206,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
         $confProduct->setConfigurableAttributesData($configurableAttributesData);
 
         $confProduct->setCanSaveConfigurableAttributes(true);
+
         $confProduct->setStoreId($storeID)
                      ->setAttributeSetId( Mage::getModel('catalog/product')->getDefaultAttributeSetId() )
                      ->setStockData($dataProdConfig['stock'])
@@ -219,7 +220,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
                      ->setStatus(1)
                      ->setTaxClassId(0)
                      ->setIdAnymarket( $dataProdConfig['id_anymarket'] )
-                     ->setCategoriaAnymarket( $dataProdConfig['categoria_anymarket'] )                     
+                     ->setCategoriaAnymarket( $dataProdConfig['categoria_anymarket'] )
                      ->save();
 
         $sku = $dataProdConfig['sku'];
@@ -233,20 +234,20 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
     /**
      * update configurable product in MG
      *
-     * @access public
-     * @param $idProd, $dataProdConfig, $simpleProducts
-     * @return product object
-     * 
+     * @param $idProd
+     * @param array $dataProdConfig
+     * @param array $simpleProducts
+     * @param array $AttributeIds
+     * @return Mage_Catalog_Model_Product
      */
-    public function updateConfigurableProduct($idProd, $dataProdConfig = array() ,$simpleProducts = array(), $AttributeIds = array()){
-        $storeID = Mage::app()->getStore()->getId();
+    public function updateConfigurableProduct($idProd, $dataProdConfig = array() , $simpleProducts = array(), $AttributeIds = array()){
+        $storeID = $this->getCurrentStoreView();
         $confProduct = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $idProd );
         $confProduct->setTypeId('configurable');
 
         $confProduct->getTypeInstance()->setUsedProductAttributeIds($AttributeIds);
 
         $configurableProductsData = array();
-        $configurableAttributesData = $confProduct->getTypeInstance()->getConfigurableAttributesAsArray();
 
         foreach ($simpleProducts as $simpleProduct) {
             $sProd = Mage::getModel('catalog/product')->load( $simpleProduct['Id'] );
@@ -262,11 +263,9 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
             );
 
             $configurableProductsData[ $sProd->getId() ] = $simpleProductsData;
-            $configurableAttributesData[0]['values'][] = $simpleProductsData;
         }
 
         $confProduct->setConfigurableProductsData($configurableProductsData);
-//        $confProduct->setConfigurableAttributesData($configurableAttributesData);
         $confProduct->setCanSaveConfigurableAttributes(true);
         $confProduct->setStoreId($storeID)
                      ->setAttributeSetId( Mage::getModel('catalog/product')->getDefaultAttributeSetId() )

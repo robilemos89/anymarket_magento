@@ -27,7 +27,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue extends Mage_Adminhtml_Block_
      *
      * @access public
      * @return void
-     
+     *
      */
     public function __construct()
     {
@@ -36,6 +36,12 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue extends Mage_Adminhtml_Block_
         parent::__construct();
         $this->_headerText         = Mage::helper('db1_anymarket')->__('Anymarket Queue');
         $this->_removeButton('add');
+
+        $this->_addButton('proc_cron', array(
+            'label'   => Mage::helper('db1_anymarket')->__('Processar Fila'),
+            'onclick' => "setLocation('{$this->getUrl('*/*/procCron')}')",
+            'class'   => 'add'
+        ));
 
     }
 }

@@ -165,7 +165,6 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
      *
      * @access public
      * @return void
-     
      */
     public function deleteAction()
     {
@@ -196,12 +195,51 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
         $this->_redirect('*/*/');
     }
 
+
+    /**
+     * proc cron - action
+     *
+     * @access public
+     * @return void    
+     * 
+     */
+    public function procCronAction()
+    {
+        $lastProcDate = Mage::getSingleton('core/session')->getProcCronVariable();
+
+        $lastProc = true;
+        if($lastProcDate != null){
+            $dateOld = new DateTime(date('y-m-d H:i:s', strtotime($lastProcDate)));
+            $dateNew = new DateTime(date('y-m-d H:i:s'));
+
+            $difDate = $dateOld->diff($dateNew); 
+            if($difDate->h <= 0 && $difDate->i < 1){
+                $lastProc = false;
+            }
+        }
+
+        if($lastProc){
+            Mage::helper('db1_anymarket/queue')->processQueue();
+            Mage::getSingleton('core/session')->setProcCronVariable(date('y-m-d H:i:s'));
+
+            Mage::getSingleton('adminhtml/session')->addSuccess(
+                Mage::helper('db1_anymarket')->__('Complete.')
+            );
+        }else{
+            Mage::getSingleton('adminhtml/session')->addError(
+                Mage::helper('db1_anymarket')->__('A queue is already in process.')
+            );
+        }
+
+        $this->_redirect('*/*/index');
+    }
+
     /**
      * mass delete anymarket queue - action
      *
      * @access public
      * @return void
-     
+     *
      */
     public function massDeleteAction()
     {
