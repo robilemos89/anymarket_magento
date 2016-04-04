@@ -36,13 +36,20 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories extends Mage_Adminhtml_B
         $this->_blockGroup         = 'db1_anymarket';
         parent::__construct();
         $this->_headerText         = Mage::helper('db1_anymarket')->__('Anymarket Categories');
-//        $this->_updateButton('add', 'label', Mage::helper('db1_anymarket')->__('Add Anymarket Categories'));
         $this->_removeButton('add');
 
-        $this->_addButton('add_new', array(
-            'label'   => Mage::helper('db1_anymarket')->__('Sincronizar Categorias'),
+        $this->_addButton('sinc_categ', array(
+            'label'   => Mage::helper('db1_anymarket')->__('Import Categories'),
             'onclick' => "setLocation('{$this->getUrl('*/*/sincCategs')}')",
             'class'   => 'add'
         ));
+
+        $message = Mage::helper('db1_anymarket')->__('Are you sure you want to export the categories?');
+        $this->_addButton('export_categ', array(
+            'label'   => Mage::helper('db1_anymarket')->__('Export Categories'),
+            'onclick'   => "confirmSetLocation('{$message}', '{$this->getUrl('*/*/exportCategs')}')",
+            'class'   => 'back'
+        ));
+
     }
 }

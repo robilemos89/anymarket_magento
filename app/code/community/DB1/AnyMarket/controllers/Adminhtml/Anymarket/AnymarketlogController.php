@@ -198,6 +198,25 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketlogController extends DB1_AnyMa
     }
 
     /**
+     * clean log action
+     *
+     * @access public
+     * @return void
+     * 
+     */
+    public function cleanLogsAction() {
+
+        $contLogs = Mage::helper('db1_anymarket/queue')->processCleanLogs();
+
+        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+        $anymarketlog->setLogDesc('Clean Logs by User, '.$contLogs.' cleaned');
+        $anymarketlog->setStatus("1");
+        $anymarketlog->save();
+
+        $this->_redirect('*/*/');
+    }
+
+    /**
      * mass delete anymarket log - action
      *
      * @access public

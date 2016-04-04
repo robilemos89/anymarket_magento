@@ -19,53 +19,74 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
     protected $_order;
     public $_storeId;
 
+    /**
+     * @param $value
+     */
     public function setCpfCnpj($value)
     {
         $this->_cpfcnpj = $value;
     }
 
+    /**
+     * @param $value
+     */
     public function setShippingValue($value)
     {
         $this->_shippingValue = $value;
     }
 
+    /**
+     * @param $methodName
+     */
     public function setShippingMethod($methodName)
     {
         $this->_shippingMethod = $methodName;
     }
 
+    /**
+     * @param $methodName
+     */
     public function setPaymentMethod($methodName)
     {
         $this->_paymentMethod = $methodName;
     }
 
+    /**
+     * @param $billing
+     */
     public function setBillAddress($billing)
     {
         $this->_billing = $billing;
     }
 
+    /**
+     * @param $shipping
+     */
     public function setShipAddress($shipping)
     {
         $this->_shipping = $shipping;
     }
 
+    /**
+     * @param $addInfo
+     */
     public function setAdditionalInformation($addInfo)
     {
         $this->_AdditionalInformation = $addInfo;
     }
 
+    /**
+     * @param $shippingDesc
+     */
     public function setShippingDescription($shippingDesc)
     {
         $this->_shippingDescription = $shippingDesc;
-    }    
+    }
 
     /**
      * set customer of order
      *
-     * @access public
-     * @param $custome
-     * @return void
-     * 
+     * @param $customer
      */
     public function setCustomer($customer)
     {
@@ -80,10 +101,8 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
     /**
      * create order in MG
      *
-     * @access public
      * @param $products
-     * @return string
-     * 
+     * @return int
      */
     public function createOrder($products)
     {
@@ -107,7 +126,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
             ->setStoreId($this->_storeId)
             ->setQuoteId(0)
             ->setDiscountAmount(0)
-            ->setShippingAmount((float)$this->_shippingValue)//
+            ->setShippingAmount((float)$this->_shippingValue)
             ->setShippingTaxAmount(0)
             ->setBaseDiscountAmount(0)
             ->setIsVirtual(0)
@@ -118,7 +137,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
             ->setBaseToOrderRate(1)
             ->setStoreToBaseRate(1)
             ->setStoreToOrderRate(1)
-            ->setTaxAmount(0)//
+            ->setTaxAmount(0)
             ->setGlobalCurrencyCode($currencyCode)
             ->setBaseCurrencyCode($currencyCode)
             ->setStoreCurrencyCode($currencyCode)
@@ -218,10 +237,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
     /**
      * add products in order
      *
-     * @access protected
      * @param $products
-     * @return void
-     * 
      */
     protected function _addProducts($products)
     {
@@ -255,10 +271,9 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
     /**
      * add product in order
      *
-     * @access protected
      * @param $requestData
      * @return array
-     * 
+     * @throws Exception
      */
     protected function _addProduct($requestData)
     {
@@ -321,13 +336,14 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         return $items;
     }
 
+
     /**
      * add product in order
      *
-     * @access protected
-     * @param $product, $qty, $price
-     * @return order object
-     * 
+     * @param Mage_Catalog_Model_Product $product
+     * @param int $qty
+     * @param $price
+     * @return Mage_Sales_Model_Order_Item
      */
     function _productToOrderItem(Mage_Catalog_Model_Product $product, $qty = 1, $price)
     {

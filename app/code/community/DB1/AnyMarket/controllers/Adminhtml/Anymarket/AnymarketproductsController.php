@@ -55,48 +55,6 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketproductsController extends DB1_
     }
 
     /**
-     * sinc products action
-     *
-     * @access public
-     * @return void
-     */
-    public function sincProdsAction()
-    {
-        $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', Mage::app()->getStore()->getId());
-        if($typeSincProd == 1){
-            Mage::helper('db1_anymarket/product')->getProdsFromAnyMarket();
-        }else{
-            $products = Mage::getModel('catalog/product')->getCollection();
-            foreach($products as $product) {
-
-                $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->load($product->getId(), 'nmp_id');
-                if($anymarketproducts->getData('nmp_id') != null){
-                    if( strtolower($anymarketproducts->getData('nmp_status_int')) != 'integrado'){
-
-                        $ProdLoaded = Mage::getModel('catalog/product')->load( $product->getId() );
-                        if( ($ProdLoaded->getStatus() == 1) && ($ProdLoaded->getData('integra_anymarket') == 1) ){
-                            $amProd = Mage::helper('db1_anymarket/product');
-                            $amProd->sendProductToAnyMarket( $product->getId() );
-
-                            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', Mage::app()->getStore()->getId()));
-                            $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
-
-                            $amProd->updatePriceStockAnyMarket($product->getId(), $ProdStock->getQty(), $ProdLoaded->getData($filter));
-                        }
-                    }
-                }
-                
-            }
-        }
-
-        Mage::getSingleton('adminhtml/session')->addSuccess(
-            Mage::helper('db1_anymarket')->__('Produtos sincronizados com sucesso.')
-        );
-        $this->_redirect('*/*/');
-
-    }
-
-    /**
      * list products action
      *
      * @access public

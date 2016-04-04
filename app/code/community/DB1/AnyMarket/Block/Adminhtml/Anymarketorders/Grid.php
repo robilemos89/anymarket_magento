@@ -65,6 +65,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketorders_Grid extends Mage_Adminhtml_
         Mage::app()->setCurrentStore($store_id);
         $store_id = Mage::app()->getStore()->getId();
         Mage::getSingleton('core/session')->setStoreListOrderVariable($store_id);
+
         $collection = Mage::getModel('db1_anymarket/anymarketorders')
             ->getCollection();
         

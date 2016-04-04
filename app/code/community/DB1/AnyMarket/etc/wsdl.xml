@@ -10,7 +10,6 @@
                     <element name="entity_id" type="xsd:string" minOccurs="1" />
                     <element name="log_desc" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                     <element name="created_at" type="xsd:string" minOccurs="1" />
                     <element name="updated_at" type="xsd:string" minOccurs="1" />
                 </all>
@@ -26,14 +25,12 @@
                 <all>
                     <element name="log_desc" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                 </all>
             </complexType>
             <complexType name="anymarketAnymarketlogUpdateEntity">
                 <all>
                     <element name="log_desc" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                 </all>
             </complexType>
             <complexType name="anymarketAnymarketlogInfoEntity">
@@ -41,12 +38,11 @@
                     <element name="entity_id" type="xsd:string" minOccurs="1" />
                     <element name="log_desc" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                     <element name="created_at" type="xsd:string" minOccurs="1" />
                     <element name="updated_at" type="xsd:string" minOccurs="1" />
                 </all>
             </complexType>
-                    <complexType name="anymarketAnymarketproductsListEntity">
+            <complexType name="anymarketAnymarketproductsListEntity">
                 <all>
                     <element name="entity_id" type="xsd:string" minOccurs="1" />
                     <element name="nmp_sku" type="xsd:string" minOccurs="1" />
@@ -54,7 +50,6 @@
                     <element name="nmp_desc_error" type="xsd:string" minOccurs="1" />
                     <element name="nmp_status_int" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                     <element name="created_at" type="xsd:string" minOccurs="1" />
                     <element name="updated_at" type="xsd:string" minOccurs="1" />
                 </all>
@@ -73,7 +68,6 @@
                     <element name="nmp_desc_error" type="xsd:string" minOccurs="1" />
                     <element name="nmp_status_int" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                 </all>
             </complexType>
             <complexType name="anymarketAnymarketproductsUpdateEntity">
@@ -83,7 +77,6 @@
                     <element name="nmp_desc_error" type="xsd:string" minOccurs="1" />
                     <element name="nmp_status_int" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                 </all>
             </complexType>
             <complexType name="anymarketAnymarketproductsInfoEntity">
@@ -94,18 +87,16 @@
                     <element name="nmp_desc_error" type="xsd:string" minOccurs="1" />
                     <element name="nmp_status_int" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                     <element name="created_at" type="xsd:string" minOccurs="1" />
                     <element name="updated_at" type="xsd:string" minOccurs="1" />
                 </all>
             </complexType>
-                    <complexType name="anymarketAnymarketattributesListEntity">
+            <complexType name="anymarketAnymarketattributesListEntity">
                 <all>
                     <element name="entity_id" type="xsd:string" minOccurs="1" />
                     <element name="nma_id_attr" type="xsd:string" minOccurs="1" />
                     <element name="nma_desc" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                     <element name="created_at" type="xsd:string" minOccurs="1" />
                     <element name="updated_at" type="xsd:string" minOccurs="1" />
                 </all>
@@ -122,7 +113,6 @@
                     <element name="nma_id_attr" type="xsd:string" minOccurs="1" />
                     <element name="nma_desc" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                 </all>
             </complexType>
             <complexType name="anymarketAnymarketattributesUpdateEntity">
@@ -130,7 +120,6 @@
                     <element name="nma_id_attr" type="xsd:string" minOccurs="1" />
                     <element name="nma_desc" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                 </all>
             </complexType>
             <complexType name="anymarketAnymarketattributesInfoEntity">
@@ -139,18 +128,16 @@
                     <element name="nma_id_attr" type="xsd:string" minOccurs="1" />
                     <element name="nma_desc" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                     <element name="created_at" type="xsd:string" minOccurs="1" />
                     <element name="updated_at" type="xsd:string" minOccurs="1" />
                 </all>
             </complexType>
-                    <complexType name="anymarketAnymarketordersListEntity">
+            <complexType name="anymarketAnymarketordersListEntity">
                 <all>
                     <element name="entity_id" type="xsd:string" minOccurs="1" />
                     <element name="nmo_id_anymarket" type="xsd:string" minOccurs="1" />
                     <element name="nmo_id_order" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                     <element name="created_at" type="xsd:string" minOccurs="1" />
                     <element name="updated_at" type="xsd:string" minOccurs="1" />
                 </all>
@@ -167,7 +154,6 @@
                     <element name="nmo_id_anymarket" type="xsd:string" minOccurs="1" />
                     <element name="nmo_id_order" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                 </all>
             </complexType>
             <complexType name="anymarketAnymarketordersUpdateEntity">
@@ -175,7 +161,6 @@
                     <element name="nmo_id_anymarket" type="xsd:string" minOccurs="1" />
                     <element name="nmo_id_order" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                 </all>
             </complexType>
             <complexType name="anymarketAnymarketordersInfoEntity">
@@ -184,19 +169,17 @@
                     <element name="nmo_id_anymarket" type="xsd:string" minOccurs="1" />
                     <element name="nmo_id_order" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                     <element name="created_at" type="xsd:string" minOccurs="1" />
                     <element name="updated_at" type="xsd:string" minOccurs="1" />
                 </all>
             </complexType>
-                    <complexType name="anymarketAnymarketcategoriesListEntity">
+            <complexType name="anymarketAnymarketcategoriesListEntity">
                 <all>
                     <element name="entity_id" type="xsd:string" minOccurs="1" />
                     <element name="nmc_cat_id" type="xsd:string" minOccurs="1" />
                     <element name="nmc_cat_root_id" type="xsd:string" minOccurs="1" />
                     <element name="nmc_cat_desc" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                     <element name="created_at" type="xsd:string" minOccurs="1" />
                     <element name="updated_at" type="xsd:string" minOccurs="1" />
                 </all>
@@ -214,7 +197,6 @@
                     <element name="nmc_cat_root_id" type="xsd:string" minOccurs="1" />
                     <element name="nmc_cat_desc" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                 </all>
             </complexType>
             <complexType name="anymarketAnymarketcategoriesUpdateEntity">
@@ -223,7 +205,6 @@
                     <element name="nmc_cat_root_id" type="xsd:string" minOccurs="1" />
                     <element name="nmc_cat_desc" type="xsd:string" minOccurs="1" />
                     <element name="status" type="xsd:string" minOccurs="0" />
-
                 </all>
             </complexType>
             <complexType name="anymarketAnymarketcategoriesInfoEntity">
@@ -238,7 +219,49 @@
                     <element name="updated_at" type="xsd:string" minOccurs="1" />
                 </all>
             </complexType>
-                </schema>
+            <complexType name="anymarketAnymarketbrandsListEntity">
+                <all>
+                    <element name="entity_id" type="xsd:string" minOccurs="1" />
+                    <element name="brd_id" type="xsd:string" minOccurs="1" />
+                    <element name="brd_name" type="xsd:string" minOccurs="1" />
+                    <element name="status" type="xsd:string" minOccurs="0" />
+
+                    <element name="created_at" type="xsd:string" minOccurs="1" />
+                    <element name="updated_at" type="xsd:string" minOccurs="1" />
+                </all>
+            </complexType>
+            <complexType name="anymarketAnymarketbrandsListEntityArray">
+                <complexContent>
+                    <restriction base="soapenc:Array">
+                        <attribute ref="soapenc:arrayType" wsdl:arrayType="typens:anymarketAnymarketbrandsListEntity[]" />
+                    </restriction>
+                </complexContent>
+            </complexType>
+            <complexType name="anymarketAnymarketbrandsAddEntity">
+                <all>
+                    <element name="brd_id" type="xsd:string" minOccurs="1" />
+                    <element name="brd_name" type="xsd:string" minOccurs="1" />
+                    <element name="status" type="xsd:string" minOccurs="0" />
+                </all>
+            </complexType>
+            <complexType name="anymarketAnymarketbrandsUpdateEntity">
+                <all>
+                    <element name="brd_id" type="xsd:string" minOccurs="1" />
+                    <element name="brd_name" type="xsd:string" minOccurs="1" />
+                    <element name="status" type="xsd:string" minOccurs="0" />
+                </all>
+            </complexType>
+            <complexType name="anymarketAnymarketbrandsInfoEntity">
+                <all>
+                    <element name="entity_id" type="xsd:string" minOccurs="1" />
+                    <element name="brd_id" type="xsd:string" minOccurs="1" />
+                    <element name="brd_name" type="xsd:string" minOccurs="1" />
+                    <element name="status" type="xsd:string" minOccurs="0" />
+                    <element name="created_at" type="xsd:string" minOccurs="1" />
+                    <element name="updated_at" type="xsd:string" minOccurs="1" />
+                </all>
+            </complexType>
+        </schema>
     </types>
     <message name="anymarketAnymarketlogListRequest">
         <part name="sessionId" type="xsd:string" />
@@ -456,6 +479,42 @@
     <message name="anymarketAnymarketqueueRemoveResponse">
         <part name="result" type="xsd:boolean" />
     </message>
+    <message name="anymarketAnymarketbrandsListRequest">
+        <part name="sessionId" type="xsd:string" />
+        <part name="filters" type="typens:filters"/>
+    </message>
+    <message name="anymarketAnymarketbrandsListResponse">
+        <part name="result" type="typens:anymarketAnymarketbrandsListEntityArray" />
+    </message>
+    <message name="anymarketAnymarketbrandsInfoRequest">
+        <part name="sessionId" type="xsd:string" />
+        <part name="anymarketbrandsId" type="xsd:string" />
+    </message>
+    <message name="anymarketAnymarketbrandsInfoResponse">
+        <part name="result" type="typens:anymarketAnymarketbrandsInfoEntity" />
+    </message>
+    <message name="anymarketAnymarketbrandsAddRequest">
+        <part name="sessionId" type="xsd:string" />
+        <part name="data" type="typens:anymarketAnymarketbrandsAddEntity" />
+    </message>
+    <message name="anymarketAnymarketbrandsAddResponse">
+        <part name="result" type="xsd:int"/>
+    </message>
+    <message name="anymarketAnymarketbrandsUpdateRequest">
+        <part name="sessionId" type="xsd:string" />
+        <part name="anymarketbrandsId" type="xsd:string" />
+        <part name="data" type="typens:anymarketAnymarketbrandsUpdateEntity" />
+    </message>
+    <message name="anymarketAnymarketbrandsUpdateResponse">
+        <part name="result" type="xsd:boolean" />
+    </message>
+    <message name="anymarketAnymarketbrandsRemoveRequest">
+        <part name="sessionId" type="xsd:string" />
+        <part name="anymarketbrandsId" type="xsd:string" />
+    </message>
+    <message name="anymarketAnymarketbrandsRemoveResponse">
+        <part name="result" type="xsd:boolean" />
+    </message>
         <portType name="{{var wsdl.handler}}PortType">
         <operation name="anymarketAnymarketlogList">
             <documentation>Retrieve list of anymarket log</documentation>
@@ -606,6 +665,31 @@
             <documentation>Remove anymarket queue</documentation>
             <input message="typens:anymarketAnymarketqueueRemoveRequest" />
             <output message="typens:anymarketAnymarketqueueRemoveResponse" />
+        </operation>
+        <operation name="anymarketAnymarketbrandsList">
+            <documentation>Retrieve list of anymarketbrands</documentation>
+            <input message="typens:anymarketAnymarketbrandsListRequest" />
+            <output message="typens:anymarketAnymarketbrandsListResponse" />
+        </operation>
+        <operation name="anymarketAnymarketbrandsInfo">
+            <documentation>Retrieve anymarketbrands info</documentation>
+            <input message="typens:anymarketAnymarketbrandsInfoRequest" />
+            <output message="typens:anymarketAnymarketbrandsInfoResponse" />
+        </operation>
+        <operation name="anymarketAnymarketbrandsAdd">
+            <documentation>Add anymarketbrands</documentation>
+            <input message="typens:anymarketAnymarketbrandsAddRequest" />
+            <output message="typens:anymarketAnymarketbrandsAddResponse" />
+        </operation>
+        <operation name="anymarketAnymarketbrandsUpdate">
+            <documentation>Update anymarketbrands</documentation>
+            <input message="typens:anymarketAnymarketbrandsUpdateRequest" />
+            <output message="typens:anymarketAnymarketbrandsUpdateResponse" />
+        </operation>
+        <operation name="anymarketAnymarketbrandsRemove">
+            <documentation>Remove anymarketbrands</documentation>
+            <input message="typens:anymarketAnymarketbrandsRemoveRequest" />
+            <output message="typens:anymarketAnymarketbrandsRemoveResponse" />
         </operation>
         </portType>
     <binding name="{{var wsdl.handler}}Binding" type="typens:{{var wsdl.handler}}PortType">
@@ -872,6 +956,51 @@
             </output>
         </operation>
         <operation name="anymarketAnymarketqueueRemove">
+            <soap:operation soapAction="urn:{{var wsdl.handler}}Action" />
+            <input>
+                <soap:body namespace="urn:{{var wsdl.name}}" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+            </input>
+            <output>
+                <soap:body namespace="urn:{{var wsdl.name}}" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+            </output>
+        </operation>
+        <operation name="anymarketAnymarketbrandsList">
+            <soap:operation soapAction="urn:{{var wsdl.handler}}Action" />
+            <input>
+                <soap:body namespace="urn:{{var wsdl.name}}" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+            </input>
+            <output>
+                <soap:body namespace="urn:{{var wsdl.name}}" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+            </output>
+        </operation>
+        <operation name="anymarketAnymarketbrandsInfo">
+            <soap:operation soapAction="urn:{{var wsdl.handler}}Action" />
+            <input>
+                <soap:body namespace="urn:{{var wsdl.name}}" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+            </input>
+            <output>
+                <soap:body namespace="urn:{{var wsdl.name}}" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+            </output>
+        </operation>
+        <operation name="anymarketAnymarketbrandsAdd">
+            <soap:operation soapAction="urn:{{var wsdl.handler}}Action" />
+            <input>
+                <soap:body namespace="urn:{{var wsdl.name}}" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+            </input>
+            <output>
+                <soap:body namespace="urn:{{var wsdl.name}}" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+            </output>
+        </operation>
+        <operation name="anymarketAnymarketbrandsUpdate">
+            <soap:operation soapAction="urn:{{var wsdl.handler}}Action" />
+            <input>
+                <soap:body namespace="urn:{{var wsdl.name}}" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+            </input>
+            <output>
+                <soap:body namespace="urn:{{var wsdl.name}}" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+            </output>
+        </operation>
+        <operation name="anymarketAnymarketbrandsRemove">
             <soap:operation soapAction="urn:{{var wsdl.handler}}Action" />
             <input>
                 <soap:body namespace="urn:{{var wsdl.name}}" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />

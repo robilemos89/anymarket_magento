@@ -79,63 +79,8 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketordersController extends DB1_An
      * @return void
      * 
      */
-    public function sincOrdertoMageAction()
+    public function massSincOrderAction()
     {
-        $anymarketOrdersIds = $this->getRequest()->getParam('anymarketorders');
-        if (!is_array($anymarketOrdersIds)) {
-            Mage::getSingleton('adminhtml/session')->addError(
-                Mage::helper('db1_anymarket')->__('Por favor selecione Orders para sincronizar.')
-            );
-        } else {
-            try {
-                $cont = 0;
-                Mage::getSingleton('core/session')->setImportOrdersVariable('true');
-                $storeID = Mage::getSingleton('core/session')->getStoreListOrderVariable();
-                Mage::app()->setCurrentStore($storeID);
-
-                foreach ($anymarketOrdersIds as $anymarketOrderId) {
-                    $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
-                    $anymarketorders->load($anymarketOrderId);
-
-                    if( $anymarketorders->getNmoStatusInt() != "Não integrado (Magento)") {
-                        $idAnyMarket = $anymarketorders->getNmoIdSeqAnymarket();
-                        $IDOrderAnyMarket = $anymarketorders->getNmoIdAnymarket();
-                        $idReg = $anymarketorders->getId();
-                        $idOrderMage = $anymarketorders->getNmoIdOrder();
-
-                        $anymarketordersDel = Mage::getModel('db1_anymarket/anymarketorders');
-                        $anymarketordersDel->setId( $idReg )->delete();
-                        Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($idAnyMarket, $IDOrderAnyMarket, $idOrderMage);
-
-                        $cont = $cont+1;
-                    }
-                }
-
-                Mage::getSingleton('core/session')->setImportOrdersVariable('false');
-                Mage::getSingleton('adminhtml/session')->addSuccess(
-                    Mage::helper('db1_anymarket')->__('Total de %d orders foram sincronizados.', $cont)
-                );
-            } catch (Mage_Core_Exception $e) {
-                Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
-            } catch (Exception $e) {
-                Mage::getSingleton('adminhtml/session')->addError(
-                    Mage::helper('db1_anymarket')->__('Ocorreu um erro ao sincronizar.')
-                );
-                Mage::logException($e);
-            }
-        }
-        $this->_redirect('*/*/index');
-    }
-
-
-    /**
-     * mass sincronize anymarket Orders - action
-     *
-     * @access public
-     * @return void
-     * 
-     */
-    public function massSincOrderAction() {
         $anymarketOrdersIds = $this->getRequest()->getParam('anymarketorders');
         if (!is_array($anymarketOrdersIds)) {
             Mage::getSingleton('adminhtml/session')->addError(

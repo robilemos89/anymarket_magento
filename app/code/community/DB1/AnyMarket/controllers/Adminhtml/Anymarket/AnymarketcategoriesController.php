@@ -58,11 +58,10 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketcategoriesController extends DB
 
 
     /**
-     * import Orders action
+     * import Categories action
      *
      * @access public
      * @return void
-
      */
     public function sincCategsAction()
     {
@@ -78,11 +77,29 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketcategoriesController extends DB
     }
 
     /**
+     * export Orders action
+     *
+     * @access public
+     * @return void
+     */
+    public function exportCategsAction()
+    {
+        $storeID = Mage::getSingleton('core/session')->getStoreCategVariable();
+        Mage::helper('db1_anymarket/category')->exportCategories($storeID);
+
+        Mage::getSingleton('adminhtml/session')->addSuccess(
+            Mage::helper('db1_anymarket')->__('Successfully exported categories.')
+        );
+        $this->_redirect('*/*/');
+
+    }
+
+    /**
      * grid action
      *
      * @access public
      * @return void
-
+     *
      */
     public function gridAction()
     {
@@ -94,7 +111,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketcategoriesController extends DB
      *
      * @access public
      * @return void
-
+     *
      */
     public function editAction()
     {

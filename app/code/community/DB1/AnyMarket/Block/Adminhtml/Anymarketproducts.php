@@ -37,12 +37,6 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts extends Mage_Adminhtml_Blo
         $this->_headerText         = Mage::helper('db1_anymarket')->__('Anymarket Products');
         $this->_removeButton('add');
 
-//        $this->_addButton('sinc_prods', array(
-//            'label'   => Mage::helper('db1_anymarket')->__('Sync Products'),
-//            'onclick' => "setLocation('{$this->getUrl('*/*/sincProds')}')",
-//            'class'   => 'add'
-//        ));
-
         $this->_addButton('list_prods', array(
             'label'   => Mage::helper('db1_anymarket')->__('Products list'),
             'onclick' => "setLocation('{$this->getUrl('*/*/listProds')}')",

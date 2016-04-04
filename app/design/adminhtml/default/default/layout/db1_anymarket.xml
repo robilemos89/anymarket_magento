@@ -40,6 +40,41 @@
         </reference>
     </adminhtml_anymarket_anymarketlog_edit>
 
+<!--  BRAND       -->
+    <adminhtml_anymarket_anymarketbrands_index>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketbrands</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="adminhtml/store_switcher" name="store_switcher" as="store_switcher">
+                <action method="setUseConfirm"><params>0</params></action>
+            </block>
+            <block type="db1_anymarket/adminhtml_anymarketbrands" name="anymarketbrands" />
+        </reference>
+    </adminhtml_anymarket_anymarketbrands_index>
+    <adminhtml_anymarket_anymarketbrands_grid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="db1_anymarket/adminhtml_anymarketbrands_grid" name="anymarketbrands_grid"/>
+        </block>
+    </adminhtml_anymarket_anymarketbrands_grid>
+    <!-- Anymarketbrands add/edit action -->
+    <adminhtml_anymarket_anymarketbrands_edit>
+        <update handle="editor"/>
+        <reference name="menu">
+            <action method="setActive">
+                <menupath>system/db1_anymarket/anymarketbrands</menupath>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="db1_anymarket/adminhtml_anymarketbrands_edit" name="anymarketbrands_edit"></block>
+        </reference>
+        <reference name="left">
+            <block type="db1_anymarket/adminhtml_anymarketbrands_edit_tabs" name="anymarketbrands_tabs"></block>
+        </reference>
+    </adminhtml_anymarket_anymarketbrands_edit>
+
 <!--  PRODUCTS    -->
 
     <adminhtml_anymarket_anymarketproducts_index>
