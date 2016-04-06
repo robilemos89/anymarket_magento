@@ -812,7 +812,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         "name" => $Order->getCustomerFirstname()." ".$Order->getCustomerLastname(),
                         "email" => $Order->getCustomerEmail(),
                         "document" =>  $docData,
-                        "documentType" => "OTHER",
+                        "documentType" => $this->getDocumentType($docData),
                         "phone" => $shipping->getTelephone(),
                     ),
                     "items" => $orderedProductIds,
