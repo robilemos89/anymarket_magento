@@ -68,6 +68,25 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * get Document Type
+     *
+     * @param $document
+     * @return string
+     */
+    public function getDocumentType($document)
+    {
+        $document = str_replace("/","", str_replace("-","",str_replace(".","",$document)));
+        $docCount = strlen($document);
+
+        $tpDoc = "CPF";
+        if( $docCount == 14 ){
+            $tpDoc = "CNPJ";
+        }
+
+        return $tpDoc;
+    }
+
+    /**
      * convert array to options
      *
      * @param $options
