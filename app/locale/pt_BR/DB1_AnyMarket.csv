@@ -17,6 +17,8 @@
 "AnyMarket Log was successfully deleted.","AnyMarket Log was successfully deleted."
 "AnyMarket Log was successfully saved","AnyMarket Log was successfully saved"
 "AnyMarket Log","AnyMarket Log"
+"Atribute set", "Conjunto de Atributos"
+"Set of attributes that should be registered the Anymarket products.","Conjunto de atributos que devem ser cadastrados os produtos do Anymarket."
 "Ignore invalid resolution","Ignorar resolução inválida"
 "Import products even when it has invalid resolution.","Importar produtos mesmo quando possui resolução inválida."
 "Error on update stock and price.", "Erro ao atualizar estoque e preço."

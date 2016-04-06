@@ -1515,6 +1515,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $model =    Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_model_field', $storeID);
         $MassUnit = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_weight_field', $storeID);
         $UnitMeasurement = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_size_field', $storeID);
+        $AttrSet  = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_atribute_set_field', $storeID);
 
         $volume_comprimento = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_vol_comp_field', $storeID);
         $volume_altura =      Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_vol_alt_field', $storeID);
@@ -1593,7 +1594,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                         if($varAttr != ''){
                             $dataPrd = array(
-                                    'attribute_set_id' => Mage::getModel('catalog/product')->getDefaultAttributeSetId(),
+                                    'attribute_set_id' => $AttrSet == null ? Mage::getModel('catalog/product')->getDefaultAttributeSetId() : $AttrSet,
                                     'type_id' =>  'simple',
                                     'sku' => $IDSKUProd,
                                     'name' => $sku->title,
@@ -1790,7 +1791,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
             if(!$product){
                 $dataPrd = array(
-                    'attribute_set_id' => Mage::getModel('catalog/product')->getDefaultAttributeSetId(),
+                    'attribute_set_id' => $AttrSet == null ? Mage::getModel('catalog/product')->getDefaultAttributeSetId() : $AttrSet,
                     'type_id' =>  'simple',
                     'sku' => $IDSkuJsonProd,
                     'name' => $skuProd->title,
