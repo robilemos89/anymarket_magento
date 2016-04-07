@@ -1,0 +1,1 @@
+UPDATE `sales_flat_order_payment` SET `method`='checkmo' WHERE `method` = 'db1_anymarket';

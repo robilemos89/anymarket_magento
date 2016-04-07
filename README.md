@@ -27,6 +27,7 @@ Instalação
 ----------
 **Fique ligado nas dicas que vão ajudar ter sucesso na sua instalação**
 
+ - Realize um Backup do Magento completo.
  - Certifique-se que não há outros módulos [AnyMarket] instalados em seu sistema.
  - Baixe o repositório como arquivo zip ou faça um fork do projeto.
  - Copie o diretório **app** para dentro do diretório do magento.
@@ -34,6 +35,16 @@ Instalação
  - Faça o logof e logue novamente
  - Estará disponível a opção **Sistema > AnyMarket** (System > AnyMarket)
  
+Desinstalação
+----------
+**Deseja remover seu modulo por completo do Magento? Então se ligue nessas dicas**
+
+ - Realize um Backup do Magento completo.
+ - Dentro da pasta "uninstall" existe um arquivo chamado "Uninstall_Anymarket.sql" que deve ser executado no banco de dados.
+ - O Modulo cria alguns atributos que são uteis para o Anymarket, é necessario a exclusão dos mesmo caso contrario o Cadastro do Produto ficará inacessível.
+ - Pelo motivo do modulo utilizar um metodo de pagamento proprio as vendas que forem feitas pelo modulo não estará mais acessivel.
+ 	Para resolver isso existe um arquivo dentro de "uninstall" com o nome de "Remove_payment_from_orders.sql", ele ira trocar todas as vendas com o Metodo do Anymarket para "Check / Money order", isso fará com que as vendas antigas do Anymarket sejam acessiveis (Use esse script com muita cautela).
+
 Requisitos mínimos
 ------------------
  - [PHP] 5.4+

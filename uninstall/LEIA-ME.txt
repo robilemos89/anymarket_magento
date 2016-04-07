@@ -1,0 +1,9 @@
+PASSOS PARA REMOVER COMPLETAMENTE O MODULO.
+
+ - Realize um Backup do Magento completo.
+ - Dentro da pasta "uninstall" existe um arquivo chamado "Uninstall_Anymarket.sql" que deve ser executado no banco de dados.
+ - O Modulo cria alguns atributos que são uteis para o Anymarket, é necessario a exclusão dos mesmos caso contrario o Cadastro do Produto ficará inacessível.
+ - Pelo motivo do modulo utilizar um metodo de pagamento proprio as vendas que forem feitas pelo modulo não estará mais acessivel.
+ 	Para resolver isso existe um arquivo dentro de "uninstall" com o nome de "Remove_payment_from_orders.sql",
+	ele ira trocar todas as vendas com o Metodo do Anymarket para "Check / Money order",
+	isso fará com que as vendas antigas do Anymarket sejam acessiveis novamente(Use esse script com muita cautela).
