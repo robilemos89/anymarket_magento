@@ -344,6 +344,6 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketbrandsController extends DB1_An
      */
     protected function _isAllowed()
     {
-        return Mage::getSingleton('admin/session')->isAllowed('db1_anymarket/anymarketbrands');
+        return Mage::getSingleton('admin/session')->isAllowed('system/db1_anymarket/anymarketbrands');
     }
 }
