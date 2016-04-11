@@ -775,14 +775,15 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $shipping = $Order->getShippingAddress();
 
             $docField = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_doc_type_field', $storeID));
+            $docData = "";
             if(!$Order->getCustomerIsGuest() || $Order->getCustomerId() != null ){
                 $customer = Mage::getModel("customer/customer")->load($Order->getCustomerId());
                 $docData = $customer->getData( $docField );
-            }else{
+            }
+
+            if( $docData == "" ){
                 if($Order->getCustomerTaxvat()){
                     $docData = $Order->getCustomerTaxvat();
-                }else{
-                    $docData = '';
                 }
             }
 
