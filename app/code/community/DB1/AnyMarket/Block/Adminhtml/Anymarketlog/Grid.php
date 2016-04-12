@@ -127,8 +127,17 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketlog_Grid extends Mage_Adminhtml_Blo
      */
     protected function _prepareMassaction()
     {
+        $this->setMassactionIdField('entity_id');
+        $this->getMassactionBlock()->setFormFieldName('anymarketlog');
+        $this->getMassactionBlock()->addItem(
+            'delete',
+            array(
+                'label'=> Mage::helper('db1_anymarket')->__('Delete'),
+                'url'  => $this->getUrl('*/*/massDelete'),
+                'confirm'  => Mage::helper('db1_anymarket')->__('Are you sure? The entire log will be written to a file.')
+            )
+        );
         return $this;
-        
     }
 
     /**

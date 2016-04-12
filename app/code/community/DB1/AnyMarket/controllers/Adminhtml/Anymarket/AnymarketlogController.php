@@ -234,7 +234,11 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketlogController extends DB1_AnyMa
             try {
                 foreach ($anymarketlogIds as $anymarketlogId) {
                     $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                    $anymarketlog->setId($anymarketlogId)->delete();
+                    $anymarketlog->load($anymarketlogId);
+
+                    Mage::log( $anymarketlog->getData() , null, 'anymarket.log');
+
+                    $anymarketlog->delete();
                 }
                 Mage::getSingleton('adminhtml/session')->addSuccess(
                     Mage::helper('db1_anymarket')->__('Total of %d anymarket log were successfully deleted.', count($anymarketlogIds))

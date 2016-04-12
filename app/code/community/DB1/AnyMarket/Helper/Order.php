@@ -703,6 +703,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                 $anymarketorderupdt->setStatus("0");
                                 $anymarketorderupdt->setNmoStatusInt('ERROR 02');
                                 $anymarketorderupdt->setNmoDescError($returnOrder['return']);
+                                $anymarketorderupdt->setStores(array($storeID));
                                 $anymarketorderupdt->save();
                             }
 
