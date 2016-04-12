@@ -569,6 +569,12 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                  $IDOrderMagento, 
                                  $storeID);
 
+            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+            $anymarketlog->setLogDesc('Order Updated: ' . $IDOrderMagento . ' ID Anymarket: ' . $JSON->marketPlaceId . ' Status: ' . $statusMage);
+            $anymarketlog->setStatus("1");
+            $anymarketlog->setStores(array($storeID));
+            $anymarketlog->save();
+
             Mage::getSingleton('core/session')->setImportOrdersVariable('true');
         }else{
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
