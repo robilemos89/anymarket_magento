@@ -569,6 +569,12 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                  $IDOrderMagento, 
                                  $storeID);
 
+            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+            $anymarketlog->setLogDesc('Order Updated: ' . $IDOrderMagento . ' ID Anymarket: ' . $JSON->marketPlaceId . ' Status: ' . $statusMage);
+            $anymarketlog->setStatus("1");
+            $anymarketlog->setStores(array($storeID));
+            $anymarketlog->save();
+
             Mage::getSingleton('core/session')->setImportOrdersVariable('true');
         }else{
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
@@ -703,6 +709,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                 $anymarketorderupdt->setStatus("0");
                                 $anymarketorderupdt->setNmoStatusInt('ERROR 02');
                                 $anymarketorderupdt->setNmoDescError($returnOrder['return']);
+                                $anymarketorderupdt->setStores(array($storeID));
                                 $anymarketorderupdt->save();
                             }
 
@@ -775,14 +782,15 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $shipping = $Order->getShippingAddress();
 
             $docField = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_doc_type_field', $storeID));
+            $docData = "";
             if(!$Order->getCustomerIsGuest() || $Order->getCustomerId() != null ){
                 $customer = Mage::getModel("customer/customer")->load($Order->getCustomerId());
                 $docData = $customer->getData( $docField );
-            }else{
+            }
+
+            if( $docData == "" ){
                 if($Order->getCustomerTaxvat()){
                     $docData = $Order->getCustomerTaxvat();
-                }else{
-                    $docData = '';
                 }
             }
 

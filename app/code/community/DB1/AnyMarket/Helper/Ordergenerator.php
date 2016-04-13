@@ -130,7 +130,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
             ->setShippingTaxAmount(0)
             ->setBaseDiscountAmount(0)
             ->setIsVirtual(0)
-            ->setBaseShippingAmount(0)
+            ->setBaseShippingAmount((float)$this->_shippingValue)
             ->setBaseShippingTaxAmount(0)
             ->setBaseTaxAmount(0)
             ->setBaseToGlobalRate(1)

@@ -1279,6 +1279,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $headers
      * @param $HOST
      * @param $storeID
+     *
+     * @return string
      */
     public function getSpecificFeedProduct($listTransmissions, $headers, $HOST, $storeID){
         $arrJSONProds = array();
@@ -1291,6 +1293,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
             $transmissionReturn = $this->CallAPICurl("GET", $HOST."/v2/transmissions/".$transmissionID, $headers, null);
 
+            $prodRet = "";
             $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
             if($typeSincProd == 1) {
                 if ($transmissionReturn['error'] == '1') {
@@ -1414,16 +1417,18 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 $prodLoaded->save();
 
                                 $this->changeStatusTransmission($HOST, $headers, $transmissionID, 'Pausado', $transmissionToken);
+                                $prodRet = 'Transmission Paused - '.$prodLoaded->getSku();
                             }
                         }
                     } else if ($statusTransmission == 'CLOSED') {
                         $prodLoaded = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', isset($transmission->sku->partnerId) ? $transmission->sku->partnerId : $IDProdTrans);
                         if ($prodLoaded != null) {
                             if ($prodLoaded->getData('integra_anymarket') == 1) {
-                                //$prodLoaded->setStatus(2);
+                                $prodLoaded->setStatus(2);
                                 $prodLoaded->save();
 
                                 $this->changeStatusTransmission($HOST, $headers, $transmissionID, 'Finalizado', $transmissionToken);
+                                $prodRet = 'Transmission Closed - '.$prodLoaded->getSku();
                             }
                         }
                     } elseif ($statusTransmission == 'WITHOUT_STOCK') {
@@ -1441,6 +1446,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 }
                                 $prodLoaded->save();
 
+                                $prodRet = 'Product Without Stock - '.$prodLoaded->getSku();
                                 $this->changeStatusTransmission($HOST, $headers, $transmissionID, 'Sem Estoque', $transmissionToken);
                             }
                         }
@@ -1450,21 +1456,49 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
             $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
             if( $typeSincOrder == 0 ){
-                $transmissionStock = $transmissionReturn['return'];
+                if( $transmissionReturn['error'] == '0' ) {
+                    $transmissionStock = $transmissionReturn['return'];
 
-                $prodLoaded = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', isset($transmissionStock->sku->partnerId) ? $transmissionStock->sku->partnerId : $transmissionStock->product->id);
-                if ($prodLoaded != null) {
-                    $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($prodLoaded->getId());
-                    if ($stockItem->getManageStock()) {
-                        $stockItem->setData('qty', $transmissionStock->sku->amount);
-                        if( $transmissionStock->sku->amount > 0){
-                            $stockItem->setData('is_in_stock', 1);
-                        }else{
-                            $stockItem->setData('is_in_stock', 0);
+                    $skuToLoad = isset($transmissionStock->sku->partnerId) ? $transmissionStock->sku->partnerId : $transmissionStock->product->id;
+                    $prodLoaded = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $skuToLoad);
+                    if ($prodLoaded != null) {
+                        $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($prodLoaded->getId());
+                        if ($stockItem->getManageStock()) {
+                            $stockItem->setData('qty', $transmissionStock->sku->amount);
+                            if ($transmissionStock->sku->amount > 0) {
+                                $stockItem->setData('is_in_stock', 1);
+                            } else {
+                                $stockItem->setData('is_in_stock', 0);
+                            }
+                            $stockItem->save();
                         }
-                        $stockItem->save();
+                        $prodLoaded->save();
+
+                        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                        $anymarketlog->setLogDesc( "Stock Updated" );
+                        $anymarketlog->setLogId( $prodLoaded->getSku() );
+                        $anymarketlog->setStatus("0");
+                        $anymarketlog->setStores(array($storeID));
+                        $anymarketlog->save();
+
+                        $prodRet = $prodLoaded->getSku()." - Stock Updated";
+                    }else{
+                        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                        $anymarketlog->setLogDesc( "Product not found (".$skuToLoad.") - Stock Updated" );
+                        $anymarketlog->setStatus("0");
+                        $anymarketlog->setStores(array($storeID));
+                        $anymarketlog->save();
+
+                        $prodRet = "Product not found (".$skuToLoad.") - Stock Updated";
                     }
-                    $prodLoaded->save();
+                }else{
+                    $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                    $anymarketlog->setLogDesc( $transmissionReturn['return'] . " - Update Stock" );
+                    $anymarketlog->setStatus("0");
+                    $anymarketlog->setStores(array($storeID));
+                    $anymarketlog->save();
+
+                    $prodRet = $transmissionReturn['return'] . " - Update Stock";
                 }
             }
         }
@@ -1480,8 +1514,12 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $returnProd['json'] = '';
                 $returnProd['error'] = '0';
                 $this->saveLogsProds($returnProd, $feedReturn);
+
+                $prodRet = 'Product Created or updated.';
             }
         }
+
+        return $prodRet;
     }
 
 
