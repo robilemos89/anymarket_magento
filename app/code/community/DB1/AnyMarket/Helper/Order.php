@@ -17,12 +17,17 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         $storeID = $this->getCurrentStoreView();
         $StatusOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_status_am_mg_field', $storeID);
         $OrderReturn = 'ERROR: 1 Não há uma configuração válida para '.$OrderRowData;
+        $StateReturn = "";
         if ($StatusOrder && $StatusOrder != 'a:0:{}') {
             $StatusOrder = unserialize($StatusOrder);
             if (is_array($StatusOrder)) {
                 foreach($StatusOrder as $StatusOrderRow) {
                     if($StatusOrderRow['orderStatusAM'] == $OrderRowData){
                         $OrderReturn = $StatusOrderRow['orderStatusMG'];
+                        $statuses = Mage::getModel('sales/order_status')->getCollection()->joinStates()
+                            ->addStatusFilter($OrderReturn);
+
+                        $StateReturn = $statuses->getFirstItem()->getData('state');
                         break;
                     }
 
@@ -30,7 +35,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
         }
 
-        return $OrderReturn;
+        return array("status" => $OrderReturn, "state" => $StateReturn);
     }
 
     /**
@@ -207,13 +212,13 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 if (strpos($STATUSIMPORT, $OrderJSON->status) !== false) {
                     $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
                     if($ConfigOrder == 1) {
-                        $statusMage = $this->getStatusAnyMarketToMageOrderConfig($OrderJSON->status);
+                        $statsConfig = $this->getStatusAnyMarketToMageOrderConfig($OrderJSON->status);
+                        $statusMage = $statsConfig["status"];
 
                         if (strpos($statusMage, 'ERROR:') === false) {
                             //TRATA OS PRODUTOS
                             $_products = array();
                             foreach ($OrderJSON->items as $item) {
-
                                 $productLoaded = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $item->sku->partnerId);
                                 if ($productLoaded) {
                                     $arrayTMP = array(
@@ -498,7 +503,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     private function changeStatusOrder($JSON, $IDOrderMagento){
         $storeID = $this->getCurrentStoreView();
         $StatusPedAnyMarket = $JSON->status;
-        $statusMage = $this->getStatusAnyMarketToMageOrderConfig( $StatusPedAnyMarket );
+
+        $statsConfig = $this->getStatusAnyMarketToMageOrderConfig( $StatusPedAnyMarket );
+        $stateMage  = $statsConfig["state"];
+        $statusMage = $statsConfig["status"];
 
         if (strpos($statusMage, 'ERROR:') === false) {
             Mage::getSingleton('core/session')->setImportOrdersVariable('false');
@@ -544,20 +552,14 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 }
             }
 
-            if($statusMage != Mage_Sales_Model_Order::STATE_NEW){
-                if($statusMage == Mage_Sales_Model_Order::STATE_COMPLETE){
-                    $order->setData('state', "complete");
-                    $order->setStatus("complete");       
+            if($stateMage != Mage_Sales_Model_Order::STATE_NEW){
+                if($stateMage == Mage_Sales_Model_Order::STATE_COMPLETE){
                     $history = $order->addStatusHistoryComment('Finalizado pelo AnyMarket.', false);
                     $history->setIsCustomerNotified(false);
-                    $order->save();
-                }else{
-                    if( $statusMage != 'new' ) {
-                        $order->setData('state', $statusMage);
-                        $order->setStatus($statusMage, true);
-                        $order->save();
-                    }
                 }
+                $order->setData('state', $stateMage);
+                $order->setStatus($statusMage, true);
+                $order->save();
             }
 
             $this->saveLogOrder('nmo_id_anymarket',
