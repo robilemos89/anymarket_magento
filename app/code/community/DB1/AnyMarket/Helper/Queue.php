@@ -62,9 +62,6 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                             $idAnyMarket = $anymarketorders->getNmoIdSeqAnymarket();
                             if($idAnyMarket){
                                 $idReg = $anymarketorders->getId();
-
-                                //$anymarketordersDel = Mage::getModel('db1_anymarket/anymarketorders');
-                                //$anymarketordersDel->setId( $idReg )->delete();
                                 Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($idAnyMarket, "notoken", $storeID);
                             }
                         }
