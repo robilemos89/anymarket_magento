@@ -201,7 +201,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         if($returnOrderItens['error'] == '0'){
             $OrderJSON = $returnOrderItens['return'];
             $IDOrderAnyMarket = $OrderJSON->marketPlaceId;
-            $anymarketordersSpec = Mage::getModel('db1_anymarket/anymarketorders')->setStoreId($storeID);
+            $anymarketordersSpec = Mage::getModel('db1_anymarket/anymarketorders');
             $anymarketordersSpec->load($idSeqAnyMarket, 'nmo_id_seq_anymarket');
 
 
