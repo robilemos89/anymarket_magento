@@ -42,7 +42,7 @@ class DB1_AnyMarket_Model_Observer {
             $productOld = $observer->getEvent()->getProduct();
             $QuickCreate = Mage::getSingleton('core/session')->getQuickCreateProdVariable();
             if($QuickCreate == null || $QuickCreate == "" || $QuickCreate != $productOld->getSku() ){
-                $storeID = ($productOld->getStoreId() !== null) ? $productOld->getStoreId() : 0;
+                $storeID = ($productOld->getStoreId() !== null) ? $productOld->getStoreId() : 1;
 
                 $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
                 if($typeSincProd == 0){
