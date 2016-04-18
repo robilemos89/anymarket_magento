@@ -514,7 +514,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $order = Mage::getModel('sales/order')->loadByIncrementId( $IDOrderMagento );
             $itemsarray = null;
             if(isset($JSON->invoice)){
-                if( $order->canInvoice() && !$order->hasInvoices()  ){
+                if( $order->canInvoice() ){
                     $nfe = $JSON->invoice->accessKey;
                     $dateNfe = $JSON->invoice->date;
 
@@ -528,7 +528,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $itemsarray[$opid] = $qty;
                     }
 
-                    if($order->canInvoice()) {
+                    if( !$order->hasInvoices() ) {
                         $nfeString = 'nfe:'.$nfe.', emissao:'.$fixedDate;
                         Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray ,$nfeString ,0,0);
                     }
