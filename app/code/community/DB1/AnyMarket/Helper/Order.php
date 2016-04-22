@@ -274,7 +274,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         $email = $OrderJSON->buyer->email;
                                         $customer = Mage::getModel('customer/customer')
                                             ->getCollection()
-                                            ->addFieldToFilter('website_id', Mage::app()->getWebsite()->getId())
                                             ->addFieldToFilter($AttrToDoc, $document)->load()->getFirstItem();
 
                                         $AddressShipBill = null;
