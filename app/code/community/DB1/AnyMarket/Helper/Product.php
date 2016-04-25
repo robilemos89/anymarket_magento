@@ -89,6 +89,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         }else{
             $descComplete = $product->getDescription();
         }
+        $baseURLMedia = Mage::getBaseUrl('media');
+
+        $descComplete = str_replace('{{media url="', $baseURLMedia, $descComplete);
+        $descComplete = str_replace('"}}', '', $descComplete);
 
         return trim($descComplete);
     }
