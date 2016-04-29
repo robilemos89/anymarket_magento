@@ -85,13 +85,18 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketcategoriesController extends DB
     public function exportCategsAction()
     {
         $storeID = Mage::getSingleton('core/session')->getStoreCategVariable();
-        Mage::helper('db1_anymarket/category')->exportCategories($storeID);
+        $countCategs = Mage::helper('db1_anymarket/category')->exportCategories($storeID);
 
-        Mage::getSingleton('adminhtml/session')->addSuccess(
-            Mage::helper('db1_anymarket')->__('Successfully exported categories.')
-        );
+        if( $countCategs > 0 ) {
+            Mage::getSingleton('adminhtml/session')->addSuccess(
+                Mage::helper('db1_anymarket')->__('Successfully exported ') . $countCategs . Mage::helper('db1_anymarket')->__(' categories.')
+            );
+        }else{
+            Mage::getSingleton('adminhtml/session')->addError(
+                Mage::helper('compiler')->__('0 categories exported, verify Catalog -> Manage Categories')
+            );
+        }
         $this->_redirect('*/*/');
-
     }
 
     /**

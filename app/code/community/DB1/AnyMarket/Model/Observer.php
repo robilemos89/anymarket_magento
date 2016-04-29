@@ -124,17 +124,23 @@ class DB1_AnyMarket_Model_Observer {
      */
     public function updateCategory($observer){
         $category = $observer->getEvent()->getCategory();
+        if( !$category->getName() ) {
+            $category = Mage::getModel('catalog/category')->load($category->getId());
+        }
         $storeID = Mage::helper('db1_anymarket')->getCurrentStoreView();
         if( $category->getData('categ_integra_anymarket') == 1 ){
-            Mage::helper('db1_anymarket/category')->exportSpecificCategory($category, null, $storeID);
+            $amCategParent = Mage::getModel('db1_anymarket/anymarketcategories')->load($category->getParentId(), 'nmc_id_magento');
+            if( $amCategParent->getData('nmc_cat_id') ){
+                Mage::helper('db1_anymarket/category')->exportSpecificCategory($category, $amCategParent->getData('nmc_cat_id'), $storeID);
+            }else{
+                Mage::helper('db1_anymarket/category')->exportSpecificCategory($category, null, $storeID);
+            }
 
             if($category->getChildren() != ''){
                 Mage::helper('db1_anymarket/category')->exportCategRecursively($category, $storeID);
             }
-        }else{
-            if( $category->getData('categ_integra_anymarket') == 0 ){
-                Mage::helper('db1_anymarket/category')->deleteCategs($category, $storeID);
-            }
+        }elseif( $category->getData('categ_integra_anymarket') == 0 ){
+            //Mage::helper('db1_anymarket/category')->deleteCategs($category, $storeID);
         }
     }
 
@@ -146,7 +152,7 @@ class DB1_AnyMarket_Model_Observer {
         $storeID = Mage::helper('db1_anymarket')->getCurrentStoreView();
 
         if( $category->getData('categ_integra_anymarket') == 1 ){
-            Mage::helper('db1_anymarket/category')->deleteCategs($category, $storeID);
+            //Mage::helper('db1_anymarket/category')->deleteCategs($category, $storeID);
         }
     }
 

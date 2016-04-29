@@ -11,6 +11,7 @@ class DB1_AnyMarket_IndexController extends Mage_Core_Controller_Front_Action {
 			$anymarketlog->setLogJson(file_get_contents('php://input'));
 			$anymarketlog->setStatus("1");
 			$anymarketlog->save();
+			sleep(rand(5,25));
 
 			$allStores = Mage::helper('db1_anymarket')->getTokenByOi( $value->content->oi );
 			if( !empty($allStores) ) {
@@ -21,7 +22,6 @@ class DB1_AnyMarket_IndexController extends Mage_Core_Controller_Front_Action {
 					if ($TOKEN != '') {
 						if ($value->type == 'ORDER') {
 							$cache = Mage::app()->getCache();
-							sleep(1);
 
 							$lastProcOrder = $cache->load('order_' . $value->content->id);
 							$lastProc = true;
