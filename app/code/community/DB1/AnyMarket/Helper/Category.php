@@ -12,6 +12,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
      * export all category to AnyMarket
      *
      * @param $storeID
+     * @return integer
      */
     public function exportCategories($storeID){
         $rootCategoryId = Mage::app()->getStore($storeID)->getRootCategoryId();
@@ -20,21 +21,20 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
                 ->getCollection()
                 ->setStoreId($storeID)
                 ->addFieldToFilter('is_active', 1)
-                ->addAttributeToSelect('*');
+                ->addAttributeToSelect('*')
+                ->addAttributeToSort('position', 'asc');
         }else{
             $categories = Mage::getModel('catalog/category')
                 ->getCollection()
                 ->setStoreId($storeID)
                 ->addFieldToFilter('is_active', 1)
                 ->addAttributeToFilter('path', array('like' => "1/{$rootCategoryId}/%"))
-                ->addAttributeToSelect('*');
+                ->addAttributeToSelect('*')
+                ->addAttributeToSort('position', 'asc');
         }
-
-        $arrParents = array();
         $fItem = true;
+        $cCateg = 0;
         foreach ($categories as $category) {
-            $parentID = $category->getParentId();
-            $id = $category->getId();
             $intAM = $category->getData('categ_integra_anymarket');
 
             if($fItem && $intAM == 0){
@@ -43,25 +43,19 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
             $fItem = false;
 
             if($intAM == 1){
-                $IdParent = null;
-                $intAMParent = 1;
-                if(isset($arrParents[$parentID])){
-                    $IdParent = $arrParents[ $parentID ][0];
-                    $intAMParent = $arrParents[ $parentID ][1];
+                $amCategParent = Mage::getModel('db1_anymarket/anymarketcategories')->load($category->getParentId(), 'nmc_id_magento');
+                if( $amCategParent->getData('nmc_cat_id') ){
+                    $retuCateg = $this->exportSpecificCategory($category, $amCategParent->getData('nmc_cat_id'), $storeID);
+                }else{
+                    $retuCateg = $this->exportSpecificCategory($category, null, $storeID);
                 }
-
-                if($intAMParent == 1){
-                    $categRet = $this->exportSpecificCategory($category, $IdParent, $storeID);
-                    if($categRet != null){
-                        $arrParents[ $id ] = array($categRet[0], $intAM);
-                    }
+                if($retuCateg){
+                    $cCateg++;
                 }
-            }else{
-                $arrParents[ $id ] = array($id, 0);
             }
 
         }
-
+        return $cCateg;
     }
 
     /**
@@ -146,7 +140,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
         foreach(explode(',',$subcats) as $subCatid){
             $_category = Mage::getModel('catalog/category')->load($subCatid);
             if($_category->getData('categ_integra_anymarket') == 1){
-                Mage::helper('db1_anymarket/category')->exportSpecificCategory($_category, $category->getId(), $storeID);
+                $this->exportSpecificCategory($_category, $category->getId(), $storeID);
 
                 if($_category->getChildren() != ''){
                     $this->exportCategRecursively($_category, $storeID);
@@ -173,7 +167,6 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
             "gumgaToken: ".$TOKEN
         );
 
-        $parentID = $category->getParentId();
         $id = $category->getId();
         $name = $category->getName();
 
@@ -187,6 +180,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
         $anymarketcategories = Mage::getModel('db1_anymarket/anymarketcategories')->load($category->getId(), 'nmc_id_magento');
         if( $anymarketcategories->getData('nmc_cat_id') == '' ){
 
+            $parentID = $category->getParentId();
             if($parentID){
                 $amCatPar = Mage::getModel('db1_anymarket/anymarketcategories')->load($parentID, 'nmc_id_magento');
                 $IdParent = $amCatPar->getData('nmc_cat_id');
@@ -222,9 +216,17 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
                 $anymarketcategories->setStatus('1');
                 $anymarketcategories->save();
 
+                if($category->getChildren() != ''){
+                    $this->exportCategRecursively($category, $storeID);
+                }
+
                 return array($JSONReturn->id);
             }
         }else{
+            $amCatPar = Mage::getModel('db1_anymarket/anymarketcategories')->load($IdParent, 'nmc_id_magento');
+            $IdParent = $amCatPar->getData('nmc_cat_id');
+            $JSON["parent"] = array("id" => $IdParent);
+
             $returnCatPUT = $this->CallAPICurl("PUT", $HOST."/v2/categories/".$anymarketcategories->getNmcCatId(), $headers, $JSON);
 
             if($returnCatPUT['error'] == '1'){
@@ -246,6 +248,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
                 $anymarketlog->setStores(array($storeID));
                 $anymarketlog->save();
 
+                $anymarketcategories->setNmcCatRootId( $IdParent );
                 $anymarketcategories->setNmcCatDesc( $name );
                 $anymarketcategories->save();
 
