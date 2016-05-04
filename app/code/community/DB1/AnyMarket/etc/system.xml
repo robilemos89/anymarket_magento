@@ -43,9 +43,99 @@
                     </comment>
                 </anymarket_information_group>
 
+                <anymarket_acesso_group translate="label comment" module="db1_anymarket">
+                    <label>Access</label>
+                    <comment>Configure all the necessary information to allow access to AnyMarket.</comment>
+                    <sort_order>1</sort_order>
+                    <show_in_default>0</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+
+                        <anymarket_host_field translate="label tooltip comment">
+                            <label>Host</label>
+                            <sort_order>0</sort_order>
+                            <comment>URL for access to AnyMarket</comment>
+                            <tooltip>Contact the DB1 for this information</tooltip>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>text</frontend_type>
+                        </anymarket_host_field>
+
+                        <anymarket_token_field translate="label tooltip comment">
+                            <label>Token</label>
+                            <sort_order>1</sort_order>
+                            <comment>Token necessary access to AnyMarket</comment>
+                            <tooltip>Contact the DB1 for this information</tooltip>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>text</frontend_type>
+                        </anymarket_token_field>
+
+                        <anymarket_oi_field translate="label tooltip">
+                            <label>OI</label>
+                            <sort_order>2</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <tooltip>Contact the DB1 for this information</tooltip>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>text</frontend_type>
+                        </anymarket_oi_field>
+
+                    </fields>
+                </anymarket_acesso_group>
+
+                <anymarket_cron_group translate="label comment" module="db1_anymarket">
+                    <label>CRON</label>
+                    <comment>Enable the necessary Crons. </comment>
+                    <sort_order>2</sort_order>
+                    <show_in_default>0</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <anymarket_order_field translate="label tooltip comment">
+                            <label>Enable CRON of Order</label>
+                            <sort_order>0</sort_order>
+                            <comment>Cron responsible for synchronizing orders if there are any errors.</comment>
+                            <tooltip>Disable only if you are sure, you can generate not synchronized orders.</tooltip>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        </anymarket_order_field>
+
+                        <anymarket_product_field translate="label tooltip comment">
+                            <label>Enable CRON of Product</label>
+                            <sort_order>0</sort_order>
+                            <comment>Cron responsible for synchronizing products if there are any errors.</comment>
+                            <tooltip>Disable only if you are sure, you can generate not synchronized products.</tooltip>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        </anymarket_product_field>
+
+                        <anymarket_reindex_field translate="label tooltip comment">
+                            <label>Enable CRON of Reindex</label>
+                            <sort_order>0</sort_order>
+                            <comment>Cron responsible for re-index products.</comment>
+                            <tooltip>Disable only if the Automatic Reindex is enabled.</tooltip>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        </anymarket_reindex_field>
+                    </fields>
+                </anymarket_cron_group>
+
                 <anymarket_general_group translate="label" module="db1_anymarket">
                     <label>General</label>
-                    <sort_order>0</sort_order>
+                    <sort_order>3</sort_order>
                     <show_in_default>0</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>1</show_in_store>
@@ -75,7 +165,7 @@
 
                 <anymarket_integration_prod_group translate="label" module="db1_anymarket">
                     <label>Integration (Products)</label>
-                    <sort_order>2</sort_order>
+                    <sort_order>4</sort_order>
                     <show_in_default>0</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>1</show_in_store>
@@ -134,109 +224,10 @@
                     </fields>
                 </anymarket_integration_prod_group>
 
-                <anymarket_integration_order_group translate="label" module="db1_anymarket">
-                    <label>Integration (Orders)</label>
-                    <sort_order>3</sort_order>
-                    <show_in_default>0</show_in_default>
-                    <show_in_website>0</show_in_website>
-                    <show_in_store>1</show_in_store>
-                    <fields>
-
-                        <anymarket_type_order_sync_field translate="label tooltip comment">
-                            <label>Type Synchronization</label>
-                            <comment>If checked Magento for Anymarket, orders from the magento will be registered in anymarket. If checked Anymarket for Magento, anymarket's orders will be registered in magento.</comment>
-                            <sort_order>0</sort_order>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <frontend_type>select</frontend_type>
-                            <source_model>db1_anymarket/system_config_source_typesync_order_values</source_model>
-                        </anymarket_type_order_sync_field>
-
-                        <anymarket_stauts_order_field translate="label tooltip comment">
-                            <label>Status Order</label>
-                            <comment>Status of orders that must be imported.</comment>
-                            <frontend_type>multiselect</frontend_type>
-                            <source_model>db1_anymarket/system_config_source_orders_values</source_model>
-                            <sort_order>1</sort_order>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </anymarket_stauts_order_field>
-
-                        <anymarket_status_mg_am_field translate="label comment">
-                            <label>Status Order (Magento to Anymarket)</label>
-                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
-                            <frontend_model>db1_anymarket/system_config_source_orders_statusmgam_values</frontend_model>
-                            <sort_order>2</sort_order>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <comment>Add Order Status Magento</comment>
-                        </anymarket_status_mg_am_field>
-
-                        <anymarket_status_am_mg_field translate="label comment">
-                            <label>Status Order (Anymarket to Magento)</label>
-                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
-                            <frontend_model>db1_anymarket/system_config_source_orders_statusammg_values</frontend_model>
-                            <sort_order>3</sort_order>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <comment>Add Order Status Anymarket</comment>
-                        </anymarket_status_am_mg_field>
-
-                    </fields>
-                </anymarket_integration_order_group>
-
-                <anymarket_acesso_group translate="label comment" module="db1_anymarket">
-                    <label>Access</label>
-                    <comment>Configure all the necessary information to allow access to AnyMarket.</comment>
-                    <sort_order>5</sort_order>
-                    <show_in_default>0</show_in_default>
-                    <show_in_website>0</show_in_website>
-                    <show_in_store>1</show_in_store>
-                    <fields>
-
-                        <anymarket_host_field translate="label tooltip comment">
-                            <label>Host</label>
-                            <sort_order>0</sort_order>
-                            <comment>URL for access to AnyMarket</comment>
-                            <tooltip>Contact the DB1 for this information</tooltip>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <frontend_type>text</frontend_type>
-                        </anymarket_host_field>
-                        
-                        <anymarket_token_field translate="label tooltip comment">
-                            <label>Token</label>
-                            <sort_order>1</sort_order>
-                            <comment>Token necessary access to AnyMarket</comment>
-                            <tooltip>Contact the DB1 for this information</tooltip>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <frontend_type>text</frontend_type>
-                        </anymarket_token_field>
-
-                        <anymarket_oi_field translate="label tooltip">
-                            <label>OI</label>
-                            <sort_order>2</sort_order>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <tooltip>Contact the DB1 for this information</tooltip>
-                            <show_in_store>1</show_in_store>
-                            <frontend_type>text</frontend_type>
-                        </anymarket_oi_field>
-
-                    </fields>
-                </anymarket_acesso_group>
-
                 <anymarket_attribute_group translate="label comment" module="db1_anymarket">
                     <label>Attributes</label>
                     <comment>Configure all the necessary information to manage the attributes.</comment>
-                    <sort_order>6</sort_order>
+                    <sort_order>5</sort_order>
                     <show_in_default>0</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>1</show_in_store>
@@ -445,6 +436,61 @@
 
                     </fields>
                 </anymarket_attribute_group>
+
+                <anymarket_integration_order_group translate="label" module="db1_anymarket">
+                    <label>Integration (Orders)</label>
+                    <sort_order>6</sort_order>
+                    <show_in_default>0</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+
+                        <anymarket_type_order_sync_field translate="label tooltip comment">
+                            <label>Type Synchronization</label>
+                            <comment>If checked Magento for Anymarket, orders from the magento will be registered in anymarket. If checked Anymarket for Magento, anymarket's orders will be registered in magento.</comment>
+                            <sort_order>0</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_typesync_order_values</source_model>
+                        </anymarket_type_order_sync_field>
+
+                        <anymarket_stauts_order_field translate="label tooltip comment">
+                            <label>Status Order</label>
+                            <comment>Status of orders that must be imported.</comment>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_orders_values</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </anymarket_stauts_order_field>
+
+                        <anymarket_status_mg_am_field translate="label comment">
+                            <label>Status Order (Magento to Anymarket)</label>
+                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
+                            <frontend_model>db1_anymarket/system_config_source_orders_statusmgam_values</frontend_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Add Order Status Magento</comment>
+                        </anymarket_status_mg_am_field>
+
+                        <anymarket_status_am_mg_field translate="label comment">
+                            <label>Status Order (Anymarket to Magento)</label>
+                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
+                            <frontend_model>db1_anymarket/system_config_source_orders_statusammg_values</frontend_model>
+                            <sort_order>3</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Add Order Status Anymarket</comment>
+                        </anymarket_status_am_mg_field>
+
+                    </fields>
+                </anymarket_integration_order_group>
 
             </groups>
         </anymarket_section>

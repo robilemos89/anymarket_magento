@@ -18,6 +18,13 @@ class DB1_AnyMarket_Model_Cron{
     /**
      * execute the queue
      */
+    public function executeReindex(){
+        Mage::helper('db1_anymarket/queue')->processReindex();
+    }
+
+    /**
+     * execute the queue
+     */
     public function executeQueue(){
         Mage::helper('db1_anymarket/queue')->processQueue();
     }

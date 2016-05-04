@@ -275,7 +275,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketproductsController extends DB1_
                 );
             }else{
                 Mage::getSingleton('adminhtml/session')->addError(
-                    Mage::helper('db1_anymarket')->__('Integration Products "AnyMarket for Magento" marked as NOT')
+                    Mage::helper('db1_anymarket')->__("Integration Products 'AnyMarket for Magento' marked as NOT")
                 );
             }
         }
@@ -310,7 +310,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketproductsController extends DB1_
                 );
             }else{
                 Mage::getSingleton('adminhtml/session')->addError(
-                    Mage::helper('db1_anymarket')->__('Integration Products "Magento for Anymarket" marked as NOT')
+                    Mage::helper('db1_anymarket')->__("Integration Products 'Magento for Anymarket' marked as NOT")
                 );
             }
         }
