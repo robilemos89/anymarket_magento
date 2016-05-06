@@ -879,10 +879,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     }
 
                     $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+
                     if($filter == 'final_price'){
-                        $stkPrice = $SimpleConfigProd->getData($filter);
-                    }else{
                         $stkPrice = $SimpleConfigProd->getFinalPrice();
+                    }else{
+                        $stkPrice = $SimpleConfigProd->getData($filter);
                     }
 
                     $simpConfProdSku = $SimpleConfigProd->getSku();
@@ -921,9 +922,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
 
                 if($filter == 'final_price'){
-                    $stkPrice = $product->getData($filter);
-                }else{
                     $stkPrice = $product->getFinalPrice();
+                }else{
+                    $stkPrice = $product->getData($filter);
                 }
 
                 $prodSkuJ = $product->getSku();
