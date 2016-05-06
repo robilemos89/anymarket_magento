@@ -68,9 +68,9 @@ class DB1_AnyMarket_Model_Observer {
                                 $ean    = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_ean_field', $storeID);
 
                                 if($filter == 'final_price'){
-                                    $stkPrice = $product->getData($filter);
-                                }else{
                                     $stkPrice = $product->getFinalPrice();
+                                }else{
+                                    $stkPrice = $product->getData($filter);
                                 }
 
                                 $attributeOptions = array();
