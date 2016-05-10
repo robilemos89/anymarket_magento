@@ -597,10 +597,12 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 }
 
                 $flagHSku = '';
-                foreach ($skusProd['return'] as $skuAM) {
-                    if($skuAM->partnerId == $prodSimple->getSku()){
-                        $flagHSku = $skuAM->id;
-                        break;
+                if( isset($skusProd['return']) ) {
+                    foreach ($skusProd['return'] as $skuAM) {
+                        if ($skuAM->partnerId == $prodSimple->getSku()) {
+                            $flagHSku = $skuAM->id;
+                            break;
+                        }
                     }
                 }
 

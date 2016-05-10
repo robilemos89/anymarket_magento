@@ -42,7 +42,7 @@ class DB1_AnyMarket_Model_Observer {
             $productOld = $observer->getEvent()->getProduct();
             $QuickCreate = Mage::getSingleton('core/session')->getQuickCreateProdVariable();
             if($QuickCreate == null || $QuickCreate == "" || $QuickCreate != $productOld->getSku() ){
-                $storeID = ($productOld->getStoreId() !== null) ? $productOld->getStoreId() : 1;
+                $storeID = ($productOld->getStoreId() !== null && $productOld->getStoreId() != "0") ? $productOld->getStoreId() : 1;
 
                 $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
                 if($typeSincProd == 0){
@@ -63,6 +63,7 @@ class DB1_AnyMarket_Model_Observer {
                         }else{
                             $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
                             if($parentIds){
+
                                 //PRODUTO SIMPLES FILHO DE UM CONFIG
                                 $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                                 $ean    = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_ean_field', $storeID);
@@ -94,6 +95,7 @@ class DB1_AnyMarket_Model_Observer {
                                                 "idProduct" => $product->getData('id_anymarket'),
                                                 "internalIdProduct" => $product->getId(),
                                             );
+
                                             Mage::helper('db1_anymarket/product')->sendImageSkuToAnyMarket($product, array($arrSku), $storeID);
                                         }
                                     }
