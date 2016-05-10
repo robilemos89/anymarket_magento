@@ -2043,11 +2043,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                             $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
                             if( $typeSincProd == 0 ){
-                                if($Price == null){
-                                    $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                                $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                                if($filter == 'final_price'){
+                                    $Price = $product->getFinalPrice();
+                                }else{
                                     $Price = $product->getData($filter);
-                                }elseif( !is_numeric ( $Price ) ){
-                                    $Price = null;
                                 }
                             }else{
                                 $Price = null;
