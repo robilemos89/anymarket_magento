@@ -42,7 +42,7 @@ class DB1_AnyMarket_Model_Observer {
             $productOld = $observer->getEvent()->getProduct();
             $QuickCreate = Mage::getSingleton('core/session')->getQuickCreateProdVariable();
             if($QuickCreate == null || $QuickCreate == "" || $QuickCreate != $productOld->getSku() ){
-                $storeID = ($productOld->getStoreId() !== null) ? $productOld->getStoreId() : 1;
+                $storeID = ($productOld->getStoreId() != null && $productOld->getStoreId() != "0" ) ? $productOld->getStoreId() : 1;
 
                 $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
                 if($typeSincProd == 0){
@@ -204,7 +204,7 @@ class DB1_AnyMarket_Model_Observer {
             $event = $observer->getEvent();
             $_item = $event->getItem();
 
-			$storeID = ($_item->getData('store_id') !== null) ? $_item->getData('store_id') : 1;
+			$storeID = ($_item->getData('store_id') != null && $_item->getData('store_id') != "0" ) ? $_item->getData('store_id') : 1;
 
             Mage::app()->setCurrentStore($storeID);
             $product = Mage::getModel('catalog/product')->load( $_item->getProductId() );
@@ -257,7 +257,7 @@ class DB1_AnyMarket_Model_Observer {
         $item = $observer->getEvent()->getItem();
         $product = Mage::getModel('catalog/product')->load( $item->getProductId() );
         if ( $product->getId() ) {
-            $storeID = ($item->getStoreId() !== null) ? $item->getStoreId() : 1;
+            $storeID = ($item->getStoreId() != null && $item->getStoreId() != "0" ) ? $item->getStoreId() : 1;
             Mage::app()->setCurrentStore($storeID);
 
             Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($product->getId(), $product->getStockItem()->getQty(), null);
@@ -269,7 +269,7 @@ class DB1_AnyMarket_Model_Observer {
      */
     public function refundOrderInventory($observer){
         $creditmemo = $observer->getEvent()->getCreditmemo();
-		$storeID = ($creditmemo->getStoreId() !== null) ? $creditmemo->getStoreId() : 1;
+		$storeID = ($creditmemo->getStoreId() != null  && $creditmemo->getStoreId() != "0" ) ? $creditmemo->getStoreId() : 1;
 
         Mage::app()->setCurrentStore($storeID);
         foreach ($creditmemo->getAllItems() as $item) {
