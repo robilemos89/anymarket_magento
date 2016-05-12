@@ -1807,6 +1807,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 }
 
                 $prods = Mage::getModel('catalog/product')->getCollection()
+                                                          ->addStoreFilter($storeID)
                                                           ->addFieldToFilter('type_id', 'configurable')
                                                           ->addFieldToFilter('id_anymarket', $ProdsJSON->id);
 
