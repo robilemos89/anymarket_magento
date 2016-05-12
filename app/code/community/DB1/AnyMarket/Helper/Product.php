@@ -71,6 +71,41 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
     }
 
     /**
+     * get all fields configured in configuration for descriptions
+     *
+     * @return string
+     */
+    public function getFieldsDescriptionConfig(){
+        $ConfigDescProd = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_desc_field', $this->getCurrentStoreView());
+        $fieldDesc = array();
+        if ($ConfigDescProd && $ConfigDescProd != 'a:0:{}') {
+            $ConfigDescProd = unserialize($ConfigDescProd);
+            if (is_array($ConfigDescProd)) {
+                foreach($ConfigDescProd as $ConfigDescProdRow) {
+
+                    $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product','description');
+                    $attributesData = Mage::getResourceModel('catalog/product_attribute_collection')
+                        ->addVisibleFilter()
+                        ->addFieldToSelect(array('frontend_input', 'backend_type'))
+                        ->addFieldToFilter('main_table.attribute_id', array('eq' => $attributeId));
+
+                    $arrValuesAttrs = array_values( $attributesData->getData() );
+                    $StoreIDAmProd = array_shift( $arrValuesAttrs );
+                    if( ($StoreIDAmProd['frontend_input'] == "textarea") && ($StoreIDAmProd['backend_type'] == "text") ){
+                        array_push($fieldDesc, $ConfigDescProdRow['descProduct']);
+                    }
+                }
+            }
+        }
+
+        if( empty($fieldDesc) ) {
+            array_push($fieldDesc, "description");
+        }
+
+        return $fieldDesc;
+    }
+
+    /**
      * get decription by configuration
      *
      * @param $product
@@ -1571,6 +1606,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $warranty_text =      Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_warranty_text_field', $storeID);
         $warranty_time =      Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_warranty_time_field', $storeID);
 
+        $configureFieldsConfig = $this->getFieldsDescriptionConfig();
+
         //PROD CONFIGURABLE
         if ( !empty( $ProdsJSON->variations ) ) {
             $prodSimpleFromConfig = array();
@@ -1580,10 +1617,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $variationArray = array();
             $sinc = '';
             foreach ($ProdsJSON->variations as $variation) {
-                $variationArray[$variation->id] = strtolower($variation->name);
-                $AttrCtlr = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product', strtolower($variation->name));
+                $variationArray[$variation->id] = $variation->name;
+                $AttrCtlr = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product', $variation->name);
                 if(!$AttrCtlr->getData()){
-                    $sinc = strtolower($variation->name);
+                    $sinc = $variation->name;
                     break;
                 }
             }
@@ -1774,14 +1811,16 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             'stock' => '0',
                             'price' => '0',
                             'name' => $ProdsJSON->title,
-                            'short' => $ProdsJSON->description,
-                            'description' => $ProdsJSON->description,
                             'brand' => '',
                             'sku' => $ProdsJSON->id,
                             'id_anymarket' => $ProdsJSON->id,
                             'categoria_anymarket' => $ProdsJSON->category,
                             'images' => $imagesGallery
                         );
+
+                        foreach ($configureFieldsConfig as $fieldConfig) {
+                            $dataProdConfig[$fieldConfig] = $ProdsJSON->description;
+                        }
 
                         $ProdCrt = $this->create_configurable_product($dataProdConfig, $prodSimpleFromConfig, $AttributeIds);
                     }
@@ -1790,8 +1829,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         'stock' => '0',
                         'price' => '0',
                         'name' => $ProdsJSON->title,
-                        'short' => $ProdsJSON->description,
-                        'description' => $ProdsJSON->description,
                         'brand' => '',
                         'sku' => $ProdsJSON->id,
                         'id_anymarket' => $ProdsJSON->id,
@@ -1800,6 +1837,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                     foreach($prods as $prod) {
                         $IdProdConfig = $prod->getId();
+                    }
+
+                    foreach ($configureFieldsConfig as $fieldConfig) {
+                        $dataProdConfig[$fieldConfig] = $ProdsJSON->description;
                     }
 
                     $ProdCrt = $IdProdConfig;
@@ -1840,8 +1881,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     'type_id' =>  'simple',
                     'sku' => $IDSkuJsonProd,
                     'name' => $skuProd->title,
-                    'description' => $ProdsJSON->description,
-                    'short_description' => $ProdsJSON->description,
                      $priceField => $skuProd->price,
                     'created_at' => strtotime('now'),
                     'updated_at' => strtotime('now'),
@@ -1865,6 +1904,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     'msrp_enabled' =>  '2',
                     'categoria_anymarket' => $ProdsJSON->category,
                 );
+
+                foreach ($configureFieldsConfig as $fieldConfig) {
+                    $dataPrd[$fieldConfig] = $ProdsJSON->description;
+                }
 
                 foreach ($ProdsJSON->attributes as  $attrProd) {
                     $dataPrd[ strtolower($attrProd->name) ] = $this->procAttrConfig(strtolower($attrProd->name), $attrProd->value, 0);
@@ -1893,8 +1936,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 $product->setStoreId($storeID);
                 $product->setName( $skuProd->title );
-                $product->setDescription( $ProdsJSON->description );
-                $product->setShortDescription( $ProdsJSON->description );
+
+//                $product->setDescription( $ProdsJSON->description );
+//                $product->setShortDescription( $ProdsJSON->description );
+
+                foreach ($configureFieldsConfig as $fieldConfig) {
+                    $product->setData($fieldConfig, $ProdsJSON->description);
+                }
+
                 $product->setData('weight', $MassUnit == 1 ? $ProdsJSON->weight*1000 : $ProdsJSON->weight);
 
                 $product->setData('brand_anymarket', $ProdsJSON->brand);
