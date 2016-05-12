@@ -600,8 +600,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      */
     public function getInvoiceOrder($Order){
         $nfeID = "";
-        $nfeID = "";
         $date = "";
+        $chaveAcID = "";
         if ($Order->hasInvoices()) {
             foreach ($Order->getInvoiceCollection() as $inv) {
                 $invoice = Mage::getModel('sales/order_invoice')->loadByIncrementId( $inv->getIncrementId() );
@@ -613,7 +613,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     if( (strpos($CommentCurr, 'nfe:') !== false) && (strpos($CommentCurr, 'emiss') !== false) ) {
                         $caracts = array("/", "-", ".");
                         $nfeTmp = str_replace($caracts, "", $CommentCurr );
-                        $nfeID = substr( $nfeTmp, $nfeCount+4, 44);
+                        $chaveAcID = substr( $nfeTmp, $nfeCount+4, 44);
 
                         $date = substr( $CommentCurr, $emissaoCount+8, 19);
                         $dateTmp = str_replace("/", "-", $date );
@@ -623,7 +623,26 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
         }
 
-        return array("number" => $nfeID, "date" => $date, "accessKey" => $nfeID);
+        if( $chaveAcID == "" ) {
+            foreach ($Order->getStatusHistoryCollection() as $item) {
+                $CommentCurr = $item->getComment();
+
+                $CommentCurr = str_replace(array(" ", "<b>", "</b>"), "", $CommentCurr );
+                $chaveAcesso = strpos($CommentCurr, 'ChavedeAcesso:');
+                if( (strpos($CommentCurr, 'ChavedeAcesso:') !== false) ) {
+                    $chaveAcID = substr( $CommentCurr, $chaveAcesso+14, 44);
+
+                    $notaFiscal = strpos($CommentCurr, 'Notafiscal:');
+                    if( (strpos($CommentCurr, 'Notafiscal:') !== false) ) {
+                        $nfeID = substr( $CommentCurr, $notaFiscal+11, 44);
+                    }
+
+                    $date = gmdate('Y-m-d\TH:i:s\Z', date("d-m-Y H:i:s") );
+                }
+            }
+        }
+
+        return array("number" => $nfeID, "date" => $date, "accessKey" => $chaveAcID);
     }
 
     /**
@@ -829,7 +848,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     "payments" => array(
                                     array(
                                         "method" => $payment->getMethodInstance()->getTitle(),
-                                        "status" => "Pago",
+                                        "status" => "",
                                         "value" => $Order->getBaseGrandTotal()
                                     ),
                     ),
