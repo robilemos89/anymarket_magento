@@ -1766,16 +1766,24 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     }
                 }
 
-                $prods = Mage::getModel('catalog/product')->getCollection()
-                                                          ->addFieldToFilter('type_id', 'configurable')
-                                                          ->addFieldToFilter('id_anymarket', $ProdsJSON->id);
+                $collectionConfigurable = Mage::getResourceModel('catalog/product_collection')
+                                          ->addAttributeToFilter('type_id', array('eq' => 'configurable'));
+
+                $prod = null;
+                foreach ($collectionConfigurable as $prodConfig) {
+                    $prod = Mage::getModel('catalog/product')->setStoreId(1)->load( $prodConfig->getId() );
+                    if( $prod->getData('id_anymarket') == $ProdsJSON->id ){
+                        break;
+                    }
+
+                }
 
                 $imagesGallery = array();
                 foreach ($ProdsJSON->photos as $image) {
                     $imagesGallery[] = array('img' => $image->standard_resolution, 'main' => $image->main);
                 }
 
-                if( !$prods->getData() ){
+                if( $prod == null ){
                     if($prodSimpleFromConfig){
                         $dataProdConfig = array(
                             'stock' => '0',
@@ -1805,12 +1813,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         'categoria_anymarket' => $ProdsJSON->category
                     );
 
-                    foreach($prods as $prod) {
-                        $IdProdConfig = $prod->getId();
-                    }
-
-                    $ProdCrt = $IdProdConfig;
-                    $this->update_configurable_product($ProdCrt, $dataProdConfig, $prodSimpleFromConfig, $AttributeIds);
+                    $this->update_configurable_product($prod->getId(), $dataProdConfig, $prodSimpleFromConfig, $AttributeIds);
                 }
             }else{
                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
