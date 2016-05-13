@@ -160,9 +160,11 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
                 }
             }
 
+            Mage::app()->setCurrentStore(Mage::getModel('core/store')->load(Mage_Core_Model_App::ADMIN_STORE_ID));
             $productMG = Mage::getModel('catalog/product')->loadByAttribute('sku', $product->getSku());
             $productMG->addImageToMediaGallery( $filepath, $attrIMG, false, false);
             $productMG->save();
+            Mage::app()->setCurrentStore( $this->getCurrentStoreView() );
         }
 
     }
