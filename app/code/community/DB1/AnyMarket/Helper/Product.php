@@ -1823,7 +1823,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     $imagesGallery[] = array('img' => $image->standard_resolution, 'main' => $image->main);
                 }
 
-                if( !$prod->getData() ){
+                if( $prod == null ){
                     if($prodSimpleFromConfig){
                         $dataProdConfig = array(
                             'stock' => '0',
