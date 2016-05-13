@@ -1089,9 +1089,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $IDinAnymarket = json_encode($SaveLog->id);
 
                         if($IDinAnymarket != '0'){
-                            $product->setIdAnymarket($IDinAnymarket);
+                            $productForSave = Mage::getModel('catalog/product')->setStoreId($storeID)->load($product->getId());
+                            $productForSave->setIdAnymarket($IDinAnymarket);
                         }
-                        $product->save();
+                        $productForSave->save();
 
                         if($product->getTypeID() == "configurable"){
                             $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
