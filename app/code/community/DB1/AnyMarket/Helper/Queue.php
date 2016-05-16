@@ -81,14 +81,13 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
             }else if($item['nmq_table'] == 'PRODUCT'){
                 // EXPORT PRODUCT
                 $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
+                $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID);
+                $anymarketproducts->load($IdItemQueue, 'nmp_id');
+
+                $product = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $anymarketproducts->getNmpSku());
                 if( ($typImp == 'EXP') && ($typeSincProd == 0) ){
                     try {
-                        $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID);
-                        $anymarketproducts->load($IdItemQueue, 'nmp_id');
-
                         $anymarketproducts->setStatus('1')->setIsMassupdate(true)->save();
-
-                        $product = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $anymarketproducts->getNmpSku());
                         if($product != null){
                             Mage::helper('db1_anymarket/product')->sendProductToAnyMarket( $product->getId() );
                         }
