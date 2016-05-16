@@ -1,5 +1,5 @@
 <?php
-class DB1_AnyMarket_Block_Adminhtml_System_Config_Form_ButtonCheckConfig extends Mage_Adminhtml_Block_System_Config_Form_Field
+class DB1_AnyMarket_Block_Adminhtml_System_Config_Form_Buttoncheckproduct extends Mage_Adminhtml_Block_System_Config_Form_Field
 {
 	/*
 	* Set template
@@ -26,7 +26,7 @@ class DB1_AnyMarket_Block_Adminhtml_System_Config_Form_ButtonCheckConfig extends
 	*
 	* @return string
 	*/
-	public function getAjaxCheckUrl()
+	public function getAjaxCheckProductUrl()
 	{
 		return Mage::helper('adminhtml')->getUrl('adminhtml/anymarket/checkprod');
 	}

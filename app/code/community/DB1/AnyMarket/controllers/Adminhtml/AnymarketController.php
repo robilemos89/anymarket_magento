@@ -82,7 +82,7 @@ class DB1_Anymarket_Adminhtml_AnymarketController extends Mage_Adminhtml_Control
 	 */
 	public function checkproductAction()
 	{
-
+		Mage::app()->getResponse()->setBody("tetsessss");
 	}
 
 
