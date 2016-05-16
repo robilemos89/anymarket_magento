@@ -270,8 +270,23 @@
         </anymarket_integration_order_group>
 
         <anymarket_attribute_group>
-            <anymarket_doc_type_field>Prefix</anymarket_doc_type_field>
+            <anymarket_customer_group_field>1</anymarket_customer_group_field>
+            <anymarket_doc_type_field>taxvat</anymarket_doc_type_field>
+            <anymarket_preco_field>price</anymarket_preco_field>
+            <anymarket_vol_comp_field>volume_comprimento</anymarket_vol_comp_field>
+            <anymarket_vol_alt_field>volume_altura</anymarket_vol_alt_field>
+            <anymarket_vol_larg_field>volume_largura</anymarket_vol_larg_field>
+            <anymarket_video_url_field>video_url</anymarket_video_url_field>
+            <anymarket_nbm_field>nbm</anymarket_nbm_field>
+            <anymarket_nbm_origin_field>origin</anymarket_nbm_origin_field>
+            <anymarket_ean_field>ean</anymarket_ean_field>
+            <anymarket_warranty_text_field>warranty_text</anymarket_warranty_text_field>
+            <anymarket_warranty_time_field>warranty_time</anymarket_warranty_time_field>
+            <anymarket_brand_field>brand</anymarket_brand_field>
+            <anymarket_model_field>model</anymarket_model_field>
+            <anymarket_price_factor_field>markup</anymarket_price_factor_field>
         </anymarket_attribute_group>
+
       </anymarket_section>
     </default>
 <!-- CRON -->

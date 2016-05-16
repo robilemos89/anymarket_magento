@@ -39,7 +39,7 @@ class DB1_Anymarket_Adminhtml_AnymarketController extends Mage_Adminhtml_Control
 		}
 
 		$ConfigDescProd = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_desc_field', $storeID);
-		if ($ConfigDescProd && $ConfigDescProd != 'a:0:{}') {
+		if ($ConfigDescProd == 'a:0:{}') {
 			array_push($errors, " Configuração de Descrição Inválida.");
 		}
 		$STATUSIMPORT = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_stauts_order_field', $storeID);
@@ -73,16 +73,6 @@ class DB1_Anymarket_Adminhtml_AnymarketController extends Mage_Adminhtml_Control
 		}
 
 		Mage::app()->getResponse()->setBody($returnStr);
-	}
-
-	/**
-	 * Return some checking result
-	 *
-	 * @return void
-	 */
-	public function checkproductAction()
-	{
-		Mage::app()->getResponse()->setBody("tetsessss");
 	}
 
 
