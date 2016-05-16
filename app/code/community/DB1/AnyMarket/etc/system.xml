@@ -87,10 +87,41 @@
                     </fields>
                 </anymarket_acesso_group>
 
+                <anymarket_general_group translate="label" module="db1_anymarket">
+                    <label>General</label>
+                    <sort_order>2</sort_order>
+                    <show_in_default>0</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <anymarket_check_config_button translate="label">
+                            <label>Check the configurations</label>
+                            <frontend_type>Button</frontend_type>
+                            <frontend_model>db1_anymarket/adminhtml_system_config_form_buttoncheckconfig</frontend_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </anymarket_check_config_button>
+
+                        <anymarket_check_button translate="label comment">
+                            <label>Check the Product</label>
+                            <comment>It will create a product in your store and sent to the Anymarket.</comment>
+                            <frontend_type>Button</frontend_type>
+                            <frontend_model>db1_anymarket/adminhtml_system_config_form_buttoncheckproduct</frontend_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </anymarket_check_button>
+
+                    </fields>
+                </anymarket_general_group>
+
                 <anymarket_cron_group translate="label comment" module="db1_anymarket">
                     <label>CRON</label>
                     <comment>Enable the necessary Crons. </comment>
-                    <sort_order>2</sort_order>
+                    <sort_order>3</sort_order>
                     <show_in_default>0</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>1</show_in_store>
@@ -132,36 +163,6 @@
                         </anymarket_reindex_field>
                     </fields>
                 </anymarket_cron_group>
-
-                <anymarket_general_group translate="label" module="db1_anymarket">
-                    <label>General</label>
-                    <sort_order>3</sort_order>
-                    <show_in_default>0</show_in_default>
-                    <show_in_website>0</show_in_website>
-                    <show_in_store>1</show_in_store>
-                    <fields>
-
-                        <anymarket_NBM_required_field translate="label comment">
-                            <label>NBM Required</label>
-                            <comment>If marked yes, the validation will be done at the time of import.</comment>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                        </anymarket_NBM_required_field>
-                        
-                        <anymarket_EAN_required_field translate="label">
-                            <label>Ignore EAN Invalid</label>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                        </anymarket_EAN_required_field>
-
-                    </fields>
-                </anymarket_general_group>
 
                 <anymarket_integration_prod_group translate="label" module="db1_anymarket">
                     <label>Integration (Products)</label>

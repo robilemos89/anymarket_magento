@@ -812,9 +812,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
             $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
-            $REQUIRED_NBM = Mage::getStoreConfig('anymarket_section/anymarket_general_group/anymarket_NBM_required_field', $storeID);
-            $REQUIRED_EAN = Mage::getStoreConfig('anymarket_section/anymarket_general_group/anymarket_EAN_required_field', $storeID);
-
             $MassUnit = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_weight_field', $storeID);
             $UnitMeasurement = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_size_field', $storeID);
 
@@ -998,18 +995,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 );
             }
 
-            $Requiredean = $REQUIRED_EAN != '1' ? 'false' : 'true';
-            $Requirednbm = $REQUIRED_NBM != '1' ? 'false' : 'true';        
             
             //cria os headers
             $headers = array( 
                 "Content-type: application/json", 
                 "Cache-Control: no-cache",
-                "create_brand: true",
-                "crop_title: false",
-                "ignore_invalid_ean: ".$Requiredean,
-                "create_category: true",
-                "require_nbm: ".$Requirednbm,
                 "gumgaToken: ".$TOKEN
             );
 

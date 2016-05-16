@@ -179,12 +179,15 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                             $anymarketprod = Mage::getModel('db1_anymarket/anymarketproducts')->load($anymarketproducts->getData('nmp_id'), 'nmp_id');
                             if (is_array($anymarketprod->getData('store_id')) && in_array($storeID, $anymarketprod->getData('store_id'))) {
 
-                                $ProdLoaded = Mage::getModel('catalog/product')->loadByAttribute('sku', $anymarketproducts->getData('nmp_sku'));
-                                if ($ProdLoaded) {
-                                    if (($ProdLoaded->getStatus() == 1) && ($ProdLoaded->getData('integra_anymarket') == 1)) {
-                                        Mage::helper('db1_anymarket/queue')->addQueue($anymarketproducts->getData('nmp_id'), 'EXP', 'PRODUCT');
+                                if($anymarketprod->getData('nmp_status_int') == "Erro" ) {
+                                    $ProdLoaded = Mage::getModel('catalog/product')->loadByAttribute('sku', $anymarketproducts->getData('nmp_sku'));
+                                    if ($ProdLoaded) {
+                                        if (($ProdLoaded->getStatus() == 1) && ($ProdLoaded->getData('integra_anymarket') == 1)) {
+                                            Mage::helper('db1_anymarket/queue')->addQueue($anymarketproducts->getData('nmp_id'), 'EXP', 'PRODUCT');
+                                        }
                                     }
                                 }
+
                             }
                         }
                     }

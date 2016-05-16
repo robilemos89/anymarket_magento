@@ -259,10 +259,7 @@
       </payment>
 
       <anymarket_section>
-        <anymarket_general_group>
-            <anymarket_EAN_required_field>1</anymarket_EAN_required_field>
-        </anymarket_general_group>
-        
+
         <anymarket_integration_prod_group>
             <anymarket_type_prod_sync_field>0</anymarket_type_prod_sync_field>
             <anymarket_type_weight_field>0</anymarket_type_weight_field>
