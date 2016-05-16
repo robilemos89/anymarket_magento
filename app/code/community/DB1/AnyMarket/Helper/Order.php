@@ -25,7 +25,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     if($StatusOrderRow['orderStatusAM'] == $OrderRowData){
                         $OrderReturn = $StatusOrderRow['orderStatusMG'];
                         $statuses = Mage::getModel('sales/order_status')->getCollection()->joinStates()
-                            ->addStatusFilter($OrderReturn);
+                            ->addFieldToFilter('main_table.status',array('eq'=>$OrderReturn));
+                        //->addStatusFilter($OrderReturn);
 
                         $StateReturn = $statuses->getFirstItem()->getData('state');
                         break;
@@ -514,39 +515,43 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $itemsarray = null;
             if(isset($JSON->invoice)){
                 if( $order->canInvoice() ){
-                    $nfe = $JSON->invoice->accessKey;
-                    $dateNfe = $JSON->invoice->date;
+                    if(isset($JSON->invoice->accessKey) ) {
+                        $nfe = $JSON->invoice->accessKey;
+                        $dateNfe = $JSON->invoice->date;
 
-                    $DateTime = strtotime($dateNfe);
-                    $fixedDate = date('d/m/Y H:i:s', $DateTime);
+                        $DateTime = strtotime($dateNfe);
+                        $fixedDate = date('d/m/Y H:i:s', $DateTime);
 
-                    $orderItems = $order->getAllItems();
-                    foreach ($orderItems as $_eachItem) {
-                        $opid = $_eachItem->getId();
-                        $qty = $_eachItem->getQtyOrdered();
-                        $itemsarray[$opid] = $qty;
-                    }
+                        $orderItems = $order->getAllItems();
+                        foreach ($orderItems as $_eachItem) {
+                            $opid = $_eachItem->getId();
+                            $qty = $_eachItem->getQtyOrdered();
+                            $itemsarray[$opid] = $qty;
+                        }
 
-                    if( !$order->hasInvoices() ) {
-                        $nfeString = 'nfe:'.$nfe.', emissao:'.$fixedDate;
-                        Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray ,$nfeString ,0,0);
+                        if (!$order->hasInvoices()) {
+                            $nfeString = 'nfe:' . $nfe . ', emissao:' . $fixedDate;
+                            Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
+                        }
                     }
                 }
             }
 
             if(isset($JSON->tracking)){
                 if( $order->canShip() && !$order->hasShipments() ){
-                    $TrNumber = $JSON->tracking->number;
-                    $TrCarrier = strtolower($JSON->tracking->carrier);
+                    if(isset($JSON->tracking->number)) {
+                        $TrNumber = $JSON->tracking->number;
+                        $TrCarrier = strtolower($JSON->tracking->carrier);
 
-                    $shipmentId = Mage::getModel('sales/order_shipment_api')->create($order->getIncrementId(), $itemsarray ,'Create by AnyMarket' ,false,1);
+                        $shipmentId = Mage::getModel('sales/order_shipment_api')->create($order->getIncrementId(), $itemsarray, 'Create by AnyMarket', false, 1);
 
-                    $TracCodeArr = Mage::getModel('sales/order_shipment_api')->getCarriers($order->getIncrementId());
-                    if(isset($TracCodeArr[$TrCarrier]) ){
-                        $trackmodel = Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId, $TrCarrier, $TrCarrier, $TrNumber);
-                    }else{
-                        $arrVar = array_keys($TracCodeArr);
-                        $trackmodel = Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId,  array_shift($arrVar), 'Não Econtrado('.$TrCarrier.')', $TrNumber);
+                        $TracCodeArr = Mage::getModel('sales/order_shipment_api')->getCarriers($order->getIncrementId());
+                        if (isset($TracCodeArr[$TrCarrier])) {
+                            $trackmodel = Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId, $TrCarrier, $TrCarrier, $TrNumber);
+                        } else {
+                            $arrVar = array_keys($TracCodeArr);
+                            $trackmodel = Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId, array_shift($arrVar), 'Não Econtrado(' . $TrCarrier . ')', $TrNumber);
+                        }
                     }
                 }
             }
