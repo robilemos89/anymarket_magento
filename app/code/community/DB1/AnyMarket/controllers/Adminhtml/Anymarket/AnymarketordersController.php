@@ -92,7 +92,8 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketordersController extends DB1_An
                 $anymarketorders->load($anymarketOrderId);
 
                 if( is_array($anymarketorders->getData('store_id')) ){
-                    $storeID = reset($anymarketorders->getData('store_id'));
+                    $arrStores = $anymarketorders->getData('store_id');
+                    $storeID = reset($arrStores);
                     Mage::app()->setCurrentStore($storeID);
                 }
 
