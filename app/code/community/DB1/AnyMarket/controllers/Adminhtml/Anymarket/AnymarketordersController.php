@@ -277,7 +277,17 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketordersController extends DB1_An
             try {
                 foreach ($anymarketordersIds as $anymarketordersId) {
                     $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
-                    $anymarketorders->setId($anymarketordersId)->delete();
+                    $anymarketorders->load($anymarketordersId);
+
+                    $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                    $anymarketlog->setLogDesc('Order deleted by user');
+                    $anymarketlog->setLogJson( json_encode($anymarketorders->getData()) );
+                    $anymarketlog->setLogId( $anymarketorders->getData('nmo_id_anymarket') );
+                    $anymarketlog->setStatus("0");
+                    $anymarketlog->save();
+
+                    $anymarketorders->delete();
+
                 }
                 Mage::getSingleton('adminhtml/session')->addSuccess(
                     Mage::helper('db1_anymarket')->__('Total of %d anymarket orders were successfully deleted.', count($anymarketordersIds))

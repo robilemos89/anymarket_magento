@@ -34,7 +34,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketorders_Grid extends Mage_Adminhtml_
         parent::__construct();
         $this->setId('anymarketordersGrid');
         $this->setDefaultSort('entity_id');
-        $this->setDefaultDir('ASC');
+        $this->setDefaultDir('DESC');
         $this->setSaveParametersInSession(true);
         $this->setUseAjax(true);
     }
@@ -67,7 +67,8 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketorders_Grid extends Mage_Adminhtml_
         Mage::getSingleton('core/session')->setStoreListOrderVariable($store_id);
 
         $collection = Mage::getModel('db1_anymarket/anymarketorders')
-            ->getCollection();
+            ->getCollection()
+            ->setOrder('entity_id','DESC');
         
         $this->setCollection($collection);
         return parent::_prepareCollection();
@@ -174,6 +175,16 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketorders_Grid extends Mage_Adminhtml_
                 'label'=> Mage::helper('db1_anymarket')->__('Synchronize'),
                 'url'  => $this->getUrl('*/*/massSincOrder'),
                 'confirm'  => Mage::helper('db1_anymarket')->__('Are you sure you want to sync?')
+            )
+        );
+
+
+        $this->getMassactionBlock()->addItem(
+            'delete',
+            array(
+                'label'=> Mage::helper('db1_anymarket')->__('Delete'),
+                'url'  => $this->getUrl('*/*/massDelete'),
+                'confirm'  => Mage::helper('db1_anymarket')->__('Os itens deletados irão ser gravados nos logs?')
             )
         );
 
