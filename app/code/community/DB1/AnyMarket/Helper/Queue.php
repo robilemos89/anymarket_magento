@@ -45,71 +45,74 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
             $IdItemQueue = $item['nmq_id'];
 
             $anymarketQueue = Mage::getModel('db1_anymarket/anymarketqueue')->load($item['entity_id']);
-
             $arrValueStore = array_values($anymarketQueue->getStoreId());
             $storeID = array_shift($arrValueStore);
-            Mage::app()->setCurrentStore($storeID);
-            $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
 
-            $typImp = $item['nmq_type'];
-            if($item['nmq_table'] == 'ORDER'){
-                try {
-                    if($typImp == 'IMP'){
-                        $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->setStoreId($storeID);
-                        $anymarketorders->load($IdItemQueue, 'nmo_id_anymarket');
-                        //Import
-                        if( $anymarketorders->getNmoStatusInt() != "Não integrado (Magento)") {
-                            $idAnyMarket = $anymarketorders->getNmoIdSeqAnymarket();
-                            if($idAnyMarket){
-                                $idReg = $anymarketorders->getId();
-                                Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($idAnyMarket, "notoken", $storeID);
-                            }
-                        }
-                    }else{
-                        $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->setStoreId($storeID);
-                        $anymarketorders->load($IdItemQueue, 'nmo_id_order');
-                        //Export
-                        if( $anymarketorders->getNmoStatusInt() != "Não integrado (AnyMarket)" ){
-                            $Order = Mage::getModel('sales/order')->loadByIncrementId( $anymarketorders->getNmoIdOrder() );
-                            Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($Order); 
-                        }
-                    }
+            $cronEnabled = Mage::getStoreConfig('anymarket_section/anymarket_cron_group/anymarket_queue_field', $storeID);
+            if($cronEnabled == '1') {
+                Mage::app()->setCurrentStore($storeID);
+                $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
 
-                } catch (Exception $e) {
-                    Mage::logException($e);
-                }
-            }else if($item['nmq_table'] == 'PRODUCT'){
-                // EXPORT PRODUCT
-                $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
-                $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID);
-                $anymarketproducts->load($IdItemQueue, 'nmp_id');
-
-                $product = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $anymarketproducts->getNmpSku());
-                if( ($typImp == 'EXP') && ($typeSincProd == 0) ){
+                $typImp = $item['nmq_type'];
+                if ($item['nmq_table'] == 'ORDER') {
                     try {
-                        $anymarketproducts->setStatus('1')->setIsMassupdate(true)->save();
-                        if($product != null){
-                            Mage::helper('db1_anymarket/product')->sendProductToAnyMarket( $product->getId() );
+                        if ($typImp == 'IMP') {
+                            $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->setStoreId($storeID);
+                            $anymarketorders->load($IdItemQueue, 'nmo_id_anymarket');
+                            //Import
+                            if ($anymarketorders->getNmoStatusInt() != "Não integrado (Magento)") {
+                                $idAnyMarket = $anymarketorders->getNmoIdSeqAnymarket();
+                                if ($idAnyMarket) {
+                                    $idReg = $anymarketorders->getId();
+                                    Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($idAnyMarket, "notoken", $storeID);
+                                }
+                            }
+                        } else {
+                            $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->setStoreId($storeID);
+                            $anymarketorders->load($IdItemQueue, 'nmo_id_order');
+                            //Export
+                            if ($anymarketorders->getNmoStatusInt() != "Não integrado (AnyMarket)") {
+                                $Order = Mage::getModel('sales/order')->loadByIncrementId($anymarketorders->getNmoIdOrder());
+                                Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($Order);
+                            }
                         }
 
                     } catch (Exception $e) {
                         Mage::logException($e);
                     }
-                }
+                } else if ($item['nmq_table'] == 'PRODUCT') {
+                    // EXPORT PRODUCT
+                    $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
+                    $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID);
+                    $anymarketproducts->load($IdItemQueue, 'nmp_id');
 
-                // TRATA STOCK
-                if ( $product ) {
-                    if ($typeSincOrder == 1) {
-                        $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $this->getCurrentStoreView()));
-                        $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
-                        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($product->getId(), $ProdStock->getQty(), $product->getData($filter));
-                    }else {
-                        Mage::helper('db1_anymarket/product')->getStockProductAnyMarket($product->getId(), $storeID);
+                    $product = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $anymarketproducts->getNmpSku());
+                    if (($typImp == 'EXP') && ($typeSincProd == 0)) {
+                        try {
+                            $anymarketproducts->setStatus('1')->setIsMassupdate(true)->save();
+                            if ($product != null) {
+                                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($product->getId());
+                            }
+
+                        } catch (Exception $e) {
+                            Mage::logException($e);
+                        }
                     }
-                }
 
+                    // TRATA STOCK
+                    if ($product) {
+                        if ($typeSincOrder == 1) {
+                            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $this->getCurrentStoreView()));
+                            $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
+                            Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($product->getId(), $ProdStock->getQty(), $product->getData($filter));
+                        } else {
+                            Mage::helper('db1_anymarket/product')->getStockProductAnyMarket($product->getId(), $storeID);
+                        }
+                    }
+
+                }
+                $this->removeQueue($item['entity_id']);
             }
-            $this->removeQueue($item['entity_id']);
         }
 
     }

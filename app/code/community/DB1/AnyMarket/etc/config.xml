@@ -292,6 +292,10 @@
             <anymarket_product_field>1</anymarket_product_field>
         </anymarket_cron_group>
 
+        <anymarket_logs_group>
+        <anymarket_log_nivel_field>2</anymarket_log_nivel_field>
+        </anymarket_logs_group>
+
       </anymarket_section>
     </default>
 <!-- CRON -->

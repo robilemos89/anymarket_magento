@@ -48,7 +48,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories extends Mage_Adminhtml_B
         $this->_addButton('export_categ', array(
             'label'   => Mage::helper('db1_anymarket')->__('Export Categories'),
             'onclick'   => "confirmSetLocation('{$message}', '{$this->getUrl('*/*/exportCategs')}')",
-            'class'   => 'back'
+            'class'   => 'scalable go'
         ));
 
     }

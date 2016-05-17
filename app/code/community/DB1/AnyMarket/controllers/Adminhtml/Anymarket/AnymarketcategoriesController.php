@@ -71,10 +71,10 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketcategoriesController extends DB
 
         if( $categCount > 0 ) {
             Mage::getSingleton('adminhtml/session')->addSuccess(
-                Mage::helper('db1_anymarket')->__('Successfully synchronized ').$categCount. Mage::helper('db1_anymarket')->__(' categories')
+                Mage::helper('db1_anymarket')->__('Successfully synchronized ').$categCount. Mage::helper('db1_anymarket')->__(' categories.')
             );
         }else{
-            Mage::getSingleton('adminhtml/session')->addError("No category was synchronized.");
+            Mage::getSingleton('adminhtml/session')->addError( Mage::helper('db1_anymarket')->__('No category was synchronized.') );
         }
         $this->_redirect('*/*/');
 
