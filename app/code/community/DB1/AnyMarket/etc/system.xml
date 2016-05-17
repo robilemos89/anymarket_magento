@@ -130,7 +130,7 @@
 
                         <anymarket_product_field translate="label tooltip comment">
                             <label>Enable CRON of Product</label>
-                            <sort_order>0</sort_order>
+                            <sort_order>1</sort_order>
                             <comment>Cron responsible for synchronizing products if there are any errors.</comment>
                             <tooltip>Disable only if you are sure, you can generate not synchronized products.</tooltip>
                             <show_in_default>0</show_in_default>
@@ -142,9 +142,9 @@
 
                         <anymarket_reindex_field translate="label tooltip comment">
                             <label>Enable CRON of Reindex</label>
-                            <sort_order>0</sort_order>
+                            <sort_order>2</sort_order>
                             <comment>Cron responsible for re-index products.</comment>
-                            <tooltip>Disable only if the Automatic Reindex is enabled.</tooltip>
+                            <tooltip>Enable only if the Reindex automatic is disabled because this cron assured that the products are up to date in your store.</tooltip>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -161,9 +161,10 @@
                     <show_in_website>0</show_in_website>
                     <show_in_store>1</show_in_store>
                     <fields>
-                        <anymarket_type_prod_sync_field translate="label comment">
+                        <anymarket_type_prod_sync_field translate="label comment tooltip">
                             <label>Type Synchronization</label>
                             <comment>If checked Magento for Anymarket, products from the magento will be registered in anymarket. If checked Anymarket for Magento, anymarket's products will be registered in magento.</comment>
+                            <tooltip>To send a Anymarket product for Magento, it should be transmitted to the ECOMMERCE in Anymarket transmission screen.</tooltip>
                             <sort_order>0</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
@@ -191,9 +192,10 @@
                             <frontend_type>select</frontend_type>
                             <source_model>db1_anymarket/system_config_source_measurementunit_values</source_model>
                         </anymarket_type_size_field>
-                        <anymarket_export_image_field translate="label comment">
+                        <anymarket_export_image_field translate="label comment tooltip">
                             <label>Ignore invalid resolution</label>
                             <comment>Import products even when it has invalid resolution.</comment>
+                            <tooltip>In Anymarket there is a restriction on the image, it is required to have 350px by 350px and less than 4mb, if this option is checked, this validation is for Anymarket account.</tooltip>
                             <sort_order>3</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
@@ -204,7 +206,7 @@
                         <anymarket_atribute_set_field translate="label comment">
                             <label>Atribute set</label>
                             <comment>Set of attributes that should be registered the Anymarket products.</comment>
-                            <sort_order>3</sort_order>
+                            <sort_order>4</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -226,6 +228,7 @@
                         <anymarket_customer_group_field translate="label tooltip comment">
                             <label>Customer Group (Customer)</label>
                             <comment>Customer group that will be registered when imported from Anymarket.</comment>
+                            <tooltip>It is for this group a new customer will be registered when you import a new sale for Magento.</tooltip>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -237,6 +240,7 @@
                         <anymarket_doc_type_field translate="label tooltip comment">
                             <label>Document Type (Customer)</label>
                             <comment>Attribute responsible for import orders, usually CPF or RG.</comment>
+                            <tooltip>Attribute responsible for controlling the CPF / CNPJ customer, attention to set this field.</tooltip>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -253,8 +257,8 @@
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Selecione o(s) atributo(s) que devem ser enviado ao Anymarket</comment>
-                            <tooltip>Se selecionado mais que 1(um), será concatenado todos os campos.</tooltip>
+                            <comment>Select the attributes that must be sent to Anymarket.</comment>
+                            <tooltip>If you selected more than one (1), the export will be concatenated all fields, the import will be placed in every attribute that is text and are marked in this configuration.</tooltip>
                         </anymarket_desc_field>
 
                         <anymarket_preco_field translate="label tooltip comment">

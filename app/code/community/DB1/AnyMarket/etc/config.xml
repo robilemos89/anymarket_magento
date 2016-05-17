@@ -287,6 +287,11 @@
             <anymarket_price_factor_field>markup</anymarket_price_factor_field>
         </anymarket_attribute_group>
 
+        <anymarket_cron_group>
+            <anymarket_order_field>1</anymarket_order_field>
+            <anymarket_product_field>1</anymarket_product_field>
+        </anymarket_cron_group>
+
       </anymarket_section>
     </default>
 <!-- CRON -->
