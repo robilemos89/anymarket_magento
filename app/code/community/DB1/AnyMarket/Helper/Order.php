@@ -115,6 +115,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     private function create_order($anymarketordersSpec, $products, $customer, $IDAnyMarket, $IDSeqAnyMarket, $infoMetPag, $Billing, $Shipping, $shippValue, $storeID)
     {
         if( ($anymarketordersSpec->getData('nmo_id_anymarket') == null) ||
+            ($anymarketordersSpec->getData('nmo_status_int') == "Não integrado (AnyMarket)") ||
             ($anymarketordersSpec->getData('nmo_status_int') == "ERROR 01") ) {
             $AttrToDoc = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_doc_type_field', $storeID));
 
