@@ -172,7 +172,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             }
 
             $URL = Mage::helper('adminhtml')->getUrl('adminhtml/catalog_product/edit', array('id' => $product->getId() ));
-            $this->addMessageInBox('Error synchronizing AnyMarket products.', 'Error on Sinc product SKU: '.$product->getSku(), $URL);
+            $this->addMessageInBox($storeID, 'Error synchronizing AnyMarket products.', 'Error on Sinc product SKU: '.$product->getSku(), $URL);
             $returnMet = $returnProd['return'];
         }else{ //FOI BEM SUCEDIDO
             if( ($anymarketproductsUpdt->getData('nmp_sku') == null) || ($StoreIDAmProd != $storeID) ) {

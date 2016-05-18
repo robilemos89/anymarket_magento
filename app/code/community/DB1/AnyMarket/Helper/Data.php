@@ -243,15 +243,19 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
      * @param $Desc
      * @param $URL
      */
-    public function addMessageInBox($title, $Desc, $URL){
-        if(Mage::helper('core')->isModuleEnabled('Mage_AdminNotification')){
-            $AdminNotice = Mage::getModel('adminnotification/inbox');
-            $AdminNotice->setSeverity('2');
-            $AdminNotice->setTitle( $title );
-            $AdminNotice->setDescription( $Desc );
-            $AdminNotice->setUrl( $URL );
-            $AdminNotice->setDateAdded( date('Y-m-d H:i:s') );
-            $AdminNotice->save();
+    public function addMessageInBox($storeID ,$title, $Desc, $URL){
+
+        $addMsgInbox  = Mage::getStoreConfig('anymarket_section/anymarket_logs_group/anymarket_inbox_field', $storeID);
+        if( $addMsgInbox == '1' ) {
+            if (Mage::helper('core')->isModuleEnabled('Mage_AdminNotification')) {
+                $AdminNotice = Mage::getModel('adminnotification/inbox');
+                $AdminNotice->setSeverity('2');
+                $AdminNotice->setTitle($title);
+                $AdminNotice->setDescription($Desc);
+                $AdminNotice->setUrl($URL);
+                $AdminNotice->setDateAdded(date('Y-m-d H:i:s'));
+                $AdminNotice->save();
+            }
         }
         Mage::getSingleton('adminhtml/session')->addError($Desc);
     }

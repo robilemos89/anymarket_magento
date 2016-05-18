@@ -251,7 +251,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     $anymarketlog->setStatus("1");
                                     $anymarketlog->save();
 
-                                    $this->addMessageInBox(Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
+                                    $this->addMessageInBox($storeID, Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
                                         Mage::helper('db1_anymarket')->__('Error synchronizing order number: ') . "Anymarket(" . $IDOrderAnyMarket . ") <br/>" .
                                         Mage::helper('db1_anymarket')->__('Product is not registered') . ' (SKU: ' . $item->sku->partnerId . ')',
                                         '');
@@ -395,7 +395,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                                 '',
                                                 $storeID);
 
-                                            $this->addMessageInBox(Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
+                                            $this->addMessageInBox($storeID, Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
                                                 Mage::helper('db1_anymarket')->__('Error synchronizing order number: ') . "Anymarket(" . $IDOrderAnyMarket . ") <br/>" .
                                                 Mage::helper('db1_anymarket')->__('Sale not have a valid shipping address.'),
                                                 '');
@@ -427,7 +427,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     $anymarketlog->setStores(array($storeID));
                                     $anymarketlog->save();
 
-                                    $this->addMessageInBox(Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
+                                    $this->addMessageInBox($storeID, Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
                                         Mage::helper('db1_anymarket')->__('Error synchronizing order number: ') . "Anymarket(" . $IDOrderAnyMarket . ") <br/>" .
                                         Mage::helper('db1_anymarket')->__('Customer invalid or blank document.'),
                                         '');
@@ -464,7 +464,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $anymarketlog->setStatus("1");
             $anymarketlog->save();
 
-            $this->addMessageInBox(Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
+            $this->addMessageInBox($storeID, Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
                                    Mage::helper('db1_anymarket')->__('Error synchronizing order number: ')."Anymarket(".$idSeqAnyMarket.")",
                                    '');
         }

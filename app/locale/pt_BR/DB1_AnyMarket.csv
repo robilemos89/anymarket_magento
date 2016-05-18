@@ -147,6 +147,7 @@
 "Edit","Edit"
 "Enabled","Habilitado"
 "Enable CRON of Queue","Habilitar CRON da Fila"
+"If this option is enabled, any error in the module will generate an inbox message in magento.","Se esta opção estiver habilitado, qualquer erro no modulo ira gerar uma mensage inbox no magento."
 "Cron responsible for queue","CRON responsavel pela Fila"
 "Anymarket Brands","Marcas Anymarket"
 "Anymarket Characteristics","Características Anymarket"
