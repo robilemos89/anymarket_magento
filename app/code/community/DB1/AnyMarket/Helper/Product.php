@@ -138,8 +138,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $returnProd array
      * @param $product Mage_Catalog_Model_Product
      */
-    public function saveLogsProds($returnProd, $product){
-        $storeID = $this->getCurrentStoreView();
+    public function saveLogsProds($storeID, $priority, $returnProd, $product){
         $anymarketproductsUpdt = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->getId(), 'nmp_id');
 
         if(is_array($anymarketproductsUpdt->getData('store_id'))){
@@ -213,7 +212,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $anymarketlog->setLogJson( json_encode($returnProd['json']) );
         }
 
-        $anymarketlog->setStatus("1");
+        $anymarketlog->setStatus($priority);
         $anymarketlog->setStores(array($storeID));
         $anymarketlog->save();
     }
@@ -250,12 +249,13 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
     /**
      * create a Configurable Product
      *
+     * @param $storeID
      * @param $dataProdConfig
      * @param $simpleProducts
      * @param $AttributeIds
      * @return Mage_Catalog_Model_Product
      */
-    private function create_configurable_product($dataProdConfig, $simpleProducts, $AttributeIds){
+    private function create_configurable_product($storeID, $dataProdConfig, $simpleProducts, $AttributeIds){
         $productGenerator = Mage::helper('db1_anymarket/productgenerator');
         $product = $productGenerator->createConfigurableProduct($dataProdConfig, $simpleProducts, $AttributeIds);
 
@@ -263,7 +263,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $returnProd['error'] = '0';
         $returnProd['json'] = '';
 
-        $this->saveLogsProds($returnProd, $product);
+        $this->saveLogsProds($storeID, "0", $returnProd, $product);
 
         return $product;
     }
@@ -271,20 +271,21 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
     /**
      * update a Configurable Product
      *
+     * @param $storeID
      * @param $idProd
      * @param $dataProdConfig
      * @param $simpleProducts
      * @param $AttributeIds
      * @return Mage_Catalog_Model_Product
      */
-    private function update_configurable_product($idProd, $dataProdConfig, $simpleProducts, $AttributeIds){
+    private function update_configurable_product($storeID, $idProd, $dataProdConfig, $simpleProducts, $AttributeIds){
         $productGenerator = Mage::helper('db1_anymarket/productgenerator');
         $product = $productGenerator->updateConfigurableProduct($idProd, $dataProdConfig, $simpleProducts, $AttributeIds);
         
         $returnProd['return'] = Mage::helper('db1_anymarket')->__('Configurable product Updated').' ('.$product->getSku().')';
         $returnProd['error'] = '0';
         $returnProd['json'] = '';
-        $this->saveLogsProds($returnProd, $product);
+        $this->saveLogsProds($storeID, "0", $returnProd, $product);
 
         return $product;
     }
@@ -292,10 +293,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
     /**
      * create simple prod in magento
      *
+     * @param $storeID
      * @param $data
      * @return Mage_Catalog_Model_Product
      */
-    function create_simple_product($data){
+    function create_simple_product($storeID, $data){
         $productGenerator = Mage::helper('db1_anymarket/productgenerator');
         $product = $productGenerator->createSimpleProduct($data);
 
@@ -304,7 +306,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $returnProd['error'] = '0';
             $returnProd['json'] = '';
 
-            $this->saveLogsProds($returnProd, $product);
+            $this->saveLogsProds($storeID, "0", $returnProd, $product);
         }
 
         return $product;
@@ -453,7 +455,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                                 $anymarketlog->setLogDesc('Error on export image - ' . $urlImage);
                                 $anymarketlog->setLogId($product->getSku());
-                                $anymarketlog->setStatus("0");
+                                $anymarketlog->setStatus("1");
                                 $anymarketlog->setStores(array($storeID));
                                 $anymarketlog->save();
                             }
@@ -519,7 +521,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }
 
                         $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product with inconsistency:').' '.$emptyFields;
-                        $this->saveLogsProds($returnProd, $product);
+                        $this->saveLogsProds($storeID, "0", $returnProd, $product);
                     }else {
                         foreach ($arrAdd as $imgAdd) {
                             if ($variation) {
@@ -539,7 +541,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 $anymarketlog->setLogDesc('Error on export image (' . $product->getData('id_anymarket') . ') - ' . is_string($imgPostRet['return']) ? $imgPostRet['return'] : json_encode($imgPostRet['return']));
                                 $anymarketlog->setLogJson($imgPostRet['json']);
                                 $anymarketlog->setLogId($product->getSku());
-                                $anymarketlog->setStatus("0");
+                                $anymarketlog->setStatus("1");
                                 $anymarketlog->setStores(array($storeID));
                                 $anymarketlog->save();
                             } else {
@@ -568,7 +570,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                             $anymarketlogDel->setLogJson('');
                             $anymarketlogDel->setLogId($product->getSku());
-                            $anymarketlogDel->setStatus("0");
+                            $anymarketlogDel->setStatus("1");
                             $anymarketlogDel->setStores(array($storeID));
                             $anymarketlogDel->save();
                         }else{
@@ -656,7 +658,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }
                     }
 
-                    $this->saveLogsProds($skuProdReturn, $prodSimple);
+                    $this->saveLogsProds($storeID, "1", $skuProdReturn, $prodSimple);
                     $this->updatePriceStockAnyMarket($skuPut['internalIdProduct'], $skuPut['amount'], $skuPut['price']);
                 }
             }
@@ -803,7 +805,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             }
 
             $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product with inconsistency:').$emptyFields;
-            $this->saveLogsProds($returnProd, $product);
+            $this->saveLogsProds($storeID, "0", $returnProd, $product);
 
             return false;
         }else{
@@ -845,7 +847,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                         $anymarketlog->setLogDesc('Error on export image - ' . $g_image['url']);
                         $anymarketlog->setLogId($product->getSku());
-                        $anymarketlog->setStatus("0");
+                        $anymarketlog->setStatus("1");
                         $anymarketlog->setStores(array($storeID));
                         $anymarketlog->save();
                     }
@@ -907,7 +909,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                                 $anymarketlog->setLogDesc('Error on export image - ' . $g_imageSimp['url']);
                                 $anymarketlog->setLogId($SimpleConfigProd->getSku());
-                                $anymarketlog->setStatus("0");
+                                $anymarketlog->setStatus("1");
                                 $anymarketlog->setStores(array($storeID));
                                 $anymarketlog->save();
                             }
@@ -1104,7 +1106,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 }
 
                 $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product with inconsistency:').' '.$emptyFields;
-                $this->saveLogsProds($returnProd, $product);
+                $this->saveLogsProds($storeID, "0", $returnProd, $product);
 
                 return false;
             }else{
@@ -1145,15 +1147,15 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         if($IDinAnymarket != '0'){
                             $returnProd['error'] = '0';
                             $returnProd['return'] = Mage::helper('db1_anymarket')->__('Successfully synchronized product.');
-                            $this->saveLogsProds($returnProd, $product);
+                            $this->saveLogsProds($storeID, "1", $returnProd, $product);
                         }else{
                             $returnProd['error'] = '1';
                             $returnProd['return'] = Mage::helper('db1_anymarket')->__('Error synchronizing, code anymarket invalid.');
-                            $this->saveLogsProds($returnProd, $product);
+                            $this->saveLogsProds($storeID, "0", $returnProd, $product);
                         }
 
                     }else{
-                        $this->saveLogsProds($returnProd, $product);
+                        $this->saveLogsProds($storeID, "1", $returnProd, $product);
                     }
 
                 }else{
@@ -1167,7 +1169,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $skuProdReturn = $this->CallAPICurl("POST", $HOST."/v2/products/".$product->getData('id_anymarket')."/skus", $headers, $skuPut);
                         if($skuProdReturn['error'] == '0'){
                             $skuProdReturn['return'] = Mage::helper('db1_anymarket')->__('SKU Created').' ('.$skuPut['partnerId'].')';
-                            $this->saveLogsProds($skuProdReturn, $product);
+                            $this->saveLogsProds($storeID, "1", $skuProdReturn, $product);
                         }else{
                             $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                             $productSku = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $skuPut['partnerId'] );
@@ -1178,7 +1180,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                     $this->sendImageSkuToAnyMarket($product, $param['skus'], $storeID);
 
-                    $this->saveLogsProds($returnProd, $product);
+                    $this->saveLogsProds($storeID, "1", $returnProd, $product);
                 }
                 return true;
             }
@@ -1215,7 +1217,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             if($returnChangeTrans['error'] == '1'){
                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                 $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('Error update feeds transmissions'));
-                $anymarketlog->setStatus("0");
+                $anymarketlog->setStatus("1");
                 $anymarketlog->save();
             }
         }
@@ -1313,7 +1315,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                 $anymarketlog->setLogDesc("Erro on get stock " . $returnProdSpecific['return']);
                 $anymarketlog->setLogId($IDProd);
-                $anymarketlog->setStatus("1");
+                $anymarketlog->setStatus("0");
                 $anymarketlog->setStores(array($storeID));
                 $anymarketlog->save();
             }
@@ -1560,7 +1562,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $returnProd['return'] = 'Product Created or updated.';
                 $returnProd['json'] = '';
                 $returnProd['error'] = '0';
-                $this->saveLogsProds($returnProd, $feedReturn);
+                $this->saveLogsProds($storeID, "1", $returnProd, $feedReturn);
 
                 $prodRet = 'Product Created or updated.';
             }
@@ -1725,7 +1727,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 'images' => $imagesGallery,
                             );
 
-                            $ProdReturn = $this->create_simple_product($dataPrdSimple);
+                            $ProdReturn = $this->create_simple_product($storeID, $dataPrdSimple);
                             $ProdCrt = $ProdReturn->getEntityId();
 
                             $product = Mage::getModel('catalog/product')->load($ProdCrt);
@@ -1793,7 +1795,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     $returnProd['error'] = '0';
                     $returnProd['json'] = '';
 
-                    $this->saveLogsProds($returnProd, $product);
+                    $this->saveLogsProds($storeID, "1", $returnProd, $product);
 
                     if($ProdCrt != ''){
                         $prodSimpleFromConfig[] = array('AttributeText' => $variationArray[ $idVar ], 'Id' => $ProdCrt);
@@ -1835,7 +1837,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             $dataProdConfig[$fieldConfig] = $ProdsJSON->description;
                         }
 
-                        $ProdCrt = $this->create_configurable_product($dataProdConfig, $prodSimpleFromConfig, $AttributeIds);
+                        $ProdCrt = $this->create_configurable_product($storeID, $dataProdConfig, $prodSimpleFromConfig, $AttributeIds);
                     }
                 }else{
                     $dataProdConfig = array(
@@ -1852,7 +1854,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $dataProdConfig[$fieldConfig] = $ProdsJSON->description;
                     }
 
-                    $this->update_configurable_product($prod->getId(), $dataProdConfig, $prodSimpleFromConfig, $AttributeIds);
+                    $this->update_configurable_product($storeID, $prod->getId(), $dataProdConfig, $prodSimpleFromConfig, $AttributeIds);
                 }
             }else{
                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
@@ -1931,7 +1933,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 );
 
-                $ProdCrt = $this->create_simple_product($data);
+                $ProdCrt = $this->create_simple_product($storeID, $data);
             }else{
                 //Atualiza Imagens
                 $this->update_image_product($product, $ProdsJSON, $IDSkuJsonProd);
@@ -2135,11 +2137,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 }
 
                                 if( $returnProd['error'] == '1' ){
-                                    $this->saveLogsProds($returnProd, $product);
+                                    $this->saveLogsProds($storeID, "0", $returnProd, $product);
                                 }else{
                                     $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                                     $anymarketlog->setLogDesc(  Mage::helper('db1_anymarket')->__('Update stock and price.') );
-                                    $anymarketlog->setStatus("1");
+                                    $anymarketlog->setStatus("0");
                                     $anymarketlog->setLogId( $product->getId() );
                                     $anymarketlog->setLogJson( json_encode($params) );
                                     $anymarketlog->setStores(array($storeID));

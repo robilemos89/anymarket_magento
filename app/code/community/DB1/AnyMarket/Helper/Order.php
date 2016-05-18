@@ -137,7 +137,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
             $anymarketlog->setLogDesc('Order Created: ' . $CodOrder . ' ID Anymarket: ' . $IDAnyMarket);
-            $anymarketlog->setStatus("1");
+            $anymarketlog->setStatus("0");
             $anymarketlog->setStores(array($storeID));
             $anymarketlog->save();
         }else{
@@ -248,7 +248,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                                     $anymarketlog->setLogDesc(Mage::helper('db1_anymarket')->__('Product is not registered') . ' (Order: ' . $idSeqAnyMarket . ', SKU : ' . $item->sku->partnerId . ')');
                                     $anymarketlog->setStores(array($storeID));
-                                    $anymarketlog->setStatus("1");
+                                    $anymarketlog->setStatus("0");
                                     $anymarketlog->save();
 
                                     $this->addMessageInBox($storeID, Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
@@ -423,7 +423,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                                     $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                                     $anymarketlog->setLogDesc('Error on import Order: ' . Mage::helper('db1_anymarket')->__('Customer invalid or blank document.'));
-                                    $anymarketlog->setStatus("1");
+                                    $anymarketlog->setStatus("0");
                                     $anymarketlog->setStores(array($storeID));
                                     $anymarketlog->save();
 
@@ -437,7 +437,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                             $anymarketlog->setLogDesc($statusMage);
                             $anymarketlog->setLogId($IDOrderAnyMarket);
-                            $anymarketlog->setStatus("1");
+                            $anymarketlog->setStatus("0");
                             $anymarketlog->save();
                         }
 
@@ -461,7 +461,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         }else{
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
             $anymarketlog->setLogDesc( 'Error on import Order: '.$idSeqAnyMarket.'  '.$returnOrderItens['return'] );
-            $anymarketlog->setStatus("1");
+            $anymarketlog->setStatus("0");
             $anymarketlog->save();
 
             $this->addMessageInBox($storeID, Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
@@ -578,7 +578,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
             $anymarketlog->setLogDesc('Order Updated: ' . $IDOrderMagento . ' ID Anymarket: ' . $JSON->marketPlaceId . ' Status: ' . $statusMage);
-            $anymarketlog->setStatus("1");
+            $anymarketlog->setStatus("0");
             $anymarketlog->setStores(array($storeID));
             $anymarketlog->save();
 
@@ -587,7 +587,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
             $anymarketlog->setLogDesc( $statusMage );
             $anymarketlog->setLogId( $IDOrderMagento ); 
-            $anymarketlog->setStatus("1");
+            $anymarketlog->setStatus("0");
             $anymarketlog->save();
 /*
             $this->addMessageInBox(Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
@@ -745,7 +745,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             $anymarketlog->setLogId( $idOrder );
                             $anymarketlog->setLogJson( json_encode($returnOrder['json']) );
                             $anymarketlog->setStores(array($storeID));
-                            $anymarketlog->setStatus("1");
+                            $anymarketlog->setStatus("0");
                             $anymarketlog->save();
                         }else{
                             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
@@ -753,13 +753,13 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             $anymarketlog->setLogId( $idOrder );
                             $anymarketlog->setLogJson('');
                             $anymarketlog->setStores(array($storeID));
-                            $anymarketlog->setStatus("1");
+                            $anymarketlog->setStatus("0");
                             $anymarketlog->save();
                         }
                     }else{
                         if($ConfigOrder == 0){
                             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                            $anymarketlog->setStatus("1");
+                            $anymarketlog->setStatus("0");
                             $anymarketlog->setLogDesc( $statuAM );
                             $anymarketlog->setLogId( $idOrder );
                             $anymarketlog->setStores(array($storeID));
@@ -905,7 +905,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                 $anymarketlog->setStores(array($storeID));
                 $anymarketlog->setLogJson( $returnOrder['json'] );
-                $anymarketlog->setStatus("1");
+                $anymarketlog->setStatus("0");
                 $anymarketlog->save();
 
             }else{
@@ -956,7 +956,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                 $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('Error on import order from anymarket '). $returnOrder['return'] );
-                $anymarketlog->setStatus("1");
+                $anymarketlog->setStatus("0");
                 $anymarketlog->save();
             }else {
                 $JsonReturn = $returnOrder['return'];

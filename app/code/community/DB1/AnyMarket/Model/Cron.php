@@ -37,7 +37,7 @@ class DB1_AnyMarket_Model_Cron{
 
         $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
         $anymarketlog->setLogDesc('Clean Logs by System, '.$contLogs.' cleaned');
-        $anymarketlog->setStatus("1");
+        $anymarketlog->setStatus("0");
         $anymarketlog->save();
     }
 
