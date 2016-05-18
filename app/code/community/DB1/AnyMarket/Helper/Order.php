@@ -101,6 +101,36 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     /**
      * create order in Magento
      *
+     * @param $storeID
+     * @param $OrderJSON
+     * @return array
+     */
+    public function getCompleteAddressOrder($storeID, $OrderJSON){
+        $OrderJSON = json_decode( json_encode($OrderJSON), true);
+
+        $street1 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add1_field', $storeID);
+        $street2 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add2_field', $storeID);
+        $street3 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add3_field', $storeID);
+        $street4 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add4_field', $storeID);
+
+        $street1 = (isset($OrderJSON['shipping'][$street1])) ? $OrderJSON['shipping'][$street1] : $OrderJSON['shipping']['address'];
+        $street2 = (isset($OrderJSON['shipping'][$street2])) ? $OrderJSON['shipping'][$street2] : '';
+        $street3 = (isset($OrderJSON['shipping'][$street3])) ? $OrderJSON['shipping'][$street3] : '';
+        $street4 = (isset($OrderJSON['shipping'][$street4])) ? $OrderJSON['shipping'][$street4] : '';
+
+        $retArrStreet =  array(
+            0 => $street1,
+            1 => $street2,
+            2 => $street3,
+            3 => $street4
+        );
+
+        return $retArrStreet;
+    }
+
+    /**
+     * create order in Magento
+     *
      * @param $anymarketordersSpec
      * @param $products
      * @param $customer
@@ -292,6 +322,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                             $lastName = $lastNameImp == '' ? 'Lastname' : $lastNameImp;
                                         }
 
+                                        $addressFullData = $this->getCompleteAddressOrder($storeID, $OrderJSON);
+
                                         if ($customer->getId() == null) {
                                             $_DataCustomer = array(
                                                 'account' => array(
@@ -310,12 +342,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                                     '_item1' => array(
                                                         'firstname' => $firstName,
                                                         'lastname' => $lastName,
-                                                        'street' => array(
-                                                            0 => (isset($OrderJSON->shipping->street)) ? $OrderJSON->shipping->street : $OrderJSON->shipping->address,
-                                                            1 => (isset($OrderJSON->shipping->number)) ? $OrderJSON->shipping->number : '',
-                                                            2 => (isset($OrderJSON->shipping->neighborhood)) ? $OrderJSON->shipping->neighborhood : '',
-                                                            3 => (isset($OrderJSON->shipping->comment)) ? $OrderJSON->shipping->comment : '',
-                                                        ),
+                                                        'street' => $addressFullData,
                                                         'city' => $OrderJSON->shipping->city,
                                                         'country_id' => 'BR',
                                                         'region_id' => '12', //BRASIL
@@ -347,12 +374,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                                 $addressData = array(
                                                     'firstname' => $firstName,
                                                     'lastname' => $lastName,
-                                                    'street' => array(
-                                                        0 => (isset($OrderJSON->shipping->street)) ? $OrderJSON->shipping->street : $OrderJSON->shipping->address,
-                                                        1 => (isset($OrderJSON->shipping->number)) ? $OrderJSON->shipping->number : '',
-                                                        2 => (isset($OrderJSON->shipping->neighborhood)) ? $OrderJSON->shipping->neighborhood : '',
-                                                        3 => (isset($OrderJSON->shipping->comment)) ? $OrderJSON->shipping->comment : '',
-                                                    ),
+                                                    'street' => $addressFullData,
                                                     'city' => $OrderJSON->shipping->city,
                                                     'country_id' => 'BR',
                                                     'region' => $OrderJSON->shipping->state,
