@@ -37,6 +37,9 @@ class DB1_AnyMarket_Model_System_Config_Source_Categories_Values extends Mage_Ea
     {
         if (!Mage::app()->isSingleStoreMode()){
             $store = Mage::app()->getRequest()->getParam('store');
+            if( $store == null || $store == 0 ){
+                $store = 1;
+            }
             $categories = Mage::getModel('db1_anymarket/anymarketcategories')->getCollection()
                           ->addFilter('nmc_cat_root_id','000')
                           ->addStoreFilter($store)

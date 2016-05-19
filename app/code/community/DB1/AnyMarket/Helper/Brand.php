@@ -7,9 +7,7 @@ class DB1_AnyMarket_Helper_Brand extends DB1_AnyMarket_Helper_Data
      *
      * @access public
      */
-    public function getBrands(){
-        $storeID = $this->getCurrentStoreView();
-
+    public function getBrands($storeID){
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 

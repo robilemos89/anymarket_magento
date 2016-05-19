@@ -261,8 +261,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
     /**
      * get all root category of AM
      */
-    public function getCategories(){
-        $storeID = $this->getCurrentStoreView();
+    public function getCategories($storeID){
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 

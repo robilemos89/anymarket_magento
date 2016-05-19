@@ -66,8 +66,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketcategoriesController extends DB
     public function sincCategsAction()
     {
         $storeID = Mage::getSingleton('core/session')->getStoreCategVariable();
-        Mage::app()->setCurrentStore($storeID);
-        $categCount = Mage::helper('db1_anymarket/category')->getCategories();
+        $categCount = Mage::helper('db1_anymarket/category')->getCategories($storeID);
 
         if( $categCount > 0 ) {
             Mage::getSingleton('adminhtml/session')->addSuccess(

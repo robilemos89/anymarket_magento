@@ -58,7 +58,7 @@ class DB1_AnyMarket_IndexController extends Mage_Core_Controller_Front_Action {
 							);
 
 							$JSON = json_encode($listTransmissions);
-							$transRet = Mage::helper('db1_anymarket/product')->getSpecificFeedProduct(json_decode($JSON), $headers, $HOST, $storeID);
+							$transRet = Mage::helper('db1_anymarket/product')->getSpecificFeedProduct($storeID, json_decode($JSON), $headers, $HOST);
 
 							echo $transRet;
 						}

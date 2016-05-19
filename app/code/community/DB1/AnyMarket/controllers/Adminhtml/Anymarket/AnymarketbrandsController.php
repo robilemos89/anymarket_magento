@@ -64,9 +64,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketbrandsController extends DB1_An
     public function sincBrandsAction()
     {
         $storeID = Mage::getSingleton('core/session')->getStoreBrandVariable();
-        Mage::app()->setCurrentStore($storeID);
-
-        $brandCount = Mage::helper('db1_anymarket/brand')->getBrands();
+        $brandCount = Mage::helper('db1_anymarket/brand')->getBrands($storeID);
 
         if( $brandCount > 0 ) {
             Mage::getSingleton('adminhtml/session')->addSuccess(
