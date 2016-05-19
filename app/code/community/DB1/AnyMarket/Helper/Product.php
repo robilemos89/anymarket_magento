@@ -1131,6 +1131,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                             if(is_array($childProducts)) {
                                 foreach ($childProducts as $child) {
+                                    Mage::app()->setCurrentStore(Mage::getModel('core/store')->load(Mage_Core_Model_App::ADMIN_STORE_ID));
                                     $productC = Mage::getModel('catalog/product')->setStoreId($storeID)->load($child->getId());
 
                                     if ($productC->getIntegraAnymarket() != '1') {
@@ -1140,6 +1141,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                         $productC->setIdAnymarket($IDinAnymarket);
                                     }
                                     $productC->save();
+                                    Mage::app()->setCurrentStore( $this->getCurrentStoreView() );
                                 }
                             }
                         }
@@ -1173,8 +1175,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }else{
                             $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                             $productSku = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $skuPut['partnerId'] );
-                            $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($productSku);
-                            Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($productSku->getId(), $stock->getQty(), $productSku->getData($filter));
+                            if( $productSku != null ) {
+                                if ($productSku->getData() != null) {
+                                    if ($productSku->getId() != null) {
+                                        $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($productSku);
+                                        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($productSku->getId(), $stock->getQty(), $productSku->getData($filter));
+                                    }
+                                }
+                            }
                         }
                     }
 
