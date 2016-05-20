@@ -642,6 +642,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $nfeTmp = str_replace($caracts, "", $CommentCurr );
                         $chaveAcID = substr( $nfeTmp, $nfeCount+4, 44);
 
+                        $nfeID = $chaveAcID;
                         $date = substr( $CommentCurr, $emissaoCount+8, 19);
                         $dateTmp = str_replace("/", "-", $date );
                         $date = gmdate('Y-m-d\TH:i:s\Z', strtotime( $dateTmp ));
@@ -670,7 +671,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
         }
 
-        return array("number" => $nfeID, "date" => $date, "accessKey" => $chaveAcID);
+        $retArr = array("number" => $nfeID, "date" => $date, "accessKey" => $chaveAcID);
+        return $retArr;
     }
 
     /**
