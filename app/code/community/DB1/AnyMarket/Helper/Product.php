@@ -869,31 +869,31 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $attributesConf = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product); 
 
                 foreach($childProducts as $child) {
-                    $SimpleConfigProd = Mage::getModel('catalog/product')->load( $child->getId() );
+                    $SimpleConfigProd = Mage::getModel('catalog/product')->load($child->getId());
 
-                    if($Weight == ""){
+                    if ($Weight == "") {
                         $Weight = $SimpleConfigProd->getWeight();
                     }
 
                     //obtem os atributos do configuravel
                     $qtyStore = $this->getAllStores();
-                    if(count($qtyStore) > 1){
+                    if (count($qtyStore) > 1) {
                         $storeIDAttrVar = $storeID;
-                    }else{
+                    } else {
                         $fArr = array_shift($qtyStore);
                         $storeIDAttrVar = $fArr['store_id'];
                     }
 
                     $ArrVariationValues = array();
-                    foreach ($attributesConf as $attribute){
+                    foreach ($attributesConf as $attribute) {
                         $options = Mage::getResourceModel('eav/entity_attribute_option_collection');
-                        $valuesAttr  = $options->setAttributeFilter($attribute['attribute_id'])
-                                    ->setStoreFilter($storeIDAttrVar)
-                                    ->toOptionArray();
+                        $valuesAttr = $options->setAttributeFilter($attribute['attribute_id'])
+                            ->setStoreFilter($storeIDAttrVar)
+                            ->toOptionArray();
 
-                        foreach ($valuesAttr as $value){
+                        foreach ($valuesAttr as $value) {
                             $childValue = $child->getData($attribute['attribute_code']);
-                            if ($value['value'] == $childValue){
+                            if ($value['value'] == $childValue) {
                                 $ArrVariationValues[$attribute['store_label']] = $value['label'];
                             }
                         }
@@ -901,14 +901,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                     //obtem as imagens do produto (Obtem os simples e relaciona as variacoes)
                     $galleryDataSimp = $SimpleConfigProd->getMediaGalleryImages();
-                    foreach($galleryDataSimp as $g_imageSimp) {
+                    foreach ($galleryDataSimp as $g_imageSimp) {
                         $infoImg = getimagesize($g_imageSimp['url']);
                         $imgSize = filesize($g_imageSimp['path']);
 
-                        if( ($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000) ){
-                            if($exportImage == 0) {
+                        if (($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000)) {
+                            if ($exportImage == 0) {
                                 array_push($arrProd, 'Image_b (' . $g_imageSimp['url'] . ' - Sku: ' . $SimpleConfigProd->getSku() . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize . ')');
-                            }else{
+                            } else {
                                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                                 $anymarketlog->setLogDesc('Error on export image - ' . $g_imageSimp['url']);
                                 $anymarketlog->setLogId($SimpleConfigProd->getSku());
@@ -916,7 +916,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 $anymarketlog->setStores(array($storeID));
                                 $anymarketlog->save();
                             }
-                        }else{
+                        } else {
                             foreach ($ArrVariationValues as $value) {
                                 $itemsIMG[] = array(
                                     "main" => false,
@@ -929,36 +929,38 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                     $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
 
-                    if($filter == 'final_price'){
+                    if ($filter == 'final_price') {
                         $stkPrice = $SimpleConfigProd->getFinalPrice();
-                    }else{
+                    } else {
                         $stkPrice = $SimpleConfigProd->getData($filter);
                     }
 
                     $simpConfProdSku = $SimpleConfigProd->getSku();
                     // verificacao dos dados de price
-                    if(($stkPrice == null) || ($stkPrice == '') || ((float)$stkPrice <= 0)){
-                        array_push($arrProd, 'Price ('.$simpConfProdSku.')');
+                    if (($stkPrice == null) || ($stkPrice == '') || ((float)$stkPrice <= 0)) {
+                        array_push($arrProd, 'Price (' . $simpConfProdSku . ')');
                     }
 
                     // verificacao dos dados de SKU
                     $cValid = array('.', '-', '_');
 
-                    if(!ctype_alnum(str_replace($cValid, '', $simpConfProdSku))) { 
-                        array_push($arrProd, 'SKU ('.$simpConfProdSku.')');
+                    if (!ctype_alnum(str_replace($cValid, '', $simpConfProdSku))) {
+                        array_push($arrProd, 'SKU (' . $simpConfProdSku . ')');
                     }
 
                     $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($SimpleConfigProd);
-                    $ArrSimpleConfigProd[] = array(
-                        "variations" => $ArrVariationValues,
-                        "price" => $stkPrice,
-                        "amount" => $stock->getQty(),
-                        "ean" => $SimpleConfigProd->getData($ean),
-                        "partnerId" => $simpConfProdSku,
-                        "title" => $SimpleConfigProd->getName(),
-                        "idProduct" => $SimpleConfigProd->getData('id_anymarket'),
-                        "internalIdProduct" => $SimpleConfigProd->getId(),
-                    );
+                    if ($SimpleConfigProd->getData('integra_anymarket') == 1 && $SimpleConfigProd->getStatus() == 1){
+                        $ArrSimpleConfigProd[] = array(
+                            "variations" => $ArrVariationValues,
+                            "price" => $stkPrice,
+                            "amount" => $stock->getQty(),
+                            "ean" => $SimpleConfigProd->getData($ean),
+                            "partnerId" => $simpConfProdSku,
+                            "title" => $SimpleConfigProd->getName(),
+                            "idProduct" => $SimpleConfigProd->getData('id_anymarket'),
+                            "internalIdProduct" => $SimpleConfigProd->getId(),
+                        );
+                }
 
                 }
 
@@ -989,15 +991,17 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     array_push($arrProd, 'SKU ('.$prodSkuJ.')');
                 }
 
-                $ArrSimpleConfigProd[] = array(
-                    "price" => $stkPrice,
-                    "amount" => $stock->getQty(),
-                    "ean" => $product->getData( $ean ),
-                    "partnerId" => $prodSkuJ,
-                    "title" => $product->getName(),
-                    "idProduct" => $product->getData('id_anymarket'),
-                    "internalIdProduct" => $product->getId(),
-                );
+                if ($product->getData('integra_anymarket') == 1 && $product->getStatus() == 1) {
+                    $ArrSimpleConfigProd[] = array(
+                        "price" => $stkPrice,
+                        "amount" => $stock->getQty(),
+                        "ean" => $product->getData($ean),
+                        "partnerId" => $prodSkuJ,
+                        "title" => $product->getName(),
+                        "idProduct" => $product->getData('id_anymarket'),
+                        "internalIdProduct" => $product->getId(),
+                    );
+                }
             }
 
             
