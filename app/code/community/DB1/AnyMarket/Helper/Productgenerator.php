@@ -177,8 +177,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
      * @param array $AttributeIds
      * @return Mage_Catalog_Model_Product
      */
-    public function createConfigurableProduct($dataProdConfig = array() , $simpleProducts = array(), $AttributeIds = array()){
-        $storeID = $this->getCurrentStoreView();
+    public function createConfigurableProduct($storeID, $dataProdConfig = array() , $simpleProducts = array(), $AttributeIds = array()){
         $confProduct = Mage::getModel('catalog/product')->setSku($dataProdConfig['sku']);
         $confProduct->setTypeId('configurable');
 
@@ -238,8 +237,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
      * @param array $AttributeIds
      * @return Mage_Catalog_Model_Product
      */
-    public function updateConfigurableProduct($idProd, $dataProdConfig = array() , $simpleProducts = array(), $AttributeIds = array()){
-        $storeID = $this->getCurrentStoreView();
+    public function updateConfigurableProduct($storeID, $idProd, $dataProdConfig = array() , $simpleProducts = array(), $AttributeIds = array()){
         $confProduct = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $idProd );
         $confProduct->setTypeId('configurable');
 

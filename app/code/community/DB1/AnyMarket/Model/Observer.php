@@ -46,8 +46,6 @@ class DB1_AnyMarket_Model_Observer {
 
                 $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
                 if($typeSincProd == 0){
-                    Mage::app()->setCurrentStore($storeID);
-
                     $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($productOld->getId());
                     if( $product->getData('integra_anymarket') == 1 && $product->getStatus() == 1 ){
 
@@ -58,12 +56,11 @@ class DB1_AnyMarket_Model_Observer {
                             Mage::getModel('catalog/product_type_configurable')->getProduct($product)->unsetData('_cache_instance_products');
                             $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
                             if(count($childProducts) > 0){
-                                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket( $product->getId());
+                                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
                             }
                         }else{
                             $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
                             if($parentIds){
-
                                 //PRODUTO SIMPLES FILHO DE UM CONFIG
                                 $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                                 $ean    = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_ean_field', $storeID);
@@ -96,16 +93,16 @@ class DB1_AnyMarket_Model_Observer {
                                                 "internalIdProduct" => $product->getId(),
                                             );
 
-                                            Mage::helper('db1_anymarket/product')->sendImageSkuToAnyMarket($product, array($arrSku), $storeID);
+                                            Mage::helper('db1_anymarket/product')->sendImageSkuToAnyMarket($storeID, $product, array($arrSku));
                                         }
                                     }
                                 }
                             }else{
                                 //PRODUTO SIMPLES E OUTROS
-                                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket( $product->getId());
+                                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
 
                                 $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
-                                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($product->getId(), $stockQty, $product->getData($filter));
+                                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $stockQty, $product->getData($filter));
                             }
 
                         }
@@ -148,12 +145,14 @@ class DB1_AnyMarket_Model_Observer {
      * @param $observer
      */
     public function deleteCategory($observer){
+/*
         $category = $observer->getEvent()->getCategory();
         $storeID = Mage::helper('db1_anymarket')->getCurrentStoreView();
 
         if( $category->getData('categ_integra_anymarket') == 1 ){
-            //Mage::helper('db1_anymarket/category')->deleteCategs($category, $storeID);
+            Mage::helper('db1_anymarket/category')->deleteCategs($category, $storeID);
         }
+*/
     }
 
     /**
@@ -161,26 +160,25 @@ class DB1_AnyMarket_Model_Observer {
      * @return $this
      */
     public function updateOrderAnyMarketObs($observer){
+        $storeID = $observer->getEvent()->getOrder()->getStoreId();
         $OrderID = $observer->getEvent()->getOrder()->getIncrementId();
         if(Mage::registry('order_save_observer_executed_'.$OrderID )){
             return $this;
         }
 
         Mage::register('order_save_observer_executed_'.$OrderID, true);
-        Mage::app()->setCurrentStore( $observer->getEvent()->getOrder()->getStoreId() );
         $order = $observer->getEvent()->getOrder();
-        Mage::helper('db1_anymarket/order')->updateOrderAnyMarket( $order );
+        Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($storeID, $order );
 
         //DECREMENTA STOCK ANYMARKET
         $orderItems = $order->getItemsCollection();
-        $storeID = Mage::helper('db1_anymarket')->getCurrentStoreView();
         $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
         foreach ($orderItems as $item){
             $product_id = $item->product_id;
             $_product = Mage::getModel('catalog/product')->load($product_id);
 
             $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($_product);
-            Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($product_id, $stock->getQty(), $_product->getData($filter));
+            Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product_id, $stock->getQty(), $_product->getData($filter));
         }
 
     }
@@ -209,12 +207,10 @@ class DB1_AnyMarket_Model_Observer {
             $_item = $event->getItem();
 
 			$storeID = ($_item->getData('store_id') != null && $_item->getData('store_id') != "0") ? $_item->getData('store_id') : 1;
-
-            Mage::app()->setCurrentStore($storeID);
             $product = Mage::getModel('catalog/product')->load( $_item->getProductId() );
             if ( $product->getId() ) {
                 $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
-                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($_item->getProductId(), $_item->getQty(), $product->getData($filter));
+                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $_item->getProductId(), $_item->getQty(), $product->getData($filter));
             }
         }
     }
@@ -231,7 +227,7 @@ class DB1_AnyMarket_Model_Observer {
 		        $qty = $item->getProduct()->getStockItem()->getQty();
 		        $qtyNow = $qty - $itemSold;
 		
-		        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($item->getProductId(), $qtyNow, null);
+		        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket('1', $item->getProductId(), $qtyNow, null);
 		    }
 		}
 
@@ -249,7 +245,7 @@ class DB1_AnyMarket_Model_Observer {
                 $itemRevert = ($item->getTotalQty());
                 $qtyNow = $qty + $itemRevert;
 
-                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($item->getProductId(), $qtyNow, null);
+                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket('1', $item->getProductId(), $qtyNow, null);
             }
         }
     }
@@ -262,9 +258,7 @@ class DB1_AnyMarket_Model_Observer {
         $product = Mage::getModel('catalog/product')->load( $item->getProductId() );
         if ( $product->getId() ) {
             $storeID = ($item->getStoreId() != null && $item->getStoreId() != "0") ? $item->getStoreId() : 1;
-            Mage::app()->setCurrentStore($storeID);
-
-            Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($product->getId(), $product->getStockItem()->getQty(), null);
+            Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $product->getStockItem()->getQty(), null);
         }
     }
 
@@ -275,7 +269,6 @@ class DB1_AnyMarket_Model_Observer {
         $creditmemo = $observer->getEvent()->getCreditmemo();
 		$storeID = ($creditmemo->getStoreId() != null && $creditmemo->getStoreId() != "0") ? $creditmemo->getStoreId() : 1;
 
-        Mage::app()->setCurrentStore($storeID);
         foreach ($creditmemo->getAllItems() as $item) {
             $product = Mage::getModel('catalog/product')->load( $item->getProductId() );
             if ( $product->getId() ) {
@@ -283,7 +276,7 @@ class DB1_AnyMarket_Model_Observer {
                     $ProdLoaded = Mage::getModel('catalog/product')->setStoreId($storeID)->load($item->getProductId());
                     $stockQty = (int)Mage::getModel('cataloginventory/stock_item')->loadByProduct($ProdLoaded)->getQty();
 
-                    Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($item->getProductId(), $stockQty + (int)$item->getQty(), null);
+                    Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $item->getProductId(), $stockQty + (int)$item->getQty(), null);
                 }
             }
         }

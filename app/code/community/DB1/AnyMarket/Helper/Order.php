@@ -9,12 +9,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @param $OrderRowData
      * @return string
      */
-    private function getStatusAnyMarketToMageOrderConfig($OrderRowData){
+    private function getStatusAnyMarketToMageOrderConfig($storeID, $OrderRowData){
         if($OrderRowData == null){
             $OrderRowData = "new";
         }
 
-        $storeID = $this->getCurrentStoreView();
         $StatusOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_status_am_mg_field', $storeID);
         $OrderReturn = 'ERROR: 1 Não há uma configuração válida para '.$OrderRowData;
         $StateReturn = "";
@@ -75,12 +74,12 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @param $OrderRowData
      * @return string
      */
-    private function getStatusMageToAnyMarketOrderConfig($OrderRowData){
+    private function getStatusMageToAnyMarketOrderConfig($storeID, $OrderRowData){
         if($OrderRowData == null){
             $OrderRowData = "new";
         }
 
-        $StatusOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_status_mg_am_field', $this->getCurrentStoreView());
+        $StatusOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_status_mg_am_field', $storeID);
         $OrderReturn = 'ERROR: 2 Não há uma configuração válida para '.$OrderRowData;
         if ($StatusOrder && $StatusOrder != 'a:0:{}') {
             $StatusOrder = unserialize($StatusOrder);
@@ -180,8 +179,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     /**
      * get all order in feed AnyMarket
      */
-    public function getFeedOrdersFromAnyMarket(){
-        $storeID = $this->getCurrentStoreView();
+    public function getFeedOrdersFromAnyMarket($storeID){
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
@@ -244,7 +242,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 if (strpos($STATUSIMPORT, $OrderJSON->status) !== false) {
                     $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
                     if($ConfigOrder == 1) {
-                        $statsConfig = $this->getStatusAnyMarketToMageOrderConfig($OrderJSON->status);
+                        $statsConfig = $this->getStatusAnyMarketToMageOrderConfig($storeID, $OrderJSON->status);
                         $statusMage = $statsConfig["status"];
 
                         if (strpos($statusMage, 'ERROR:') === false) {
@@ -405,7 +403,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                             $this->changeFeedOrder($HOST, $headers, $idSeqAnyMarket, $tokenFeed);
 
                                             if ($OrderCheck->getId()) {
-                                                $this->changeStatusOrder($OrderJSON, $OrderIDMage);
+                                                $this->changeStatusOrder($storeID, $OrderJSON, $OrderIDMage);
                                             }
                                         } else {
                                             $this->saveLogOrder('nmo_id_seq_anymarket',
@@ -476,7 +474,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $STATUSIMPORT = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_stauts_order_field', $storeID);
                 if (strpos($STATUSIMPORT, $OrderJSON->status) !== false) {
                     if ($anymarketordersSpec->getData('nmo_id_order') != null) {
-                        $this->changeStatusOrder($OrderJSON, $anymarketordersSpec->getData('nmo_id_order'));
+                        $this->changeStatusOrder($storeID, $OrderJSON, $anymarketordersSpec->getData('nmo_id_order'));
                     }
                 }
             }
@@ -523,11 +521,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @param $JSON
      * @param $IDOrderMagento
      */
-    private function changeStatusOrder($JSON, $IDOrderMagento){
-        $storeID = $this->getCurrentStoreView();
+    private function changeStatusOrder($storeID, $JSON, $IDOrderMagento){
         $StatusPedAnyMarket = $JSON->status;
 
-        $statsConfig = $this->getStatusAnyMarketToMageOrderConfig( $StatusPedAnyMarket );
+        $statsConfig = $this->getStatusAnyMarketToMageOrderConfig($storeID, $StatusPedAnyMarket );
         $stateMage  = $statsConfig["state"];
         $statusMage = $statsConfig["status"];
 
@@ -708,8 +705,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      *
      * @param $Order
      */
-    public function updateOrderAnyMarket($Order){
-        $storeID = $this->getCurrentStoreView();
+    public function updateOrderAnyMarket($storeID, $Order){
         $ImportOrderSession = Mage::getSingleton('core/session')->getImportOrdersVariable();
         if( $ImportOrderSession != 'false' ) {
             $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
@@ -731,7 +727,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 );
 
                 if( ($anymarketorderupdt->getData('nmo_id_order') != null) && ($anymarketorderupdt->getData('nmo_id_anymarket') != null) ){
-                    $statuAM = $this->getStatusMageToAnyMarketOrderConfig($status);
+                    $statuAM = $this->getStatusMageToAnyMarketOrderConfig($storeID, $status);
                     if (strpos($statuAM, 'ERROR:') === false) {
                         $params = array(
                           "status" => $statuAM
@@ -789,7 +785,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         }
                     }
                 }else{
-                    $this->sendOrderToAnyMarket($idOrder, $HOST, $TOKEN);
+                    $this->sendOrderToAnyMarket($storeID, $idOrder, $HOST, $TOKEN);
                 }
             }
         }
@@ -803,9 +799,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @param $HOST
      * @param $TOKEN
      */
-    private function sendOrderToAnyMarket($idOrder, $HOST, $TOKEN){
-        $storeID = $this->getCurrentStoreView();
-        $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID); 
+    private function sendOrderToAnyMarket($storeID, $idOrder, $HOST, $TOKEN){
+        $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
         if($ConfigOrder == 0){
             $Order = Mage::getModel('sales/order')->setStoreId($storeID)->loadByIncrementId( $idOrder );
 
@@ -845,9 +840,9 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
             $statusOrder = $Order->getStatus();
             if($statusOrder == 'pending'){
-                $statuAM = $this->getStatusMageToAnyMarketOrderConfig('new');
+                $statuAM = $this->getStatusMageToAnyMarketOrderConfig($storeID, 'new');
             }else{
-                $statuAM = $this->getStatusMageToAnyMarketOrderConfig($statusOrder);
+                $statuAM = $this->getStatusMageToAnyMarketOrderConfig($storeID, $statusOrder);
             }
 
             if( (strpos($statuAM, 'ERROR:') === false) && ($statuAM != '') ) {
@@ -952,9 +947,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      *
      * @return int
      */
-    public function listOrdersFromAnyMarketMagento(){
-        $storeID = $this->getCurrentStoreView();
-
+    public function listOrdersFromAnyMarketMagento($storeID){
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
         $STATUSIMPORT = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_stauts_order_field', $storeID);

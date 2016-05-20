@@ -75,8 +75,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      *
      * @return string
      */
-    public function getFieldsDescriptionConfig(){
-        $ConfigDescProd = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_desc_field', $this->getCurrentStoreView());
+    public function getFieldsDescriptionConfig($storeID){
+        $ConfigDescProd = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_desc_field', $storeID);
         $fieldDesc = array();
         if ($ConfigDescProd && $ConfigDescProd != 'a:0:{}') {
             $ConfigDescProd = unserialize($ConfigDescProd);
@@ -111,8 +111,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $product
      * @return string
      */
-    public function getFullDescription($product){
-        $ConfigDescProd = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_desc_field', $this->getCurrentStoreView());
+    public function getFullDescription($storeID, $product){
+        $ConfigDescProd = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_desc_field', $storeID);
         $descComplete = "";
         if ($ConfigDescProd && $ConfigDescProd != 'a:0:{}') {
             $ConfigDescProd = unserialize($ConfigDescProd);
@@ -257,7 +257,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      */
     private function create_configurable_product($storeID, $dataProdConfig, $simpleProducts, $AttributeIds){
         $productGenerator = Mage::helper('db1_anymarket/productgenerator');
-        $product = $productGenerator->createConfigurableProduct($dataProdConfig, $simpleProducts, $AttributeIds);
+        $product = $productGenerator->createConfigurableProduct($storeID, $dataProdConfig, $simpleProducts, $AttributeIds);
 
         $returnProd['return'] = Mage::helper('db1_anymarket')->__('Configurable product Created').' ('.$product->getId().')';
         $returnProd['error'] = '0';
@@ -280,7 +280,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      */
     private function update_configurable_product($storeID, $idProd, $dataProdConfig, $simpleProducts, $AttributeIds){
         $productGenerator = Mage::helper('db1_anymarket/productgenerator');
-        $product = $productGenerator->updateConfigurableProduct($idProd, $dataProdConfig, $simpleProducts, $AttributeIds);
+        $product = $productGenerator->updateConfigurableProduct($storeID, $idProd, $dataProdConfig, $simpleProducts, $AttributeIds);
         
         $returnProd['return'] = Mage::helper('db1_anymarket')->__('Configurable product Updated').' ('.$product->getSku().')';
         $returnProd['error'] = '0';
@@ -413,11 +413,15 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
     }
 
     /**
+     *
+     * Send Image to Anymarket
+     *
+     * @param $storeID
      * @param $product
      * @param $variation
-     * @param $storeID
+     *
      */
-    public function sendImageToAnyMarket($product, $variation, $storeID){
+    public function sendImageToAnyMarket($storeID, $product, $variation){
         if($product){
             $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
             $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
@@ -600,7 +604,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $skusParam
      * @param $storeID
      */
-    public function sendImageSkuToAnyMarket($product, $skusParam, $storeID) {
+    public function sendImageSkuToAnyMarket($storeID, $product, $skusParam) {
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
@@ -627,11 +631,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                     if (isset($skuPut['variations'])) {
                         foreach ($skuPut['variations'] as $variationPut) {
-                            $this->sendImageToAnyMarket($prodSimple, $variationPut, $storeID);
+                            $this->sendImageToAnyMarket($storeID, $prodSimple, $variationPut);
                         }
                         $paramSku['variations'] = $skuPut['variations'];
                     } else {
-                        $this->sendImageToAnyMarket($product, null, $storeID);
+                        $this->sendImageToAnyMarket($storeID, $product, null);
                     }
 
                     $flagHSku = '';
@@ -659,7 +663,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     }
 
                     $this->saveLogsProds($storeID, "1", $skuProdReturn, $prodSimple);
-                    $this->updatePriceStockAnyMarket($skuPut['internalIdProduct'], $skuPut['amount'], $skuPut['price']);
+                    $this->updatePriceStockAnyMarket($storeID, $skuPut['internalIdProduct'], $skuPut['amount'], $skuPut['price']);
                 }
             }
         }else{
@@ -678,7 +682,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $storeID
      * @return integer
      */
-    public function getBrandForProduct($descBrand, $storeID){
+    public function getBrandForProduct($storeID, $descBrand){
         $brand = Mage::getModel('db1_anymarket/anymarketbrands')->load($descBrand, 'brd_name');
         if( $brand->getData('brd_id') == null ){
             $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
@@ -730,9 +734,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $idProduct
      * @return bool
      */
-    public function sendProductToAnyMarket($idProduct){
+    public function sendProductToAnyMarket($storeID, $idProduct){
         //obter configuracoes
-        $storeID = $this->getCurrentStoreView();
         $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($idProduct);
 
         //Obtem os parametros dos attr para subir para o AM
@@ -1062,12 +1065,12 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $param = array(
                 "id" => $idProductAnyMarket,
                 "title" => $product->getName(),
-                "description" => $this->getFullDescription($product),
+                "description" => $this->getFullDescription($storeID, $product),
                 "nbm" => array(
                     "id" => $this->procAttrConfig($nbm, $product->getData( $nbm ), 1)
                 ),
                 "brand" => array(
-                    "id" => $this->getBrandForProduct($this->procAttrConfig($brand, $product->getData( $brand ), 1), $storeID),
+                    "id" => $this->getBrandForProduct($storeID, $this->procAttrConfig($brand, $product->getData( $brand ), 1)),
                     "name" => $this->procAttrConfig($brand, $product->getData( $brand ), 1)
                 ),
                 "origin" => array(
@@ -1119,11 +1122,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $IDinAnymarket = json_encode($SaveLog->id);
 
                         if($IDinAnymarket != '0'){
-                            Mage::app()->setCurrentStore(Mage::getModel('core/store')->load(Mage_Core_Model_App::ADMIN_STORE_ID));
                             $productForSave = Mage::getModel('catalog/product')->setStoreId($storeID)->load($product->getId());
                             $productForSave->setIdAnymarket($IDinAnymarket);
                             $productForSave->save();
-                            Mage::app()->setCurrentStore( $this->getCurrentStoreView() );
                         }
 
                         if($product->getTypeID() == "configurable"){
@@ -1179,14 +1180,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 if ($productSku->getData() != null) {
                                     if ($productSku->getId() != null) {
                                         $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($productSku);
-                                        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($productSku->getId(), $stock->getQty(), $productSku->getData($filter));
+                                        $this->updatePriceStockAnyMarket($storeID, $productSku->getId(), $stock->getQty(), $productSku->getData($filter));
                                     }
                                 }
                             }
                         }
                     }
 
-                    $this->sendImageSkuToAnyMarket($product, $param['skus'], $storeID);
+                    $this->sendImageSkuToAnyMarket($storeID, $product, $param['skus']);
 
                     $this->saveLogsProds($storeID, "1", $returnProd, $product);
                 }
@@ -1235,9 +1236,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
     /**
      * get only product in feed of AnyMarket
      */
-    public function getFeedProdsFromAnyMarket(){
-        $storeID = $this->getCurrentStoreView();
-
+    public function getFeedProdsFromAnyMarket($storeID){
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
@@ -1255,7 +1254,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $anymarketlog->setStatus("0");
             $anymarketlog->save();
         }else{
-            $prodCreated = $this->getSpecificFeedProduct($returnFeedTrans['return'], $headers, $HOST, $storeID);
+            $prodCreated = $this->getSpecificFeedProduct($storeID, $returnFeedTrans['return'], $headers, $HOST);
 
             // TRATA STOCK
             if ( $prodCreated ) {
@@ -1263,7 +1262,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 if ($typeSincOrder == 1) {
                     $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                     $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($prodCreated);
-                    Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($prodCreated->getId(), $ProdStock->getQty(), $prodCreated->getData($filter));
+                    $this->updatePriceStockAnyMarket($storeID, $prodCreated->getId(), $ProdStock->getQty(), $prodCreated->getData($filter));
                 }
             }
         }
@@ -1273,7 +1272,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $IDProd
      * @param $storeID
      */
-    public function getStockProductAnyMarket($IDProd, $storeID){
+    public function getStockProductAnyMarket($storeID, $IDProd){
         $product = Mage::getModel('catalog/product')->load( $IDProd );
         if($product->getIdAnymarket() != ''){
             $HOST = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
@@ -1339,7 +1338,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      *
      * @return string
      */
-    public function getSpecificFeedProduct($listTransmissions, $headers, $HOST, $storeID){
+    public function getSpecificFeedProduct($storeID, $listTransmissions, $headers, $HOST){
         $arrJSONProds = array();
         $arrControlProds = array();
 
@@ -1562,7 +1561,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
         //CRIA OS PRODUTOS CASO ELES NAO EXISTAM
         foreach ($arrJSONProds as $ProdsJSON) {
-            $feedReturn = $this->createProducts( json_encode($ProdsJSON), $storeID);
+            $feedReturn = $this->createProducts($storeID, json_encode($ProdsJSON));
             if($feedReturn){
                 $this->changeStatusTransmission($HOST, $headers, $ProdsJSON["idTransmission"], 'Ativo', $transmissionToken);
 
@@ -1585,7 +1584,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $storeID
      * @return Mage_Catalog_Model_Product
      */
-    public function createProducts($ProdsJSON, $storeID){
+    public function createProducts($storeID, $ProdsJSON){
         Mage::getSingleton('core/session')->setImportProdsVariable('false');
         $ProdsJSON = json_decode($ProdsJSON);
 
@@ -1621,7 +1620,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $warranty_text =      Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_warranty_text_field', $storeID);
         $warranty_time =      Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_warranty_time_field', $storeID);
 
-        $configureFieldsConfig = $this->getFieldsDescriptionConfig();
+        $configureFieldsConfig = $this->getFieldsDescriptionConfig($storeID);
 
         //PROD CONFIGURABLE
         if ( !empty( $ProdsJSON->variations ) ) {
@@ -2002,15 +2001,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
         }
         Mage::getSingleton('core/session')->setImportProdsVariable('true');
-        Mage::app()->setCurrentStore($storeID);
-
         return $ProdCrt;
     }
 
-    public function massUpdtProds(){
+    public function massUpdtProds($storeID){
         try {
-            $storeID = $this->getCurrentStoreView();
-
             $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
             if($typeSincProd == 0){
                 $products = $products = Mage::getModel('catalog/product')
@@ -2082,9 +2077,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $QtdStock
      * @param $Price
      */
-    public function updatePriceStockAnyMarket($IDProd, $QtdStock, $Price){
-        $storeID = $this->getCurrentStoreView();
-
+    public function updatePriceStockAnyMarket($storeID, $IDProd, $QtdStock, $Price){
         $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $IDProd );
         if($product->getTypeID() != "configurable"){
             if( ($product->getStatus() == 1) && ($product->getData('integra_anymarket') == 1) ){
@@ -2166,7 +2159,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
             $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
             foreach($childProducts as $child) {
-                $this->updatePriceStockAnyMarket($child->getId(), $child->getStockItem()->getQty(), $child->getData($filter));
+                $this->updatePriceStockAnyMarket($storeID, $child->getId(), $child->getStockItem()->getQty(), $child->getData($filter));
             }
         }
 
