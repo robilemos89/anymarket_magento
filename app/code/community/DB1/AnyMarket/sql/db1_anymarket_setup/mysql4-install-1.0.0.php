@@ -284,6 +284,12 @@ $table = $this->getConnection()
         'Decrição da Categoria'
     )
     ->addColumn(
+        'nmc_id_magento',
+        Varien_Db_Ddl_Table::TYPE_TEXT, 255,
+        array(),
+        'ID Category in Magento'
+    )
+    ->addColumn(
         'status',
         Varien_Db_Ddl_Table::TYPE_SMALLINT, null,
         array(),
