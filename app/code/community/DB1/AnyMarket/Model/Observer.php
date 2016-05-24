@@ -56,6 +56,14 @@ class DB1_AnyMarket_Model_Observer {
                             Mage::getModel('catalog/product_type_configurable')->getProduct($product)->unsetData('_cache_instance_products');
                             $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
                             if(count($childProducts) > 0){
+                                Mage::getSingleton('core/session')->setImportProdsVariable('false');
+                                foreach ($childProducts as $prodCh) {
+                                    $productChild = Mage::getModel('catalog/product')->setStoreId($storeID)->load($prodCh->getId());
+                                    $productChild->setData('integra_anymarket', $product->getData('integra_anymarket') );
+                                    $productChild->save();
+                                }
+                                Mage::getSingleton('core/session')->setImportProdsVariable('true');
+
                                 Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
                             }
                         }else{
