@@ -466,9 +466,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }else{
                             foreach ($imgsProdAnymarket as $imgProdAnymarket) {
                                 if ($variation) {
-                                    if (($imgProdMagento->getData('url') == $imgProdAnymarket->url) && ($imgProdAnymarket->variation == $variation)) {
-                                        $ctrlAdd = true;
-                                        break;
+                                    if( isset($imgProdAnymarket->variation) ) {
+                                        if (($imgProdMagento->getData('url') == $imgProdAnymarket->url) && ($imgProdAnymarket->variation == $variation)) {
+                                            $ctrlAdd = true;
+                                            break;
+                                        }
                                     }
                                 } else {
                                     if ($imgProdMagento->getData('url') == $imgProdAnymarket->url) {
@@ -491,9 +493,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $ctrlRemove = false;
                         foreach ($imgsProdMagento as $imgProdMagento) {
                             if($variation){
-                                if( ($imgProdAnymarket->url == $imgProdMagento->getData('url')) && ($imgProdAnymarket->variation == $variation) ){
-                                    $ctrlRemove = true;
-                                    break;
+                                if( isset($imgProdAnymarket->variation) ) {
+                                    if (($imgProdAnymarket->url == $imgProdMagento->getData('url')) && ($imgProdAnymarket->variation == $variation)) {
+                                        $ctrlRemove = true;
+                                        break;
+                                    }
                                 }
                             }else{
                                 if($imgProdAnymarket->url == $imgProdMagento->getData('url') ){
@@ -505,8 +509,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                         if(!$ctrlRemove){
                             if($variation){
-                                if($imgProdAnymarket->variation == $variation){
-                                    array_push($arrRemove, $imgProdAnymarket->id);
+                                if( isset($imgProdAnymarket->variation) ) {
+                                    if ($imgProdAnymarket->variation == $variation) {
+                                        array_push($arrRemove, $imgProdAnymarket->id);
+                                    }
                                 }
                             }else{
                                 array_push($arrRemove, $imgProdAnymarket->id);
@@ -1381,13 +1387,15 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }
 
                         $imagesGallery = array();
-                        foreach ($transmission->images as $image) {
-                            $imagesGallery[] = array(
-                                "standard_resolution" => $image->standardUrl,
-                                "original" => $image->standardUrl,
-                                "main" => $image->main,
-                                "variationValue" => isset($image->variation) ? $image->variation : null
-                            );
+                        if( isset($transmission->images) ) {
+                            foreach ($transmission->images as $image) {
+                                $imagesGallery[] = array(
+                                    "standard_resolution" => $image->standardUrl,
+                                    "original" => $image->standardUrl,
+                                    "main" => $image->main,
+                                    "variationValue" => isset($image->variation) ? $image->variation : null
+                                );
+                            }
                         }
 
                         $arrVarGeral = array();

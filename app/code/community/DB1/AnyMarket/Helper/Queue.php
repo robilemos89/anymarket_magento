@@ -32,7 +32,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
     /**
      * process queue
      */
-    public function processQueue(){
+    public function processQueue($typeExec){
         $qtyItensImport = (int)Mage::getConfig()->getNode('default/queue_qty/qty');
         $itens = Mage::getModel('db1_anymarket/anymarketqueue')
                 ->getCollection()
@@ -47,7 +47,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
             $storeID = array_shift($arrValueStore);
 
             $cronEnabled = Mage::getStoreConfig('anymarket_section/anymarket_cron_group/anymarket_queue_field', $storeID);
-            if($cronEnabled == '1') {
+            if($cronEnabled == '1' || $typeExec == "FORCE") {
                 $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
 
                 $typImp = $item['nmq_type'];

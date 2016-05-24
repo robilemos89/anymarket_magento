@@ -219,7 +219,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketqueueController extends DB1_Any
         }
 
         if($lastProc){
-            Mage::helper('db1_anymarket/queue')->processQueue();
+            Mage::helper('db1_anymarket/queue')->processQueue("FORCE");
             Mage::getSingleton('core/session')->setProcCronVariable(date('y-m-d H:i:s'));
 
             Mage::getSingleton('adminhtml/session')->addSuccess(

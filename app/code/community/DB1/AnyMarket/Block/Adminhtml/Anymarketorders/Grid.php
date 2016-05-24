@@ -170,14 +170,22 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketorders_Grid extends Mage_Adminhtml_
         $this->getMassactionBlock()->setFormFieldName('anymarketorders');
 
         $this->getMassactionBlock()->addItem(
-            'sincronizar',
+            'export',
             array(
-                'label'=> Mage::helper('db1_anymarket')->__('Synchronize'),
-                'url'  => $this->getUrl('*/*/massSincOrder'),
+                'label'=> Mage::helper('db1_anymarket')->__('Export'),
+                'url'  => $this->getUrl('*/*/massExportOrder'),
                 'confirm'  => Mage::helper('db1_anymarket')->__('Are you sure you want to sync?')
             )
         );
 
+        $this->getMassactionBlock()->addItem(
+            'import',
+            array(
+                'label'=> Mage::helper('db1_anymarket')->__('Import'),
+                'url'  => $this->getUrl('*/*/massImportOrder'),
+                'confirm'  => Mage::helper('db1_anymarket')->__('Are you sure you want to sync?')
+            )
+        );
 
         $this->getMassactionBlock()->addItem(
             'delete',

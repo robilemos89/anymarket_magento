@@ -119,6 +119,76 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketordersController extends DB1_An
         $this->_redirect('*/*/index');
     }
 
+    /**
+     * mass import anymarket Orders - action
+     *
+     * @access public
+     * @return void
+     *
+     */
+    public function massImportOrderAction()
+    {
+        $anymarketOrdersIds = $this->getRequest()->getParam('anymarketorders');
+        if (!is_array($anymarketOrdersIds)) {
+            Mage::getSingleton('adminhtml/session')->addError(
+                Mage::helper('db1_anymarket')->__('Por favor selecione Orders para sincronizar.')
+            );
+        } else {
+            foreach ($anymarketOrdersIds as $anymarketOrderId) {
+                $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
+                $anymarketorders->load($anymarketOrderId);
+
+                if( is_array($anymarketorders->getData('store_id')) ){
+                    $arrStores = $anymarketorders->getData('store_id');
+                    $storeID = reset($arrStores);
+                }
+
+                if($anymarketorders->getNmoIdAnymarket() != '') {
+                    Mage::helper('db1_anymarket/queue')->addQueue($storeID, $anymarketorders->getNmoIdAnymarket(), 'IMP', 'ORDER');
+                }
+            }
+            Mage::getSingleton('adminhtml/session')->addSuccess(
+                Mage::helper('db1_anymarket')->__('Total %d orders were added to the queue.', count($anymarketOrdersIds))
+            );
+        }
+        $this->_redirect('*/*/index');
+    }
+
+    /**
+     * mass export anymarket Orders - action
+     *
+     * @access public
+     * @return void
+     *
+     */
+    public function massExportOrderAction()
+    {
+        $anymarketOrdersIds = $this->getRequest()->getParam('anymarketorders');
+        if (!is_array($anymarketOrdersIds)) {
+            Mage::getSingleton('adminhtml/session')->addError(
+                Mage::helper('db1_anymarket')->__('Por favor selecione Orders para sincronizar.')
+            );
+        } else {
+            foreach ($anymarketOrdersIds as $anymarketOrderId) {
+                $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
+                $anymarketorders->load($anymarketOrderId);
+
+                if( is_array($anymarketorders->getData('store_id')) ){
+                    $arrStores = $anymarketorders->getData('store_id');
+                    $storeID = reset($arrStores);
+                }
+
+                if($anymarketorders->getNmoIdOrder()){
+                    Mage::helper('db1_anymarket/queue')->addQueue($storeID, $anymarketorders->getNmoIdOrder(), 'EXP', 'ORDER');
+                }
+
+            }
+            Mage::getSingleton('adminhtml/session')->addSuccess(
+                Mage::helper('db1_anymarket')->__('Total %d orders were added to the queue.', count($anymarketOrdersIds))
+            );
+        }
+        $this->_redirect('*/*/index');
+    }
 
     /**
      * grid action
