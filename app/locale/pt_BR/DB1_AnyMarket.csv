@@ -162,6 +162,8 @@
 "Excel","Excel"
 "Home","Home"
 "Id","Código"
+"AnyMarket Log","Logs Anymarket"
+"Anymarket Log","Logs Anymarket"
 "Anymarket Queue", "Fila de integração Anymarket"
 "Customer Group (Customer)","Grupo de Cliente (Cliente)"
 "Item code that is waiting in the queue","Código do Item que esta aguardando na fila"
