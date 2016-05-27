@@ -285,6 +285,10 @@
             <anymarket_brand_field>brand</anymarket_brand_field>
             <anymarket_model_field>model</anymarket_model_field>
             <anymarket_price_factor_field>markup</anymarket_price_factor_field>
+            <anymarket_add1_field>street</anymarket_add1_field>
+            <anymarket_add2_field>number</anymarket_add2_field>
+            <anymarket_add3_field>comment</anymarket_add3_field>>
+            <anymarket_add4_field>neighborhood</anymarket_add4_field>>
         </anymarket_attribute_group>
 
         <anymarket_cron_group>

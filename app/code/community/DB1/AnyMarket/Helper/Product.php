@@ -171,7 +171,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             }
 
             $URL = Mage::helper('adminhtml')->getUrl('adminhtml/catalog_product/edit', array('id' => $product->getId() ));
-            $this->addMessageInBox($storeID, 'Error synchronizing AnyMarket products.', 'Error on Sinc product SKU: '.$product->getSku(), $URL);
+            $this->addMessageInBox($storeID, Mage::helper('db1_anymarket')->__('Error synchronizing AnyMarket products.'), Mage::helper('db1_anymarket')->__('Error on Sync product SKU: ').$product->getSku(), $URL);
             $returnMet = $returnProd['return'];
         }else{ //FOI BEM SUCEDIDO
             if( ($anymarketproductsUpdt->getData('nmp_sku') == null) || ($StoreIDAmProd != $storeID) ) {
@@ -765,7 +765,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         // verifica categoria null ou em branco
         $categProd = $product->getData('categoria_anymarket');
         if($categProd == null || $categProd == ''){
-            array_push($arrProd, 'AnyMarket_Category');
+            array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Category') );
         }
 
         // verifica o Price Factor (Markup)
@@ -773,16 +773,16 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         if((string)(float)$varPriceFactor == $varPriceFactor) {
             $varPriceFactor = (float)$varPriceFactor;
             if($varPriceFactor > 99){
-               array_push($arrProd, 'AnyMarket_Price_Factor(Limit 99)');
+               array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Price Factor(Limit 99)'));
             }
         }else{
-            array_push($arrProd, 'AnyMarket_Price_Factor(Only Number)');
+            array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Price Factor(Only Number)') );
         }
 
         // verifica Origin null ou em branco
         $originData = $this->procAttrConfig($nbm_origin, $product->getData( $nbm_origin ), 1);
         if($originData == null || $originData == ''){
-           array_push($arrProd, 'AnyMarket_Origin');
+           array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Origin') );
         }
 
         //trata para nao enviar novamente solicitacao quando o erro for o mesmo

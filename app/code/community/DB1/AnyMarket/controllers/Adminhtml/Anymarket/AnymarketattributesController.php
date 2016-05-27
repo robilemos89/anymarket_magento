@@ -255,7 +255,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketattributesController extends DB
                             ->save();
                 }
                 $this->_getSession()->addSuccess(
-                    $this->__('Total of %d anymarket attributes were successfully updated.', count($anymarketattributesIds))
+                    $this->__(Mage::helper('db1_anymarket')->__('Total of %d anymarket attributes were successfully updated.'), count($anymarketattributesIds))
                 );
             } catch (Mage_Core_Exception $e) {
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());

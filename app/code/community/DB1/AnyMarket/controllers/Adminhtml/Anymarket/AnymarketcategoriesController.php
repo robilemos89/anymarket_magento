@@ -96,7 +96,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketcategoriesController extends DB
             );
         }else{
             Mage::getSingleton('adminhtml/session')->addError(
-                Mage::helper('compiler')->__('0 categories exported, verify Catalog -> Manage Categories')
+                Mage::helper('compiler')->__('0 categories exported, verify in Catalog -> Manage Categories')
             );
         }
         $this->_redirect('*/*/');

@@ -26,6 +26,7 @@
                                     <br>
                                     E-mail: anymarketsup@db1.com.br
                                     <br>
+                                    Documentação completa: <a href="http://developers.anymarket.com.br/magento.html">http://developers.anymarket.com.br/magento.html</a>
                                     <br>
                                     <br>
                                     <b>Primeiro deve saber qual o fluxo de Pedido e Produto que você irá trabalhar.</b>
@@ -39,7 +40,7 @@
                                         <br>
                                         1 - Entre em contato conosco para obter seu TOKEN, HOST e OI, insira os mesmo nos campos da aba <b>Acesso</b>.
                                         <br>
-                                        2 - Valide Quais CRON´s será util para sua Loja.
+                                        2 - Valide Quais CRON´s serão uteis para sua Loja.
                                         <br>
                                         3 - Configure na aba <b>Integração (Produtos)</b> prestando muita atenção para respeitar o fluxo escolhido.
                                         <br>
@@ -285,7 +286,7 @@
                     <comment>
                         <![CDATA[
                             <div>
-                                <b>Não é recomendado deixar desabilitado, pois pode atrapalhar uma futura auditoria, porem eles podem gerar perca de desempenho na loja.</b>
+                                <b>Não é recomendado deixar desabilitado, pois pode atrapalhar uma futura auditoria, porem eles podem gerar perda de desempenho na loja.</b>
                                 <br>
                                 <br>
                                 <b>Niveis de Logs:</b>
@@ -356,7 +357,7 @@
                             <div>
                                 <b>Defina aqui o fluxo de Produtos que você irá utilizar.</b>
                                 <br>
-                                O modulo pode trabalhar tanto enviando produtos pro Anymarket ou Recebendo do Anymarket esses produtos.
+                                O modulo pode trabalhar tanto enviando produtos pro Anymarket quanto Recebendo do Anymarket esses produtos.
                                 <br>
                                 * No caso do Anymarket enviar para o Magento, o Anymarket entenderá o Magento como um Markeplace, sendo necessário a transmissão do produto na <b>Tela de Transmissão</b>.
                                 <br>
@@ -451,6 +452,15 @@
 
                 <anymarket_attribute_group translate="label comment" module="db1_anymarket">
                     <label>Attributes</label>
+                    <comment>
+                        <![CDATA[
+                           <b> * Configurações Endereço de Clientes</b></br>
+                            Defina a ordem em que deve ser importado os Endereços para o Pedido e para o Cliente.
+                           <hr>
+                           <br>
+                           <br>
+                        ]]>
+                    </comment>
                     <sort_order>4</sort_order>
                     <show_in_default>0</show_in_default>
                     <show_in_website>0</show_in_website>
@@ -735,13 +745,13 @@
                     <comment>
                         <![CDATA[
                             <div>
-                                <b>Configure todas as configurações sobre o Pedido.</b>
+                                <b>Realize todas as configurações sobre o Pedido.</b>
                                 <br>
-                                O modulo pode trabalhar tanto enviando pedidos pro Anymarket ou Recebendo do Anymarket esses pedidos.
+                                O modulo pode trabalhar tanto enviando pedidos pro Anymarket quanto Recebendo do Anymarket esses pedidos
                                 <br>
-                                * No caso do Anymarket enviar para o Magento, o Anymarket entenderá o Magento como um Markeplace, sendo assim quem controla o estoque é o Anymarket.</b>.
+                                * No caso do Anymarket enviar para o Magento, o Anymarket entenderá o Magento como um Markeplace, sendo assim, quem controlará o estoque é o Anymarket.</b>.
                                 <br>
-                                * No caso do Magento enviar para o Anymarket, o Anymarket entenderá que Magento é um ERP, nessa caso quem controlorá o estoque é o Magento.
+                                * No caso do Magento enviar para o Anymarket, o Anymarket entenderá que Magento é um ERP, nessa caso, quem controlorá o estoque é o Magento.
                                 <br>
                                 <br>
                                 <hr>
