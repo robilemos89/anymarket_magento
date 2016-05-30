@@ -53,11 +53,12 @@ $codigo = 'categoria_anymarket';
 $config = array(
     'group' => 'AnyMarket',
     'position' => 2,
-    'required' => 1,
+    'required' => 0,
     'label'    => 'Categoria Anymarket',
     'type'     => 'int',
     'input'    => 'text',
     'apply_to' => 'simple,bundle,grouped,configurable',
+	'user_defined' => 1,
     'note'     => '<a style="cursor:pointer" onclick="showDialogCategory();">Selecione uma categoria para subir ao Anymarket</a>'
 );
 
