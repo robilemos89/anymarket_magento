@@ -15,3 +15,4 @@ DROP TABLE db1_anymarket_anymarketqueue;
 
 DELETE FROM `core_config_data` WHERE `path` LIKE 'anymarket_section%';
 DELETE FROM `core_resource` WHERE `code`='db1_anymarket_setup';
+DELETE FROM `eav_attribute` WHERE frontend_label = 'Categoria Anymarket'
