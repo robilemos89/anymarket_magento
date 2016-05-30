@@ -9,12 +9,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @param $OrderRowData
      * @return string
      */
-    private function getStatusAnyMarketToMageOrderConfig($OrderRowData){
+    private function getStatusAnyMarketToMageOrderConfig($storeID, $OrderRowData){
         if($OrderRowData == null){
             $OrderRowData = "new";
         }
 
-        $storeID = $this->getCurrentStoreView();
         $StatusOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_status_am_mg_field', $storeID);
         $OrderReturn = 'ERROR: 1 Não há uma configuração válida para '.$OrderRowData;
         $StateReturn = "";
@@ -37,40 +36,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         }
 
         return array("status" => $OrderReturn, "state" => $StateReturn);
-    }
-
-    /**
-     * create order in Magento
-     *
-     * @param $storeID
-     * @param $OrderJSON
-     * @return array
-     */
-    public function getCompleteAddressOrder($storeID, $OrderJSON){
-        $retArrStreet = array(
-            0 => "Frete não especificado.",
-            1 => " ",
-            2 => " ",
-            3 => " "
-        );
-        if( isset($OrderJSON->shipping) ) {
-            if( isset($OrderJSON->shipping->address) ) {
-                $street1 = (isset($OrderJSON->shipping->street)) ? $OrderJSON->shipping->street : $OrderJSON->shipping->address;
-                $street2 = (isset($OrderJSON->shipping->number)) ? $OrderJSON->shipping->number : '';
-                $street3 = (isset($OrderJSON->shipping->comment)) ? $OrderJSON->shipping->comment : '';
-                $street4 = (isset($OrderJSON->shipping->neighborhood)) ? $OrderJSON->shipping->neighborhood : '';
-
-
-                $retArrStreet = array(
-                    0 => $street1,
-                    1 => $street2,
-                    2 => $street3,
-                    3 => $street4
-                );
-            }
-        }
-
-        return $retArrStreet;
     }
 
     /**
@@ -109,12 +74,12 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @param $OrderRowData
      * @return string
      */
-    private function getStatusMageToAnyMarketOrderConfig($OrderRowData){
+    private function getStatusMageToAnyMarketOrderConfig($storeID, $OrderRowData){
         if($OrderRowData == null){
             $OrderRowData = "new";
         }
 
-        $StatusOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_status_mg_am_field', $this->getCurrentStoreView());
+        $StatusOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_status_mg_am_field', $storeID);
         $OrderReturn = 'ERROR: 2 Não há uma configuração válida para '.$OrderRowData;
         if ($StatusOrder && $StatusOrder != 'a:0:{}') {
             $StatusOrder = unserialize($StatusOrder);
@@ -130,6 +95,47 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         }
 
         return $OrderReturn;
+    }
+
+    /**
+     * create order in Magento
+     *
+     * @param $storeID
+     * @param $OrderJSON
+     * @return array
+     */
+    public function getCompleteAddressOrder($storeID, $OrderJSON){
+        $retArrStreet = array(
+            0 => "Frete não especificado.",
+            1 => " ",
+            2 => " ",
+            3 => " "
+        );
+
+        if( isset($OrderJSON->shipping) ) {
+            if (isset($OrderJSON->shipping->address)) {
+                $OrderJSON = json_decode(json_encode($OrderJSON), true);
+
+                $street1 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add1_field', $storeID);
+                $street2 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add2_field', $storeID);
+                $street3 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add3_field', $storeID);
+                $street4 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add4_field', $storeID);
+
+                $street1 = (isset($OrderJSON['shipping'][$street1])) ? $OrderJSON['shipping'][$street1] : $OrderJSON['shipping']['address'];
+                $street2 = (isset($OrderJSON['shipping'][$street2])) ? $OrderJSON['shipping'][$street2] : '';
+                $street3 = (isset($OrderJSON['shipping'][$street3])) ? $OrderJSON['shipping'][$street3] : '';
+                $street4 = (isset($OrderJSON['shipping'][$street4])) ? $OrderJSON['shipping'][$street4] : '';
+
+                $retArrStreet = array(
+                    0 => $street1,
+                    1 => $street2,
+                    2 => $street3,
+                    3 => $street4
+                );
+            }
+        }
+
+        return $retArrStreet;
     }
 
     /**
@@ -171,7 +177,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
             $anymarketlog->setLogDesc('Order Created: ' . $CodOrder . ' ID Anymarket: ' . $IDAnyMarket);
-            $anymarketlog->setStatus("1");
+            $anymarketlog->setStatus("0");
             $anymarketlog->setStores(array($storeID));
             $anymarketlog->save();
         }else{
@@ -184,12 +190,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     /**
      * get all order in feed AnyMarket
      */
-    public function getFeedOrdersFromAnyMarket(){
-        $storeID = $this->getCurrentStoreView();
+    public function getFeedOrdersFromAnyMarket($storeID){
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
-        $headers = array(
+        $headers = array( 
             "Content-type: application/json",
             "Accept: */*",
             "gumgaToken: ".$TOKEN
@@ -210,7 +215,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 if( $anymarketorders->getData('nmo_id_anymarket') != null ){
                     $this->getSpecificOrderFromAnyMarket($anymarketorders->getData('nmo_id_seq_anymarket'), '', $storeID);
                 }else{
-                    $this->getSpecificOrderFromAnyMarket($order->id, $order->token, $storeID);
+                    $this->getSpecificOrderFromAnyMarket($order->id, $order->token, $storeID);                    
                 }
             }
         }
@@ -226,7 +231,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     public function getSpecificOrderFromAnyMarket($idSeqAnyMarket, $tokenFeed, $storeID){
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
-        $headers = array(
+        $headers = array( 
             "Content-type: application/json",
             "Accept: */*",
             "gumgaToken: ".$TOKEN
@@ -248,7 +253,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 if (strpos($STATUSIMPORT, $OrderJSON->status) !== false) {
                     $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
                     if($ConfigOrder == 1) {
-                        $statsConfig = $this->getStatusAnyMarketToMageOrderConfig($OrderJSON->status);
+                        $statsConfig = $this->getStatusAnyMarketToMageOrderConfig($storeID, $OrderJSON->status);
                         $statusMage = $statsConfig["status"];
 
                         if (strpos($statusMage, 'ERROR:') === false) {
@@ -282,10 +287,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                                     $anymarketlog->setLogDesc(Mage::helper('db1_anymarket')->__('Product is not registered') . ' (Order: ' . $idSeqAnyMarket . ', SKU : ' . $item->sku->partnerId . ')');
                                     $anymarketlog->setStores(array($storeID));
-                                    $anymarketlog->setStatus("1");
+                                    $anymarketlog->setStatus("0");
                                     $anymarketlog->save();
 
-                                    $this->addMessageInBox(Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
+                                    $this->addMessageInBox($storeID, Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
                                         Mage::helper('db1_anymarket')->__('Error synchronizing order number: ') . "Anymarket(" . $IDOrderAnyMarket . ") <br/>" .
                                         Mage::helper('db1_anymarket')->__('Product is not registered') . ' (SKU: ' . $item->sku->partnerId . ')',
                                         '');
@@ -336,6 +341,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                                 break;
                                             }
                                         }
+
+                                        $addressFullData = $this->getCompleteAddressOrder($storeID, $OrderJSON);
 
                                         if ($customer->getId() == null) {
                                             $_DataCustomer = array(
@@ -419,7 +426,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         $this->changeFeedOrder($HOST, $headers, $idSeqAnyMarket, $tokenFeed);
 
                                         if ($OrderCheck->getId()) {
-                                            $this->changeStatusOrder($OrderJSON, $OrderIDMage);
+                                            $this->changeStatusOrder($storeID, $OrderJSON, $OrderIDMage);
                                         }
                                     } catch (Exception $e) {
                                         $this->saveLogOrder('nmo_id_seq_anymarket',
@@ -444,11 +451,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                                     $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                                     $anymarketlog->setLogDesc('Error on import Order: ' . Mage::helper('db1_anymarket')->__('Customer invalid or blank document.'));
-                                    $anymarketlog->setStatus("1");
+                                    $anymarketlog->setStatus("0");
                                     $anymarketlog->setStores(array($storeID));
                                     $anymarketlog->save();
 
-                                    $this->addMessageInBox(Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
+                                    $this->addMessageInBox($storeID, Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
                                         Mage::helper('db1_anymarket')->__('Error synchronizing order number: ') . "Anymarket(" . $IDOrderAnyMarket . ") <br/>" .
                                         Mage::helper('db1_anymarket')->__('Customer invalid or blank document.'),
                                         '');
@@ -458,7 +465,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                             $anymarketlog->setLogDesc($statusMage);
                             $anymarketlog->setLogId($IDOrderAnyMarket);
-                            $anymarketlog->setStatus("1");
+                            $anymarketlog->setStatus("0");
                             $anymarketlog->save();
                         }
 
@@ -475,19 +482,19 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $STATUSIMPORT = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_stauts_order_field', $storeID);
                 if (strpos($STATUSIMPORT, $OrderJSON->status) !== false) {
                     if ($anymarketordersSpec->getData('nmo_id_order') != null) {
-                        $this->changeStatusOrder($OrderJSON, $anymarketordersSpec->getData('nmo_id_order'));
+                        $this->changeStatusOrder($storeID, $OrderJSON, $anymarketordersSpec->getData('nmo_id_order'));
                     }
                 }
             }
         }else{
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
             $anymarketlog->setLogDesc( 'Error on import Order: '.$idSeqAnyMarket.'  '.$returnOrderItens['return'] );
-            $anymarketlog->setStatus("1");
+            $anymarketlog->setStatus("0");
             $anymarketlog->save();
 
-            $this->addMessageInBox(Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
-                Mage::helper('db1_anymarket')->__('Error synchronizing order number: ')."Anymarket(".$idSeqAnyMarket.")",
-                '');
+            $this->addMessageInBox($storeID, Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
+                                   Mage::helper('db1_anymarket')->__('Error synchronizing order number: ')."Anymarket(".$idSeqAnyMarket.")",
+                                   '');
         }
     }
 
@@ -522,11 +529,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @param $JSON
      * @param $IDOrderMagento
      */
-    private function changeStatusOrder($JSON, $IDOrderMagento){
-        $storeID = $this->getCurrentStoreView();
+    private function changeStatusOrder($storeID, $JSON, $IDOrderMagento){
         $StatusPedAnyMarket = $JSON->status;
 
-        $statsConfig = $this->getStatusAnyMarketToMageOrderConfig( $StatusPedAnyMarket );
+        $statsConfig = $this->getStatusAnyMarketToMageOrderConfig($storeID, $StatusPedAnyMarket );
         $stateMage  = $statsConfig["state"];
         $statusMage = $statsConfig["status"];
 
@@ -589,17 +595,17 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
 
             $this->saveLogOrder('nmo_id_anymarket',
-                $JSON->marketPlaceId,
-                'Integrado',
-                '',
-                $JSON->id,
-                $JSON->marketPlaceId,
-                $IDOrderMagento,
-                $storeID);
+                                 $JSON->marketPlaceId, 
+                                 'Integrado', 
+                                 '', 
+                                 $JSON->id, 
+                                 $JSON->marketPlaceId, 
+                                 $IDOrderMagento, 
+                                 $storeID);
 
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
             $anymarketlog->setLogDesc('Order Updated: ' . $IDOrderMagento . ' ID Anymarket: ' . $JSON->marketPlaceId . ' Status: ' . $statusMage);
-            $anymarketlog->setStatus("1");
+            $anymarketlog->setStatus("0");
             $anymarketlog->setStores(array($storeID));
             $anymarketlog->save();
 
@@ -607,15 +613,15 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         }else{
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
             $anymarketlog->setLogDesc( $statusMage );
-            $anymarketlog->setLogId( $IDOrderMagento );
-            $anymarketlog->setStatus("1");
+            $anymarketlog->setLogId( $IDOrderMagento ); 
+            $anymarketlog->setStatus("0");
             $anymarketlog->save();
-            /*
-						$this->addMessageInBox(Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
-											   Mage::helper('db1_anymarket')->__('Error synchronizing order number: ')."Magento(".$IDOrderMagento.") <br/>".
-											   $statusMage,
-											   '');
-			*/
+/*
+            $this->addMessageInBox(Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
+                                   Mage::helper('db1_anymarket')->__('Error synchronizing order number: ')."Magento(".$IDOrderMagento.") <br/>".
+                                   $statusMage,
+                                   '');
+*/
         }
     }
 
@@ -641,8 +647,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $caracts = array("/", "-", ".");
                         $nfeTmp = str_replace($caracts, "", $CommentCurr );
                         $chaveAcID = substr( $nfeTmp, $nfeCount+4, 44);
-
                         $nfeID = $chaveAcID;
+
                         $date = substr( $CommentCurr, $emissaoCount+8, 19);
                         $dateTmp = str_replace("/", "-", $date );
                         $date = gmdate('Y-m-d\TH:i:s\Z', strtotime( $dateTmp ));
@@ -688,8 +694,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         $dateTrack = '';
 
         $shipmentCollection = Mage::getResourceModel('sales/order_shipment_collection')
-            ->setOrderFilter($Order)
-            ->load();
+                                                    ->setOrderFilter($Order)
+                                                    ->load();
         foreach ($shipmentCollection as $shipment){
             foreach($shipment->getAllTracks() as $tracknum){
                 $TrackNum = $tracknum->getNumber();
@@ -709,8 +715,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      *
      * @param $Order
      */
-    public function updateOrderAnyMarket($Order){
-        $storeID = $this->getCurrentStoreView();
+    public function updateOrderAnyMarket($storeID, $Order){
         $ImportOrderSession = Mage::getSingleton('core/session')->getImportOrdersVariable();
         if( $ImportOrderSession != 'false' ) {
             $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
@@ -719,11 +724,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $anymarketorderupdt = Mage::getModel('db1_anymarket/anymarketorders')->load($idOrder, 'nmo_id_order');
 
             if( ($ConfigOrder == 0) ||
-                ($anymarketorderupdt->getData('nmo_status_int') == 'Integrado') ||
+                ($anymarketorderupdt->getData('nmo_status_int') == 'Integrado') || 
                 ($anymarketorderupdt->getData('nmo_status_int') == 'ERROR 02')){
 
                 $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
-                $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
+                $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID); 
 
                 $headers = array(
                     "Content-type: application/json",
@@ -732,10 +737,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 );
 
                 if( ($anymarketorderupdt->getData('nmo_id_order') != null) && ($anymarketorderupdt->getData('nmo_id_anymarket') != null) ){
-                    $statuAM = $this->getStatusMageToAnyMarketOrderConfig($status);
+                    $statuAM = $this->getStatusMageToAnyMarketOrderConfig($storeID, $status);
                     if (strpos($statuAM, 'ERROR:') === false) {
                         $params = array(
-                            "status" => $statuAM
+                          "status" => $statuAM
                         );
 
                         $invoiceData = $this->getInvoiceOrder($Order);
@@ -768,7 +773,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             $anymarketlog->setLogId( $idOrder );
                             $anymarketlog->setLogJson( json_encode($returnOrder['json']) );
                             $anymarketlog->setStores(array($storeID));
-                            $anymarketlog->setStatus("1");
+                            $anymarketlog->setStatus("0");
                             $anymarketlog->save();
                         }else{
                             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
@@ -776,13 +781,13 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             $anymarketlog->setLogId( $idOrder );
                             $anymarketlog->setLogJson('');
                             $anymarketlog->setStores(array($storeID));
-                            $anymarketlog->setStatus("1");
+                            $anymarketlog->setStatus("0");
                             $anymarketlog->save();
                         }
                     }else{
                         if($ConfigOrder == 0){
                             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                            $anymarketlog->setStatus("1");
+                            $anymarketlog->setStatus("0");
                             $anymarketlog->setLogDesc( $statuAM );
                             $anymarketlog->setLogId( $idOrder );
                             $anymarketlog->setStores(array($storeID));
@@ -790,7 +795,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         }
                     }
                 }else{
-                    $this->sendOrderToAnyMarket($idOrder, $HOST, $TOKEN);
+                    $this->sendOrderToAnyMarket($storeID, $idOrder, $HOST, $TOKEN);
                 }
             }
         }
@@ -804,8 +809,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @param $HOST
      * @param $TOKEN
      */
-    private function sendOrderToAnyMarket($idOrder, $HOST, $TOKEN){
-        $storeID = $this->getCurrentStoreView();
+    private function sendOrderToAnyMarket($storeID, $idOrder, $HOST, $TOKEN){
         $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
         if($ConfigOrder == 0){
             $Order = Mage::getModel('sales/order')->setStoreId($storeID)->loadByIncrementId( $idOrder );
@@ -846,9 +850,9 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
             $statusOrder = $Order->getStatus();
             if($statusOrder == 'pending'){
-                $statuAM = $this->getStatusMageToAnyMarketOrderConfig('new');
+                $statuAM = $this->getStatusMageToAnyMarketOrderConfig($storeID, 'new');
             }else{
-                $statuAM = $this->getStatusMageToAnyMarketOrderConfig($statusOrder);
+                $statuAM = $this->getStatusMageToAnyMarketOrderConfig($storeID, $statusOrder);
             }
 
             if( (strpos($statuAM, 'ERROR:') === false) && ($statuAM != '') ) {
@@ -876,11 +880,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     ),
                     "items" => $orderedProductIds,
                     "payments" => array(
-                        array(
-                            "method" => $payment->getMethodInstance()->getTitle(),
-                            "status" => "",
-                            "value" => $Order->getBaseGrandTotal()
-                        ),
+                                    array(
+                                        "method" => $payment->getMethodInstance()->getTitle(),
+                                        "status" => "",
+                                        "value" => $Order->getBaseGrandTotal()
+                                    ),
                     ),
                     "discount" => $Order->getDiscountAmount(),
                     "freight" => $Order->getShippingAmount(),
@@ -922,13 +926,13 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     $anymarketorders->setNmoDescError('');
                     $anymarketorders->setNmoIdAnymarket( $retOrderJSON->marketPlaceId );
                     $anymarketorders->setNmoIdSeqAnymarket( $retOrderJSON->id );
-
+                    
                     $anymarketlog->setLogId( $retOrderJSON->marketPlaceId );
                 }
 
                 $anymarketlog->setStores(array($storeID));
                 $anymarketlog->setLogJson( $returnOrder['json'] );
-                $anymarketlog->setStatus("1");
+                $anymarketlog->setStatus("0");
                 $anymarketlog->save();
 
             }else{
@@ -953,9 +957,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      *
      * @return int
      */
-    public function listOrdersFromAnyMarketMagento(){
-        $storeID = $this->getCurrentStoreView();
-
+    public function listOrdersFromAnyMarketMagento($storeID){
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
         $STATUSIMPORT = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_stauts_order_field', $storeID);
@@ -979,7 +981,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                 $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('Error on import order from anymarket '). $returnOrder['return'] );
-                $anymarketlog->setStatus("1");
+                $anymarketlog->setStatus("0");
                 $anymarketlog->save();
             }else {
                 $JsonReturn = $returnOrder['return'];

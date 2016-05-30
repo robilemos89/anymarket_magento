@@ -63,7 +63,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketbrands_Grid extends Mage_Adminhtml_
     {
         $store_id = $this->_getStore();
         Mage::app()->setCurrentStore($store_id);
-        $store_id = Mage::app()->getStore()->getId();
+        $store_id = Mage::helper('db1_anymarket')->getCurrentStoreView();
         Mage::getSingleton('core/session')->setStoreBrandVariable($store_id);
         $collection = Mage::getModel('db1_anymarket/anymarketbrands')
             ->getCollection();

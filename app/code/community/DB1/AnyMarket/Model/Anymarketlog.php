@@ -69,11 +69,40 @@ class DB1_AnyMarket_Model_Anymarketlog extends Mage_Core_Model_Abstract
         parent::_beforeSave();
 
         if( strpos($this->getLogDesc(), "Error Curl: <url> malformed") === false ) {
-            $now = Mage::getSingleton('core/date')->gmtDate();
-            if ($this->isObjectNew()) {
-                $this->setCreatedAt($now);
+
+            $stores = $this->getStores();
+            if( $stores != null) {
+                if (is_array($stores)) {
+                    $storeID = reset($stores);
+                }
+
+                $nivelLogs = Mage::getStoreConfig('anymarket_section/anymarket_logs_group/anymarket_log_nivel_field', $storeID);
+                if ((int)$nivelLogs == 0) {
+                    $this->_dataSaveAllowed = false;
+                } elseif ((int)$nivelLogs == 1) {
+                    if ((int)$this->getStatus() == 1) {
+                        $now = Mage::getSingleton('core/date')->gmtDate();
+                        if ($this->isObjectNew()) {
+                            $this->setCreatedAt($now);
+                        }
+                        $this->setUpdatedAt($now);
+                    } else {
+                        $this->_dataSaveAllowed = false;
+                    }
+                } else {
+                    $now = Mage::getSingleton('core/date')->gmtDate();
+                    if ($this->isObjectNew()) {
+                        $this->setCreatedAt($now);
+                    }
+                    $this->setUpdatedAt($now);
+                }
+            }else{
+                $now = Mage::getSingleton('core/date')->gmtDate();
+                if ($this->isObjectNew()) {
+                    $this->setCreatedAt($now);
+                }
+                $this->setUpdatedAt($now);
             }
-            $this->setUpdatedAt($now);
         }else {
             $this->_dataSaveAllowed = false;
         }

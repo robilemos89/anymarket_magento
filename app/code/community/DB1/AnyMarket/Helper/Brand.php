@@ -7,9 +7,7 @@ class DB1_AnyMarket_Helper_Brand extends DB1_AnyMarket_Helper_Data
      *
      * @access public
      */
-    public function getBrands(){
-        $storeID = $this->getCurrentStoreView();
-
+    public function getBrands($storeID){
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
@@ -18,6 +16,7 @@ class DB1_AnyMarket_Helper_Brand extends DB1_AnyMarket_Helper_Data
             "gumgaToken: ".$TOKEN
         );
 
+        $retCountBrand = 0;
         $startRec = 0;
         $countRec = 1;
         while ($startRec <= $countRec) {
@@ -36,6 +35,8 @@ class DB1_AnyMarket_Helper_Brand extends DB1_AnyMarket_Helper_Data
                     $mBrands->setStatus("1");
                     $mBrands->setStores(array($storeID));
                     $mBrands->save();
+
+                    $retCountBrand++;
                 }
             } else {
                 $startRec = 1;
@@ -48,6 +49,7 @@ class DB1_AnyMarket_Helper_Brand extends DB1_AnyMarket_Helper_Data
                 $anymarketlog->save();
             }
         }
+        return $retCountBrand;
 
     }
 

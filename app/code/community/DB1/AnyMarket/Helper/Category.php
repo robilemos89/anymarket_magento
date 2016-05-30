@@ -261,8 +261,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
     /**
      * get all root category of AM
      */
-    public function getCategories(){
-        $storeID = $this->getCurrentStoreView();
+    public function getCategories($storeID){
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
@@ -272,6 +271,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
             "gumgaToken: ".$TOKEN
         );
 
+        $resCountCateg = 0;
         $startRec = 0;
         $countRec = 1;
         $arrOrderCod = null;
@@ -310,12 +310,15 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
                         $anymarketcategoriesUpdt->save();
                     }
 
-                    $this->getChildCat($HOST, $headers, $category->id, $IDCat, $storeID);
+                    $resCountCateg += $this->getChildCat($HOST, $headers, $category->id, $IDCat, $storeID);
+                    $resCountCateg++;
                 }
 
             }
 
         }
+
+        return $resCountCateg;
 /*
         if(!empty($this->arrNewCateg) ){
             $allCategs = Mage::getModel('db1_anymarket/anymarketcategories')->getCollection();
@@ -337,10 +340,13 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
      * @param $catID
      * @param $IDCatRoot
      * @param $id_store
+     *
+     * @return integer
      */
     private function getChildCat($HOST, $headers, $catID, $IDCatRoot, $id_store){
         $returnCatSpecific = $this->CallAPICurl("GET", $HOST."/rest/api/v2/categories/".$catID, $headers, null);
         $CatSpecifivJSON = $returnCatSpecific['return'];
+        $retCategCount = 0;
         if($returnCatSpecific['error'] == '0'){
             if( isset($CatSpecifivJSON->children) ){
                 foreach ($CatSpecifivJSON->children as $catChild) {
@@ -360,7 +366,8 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
                         $anymarketcategoriesUpdt->save();
                     }
 
-                    $this->getChildCat($HOST, $headers, $catChild->id, $catChild->id, $id_store);
+                    $retCategCount += $this->getChildCat($HOST, $headers, $catChild->id, $catChild->id, $id_store);
+                    $retCategCount++;
                 }
             }
         }else{
@@ -370,6 +377,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
             $anymarketlog->setStatus("1");
             $anymarketlog->save();
         }
+        return $retCategCount;
     }
 
 

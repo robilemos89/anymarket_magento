@@ -51,8 +51,8 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
             'special_to_date' => null,
             'custom_design_from' => null,
             'custom_design_to' => null,
-            'description' =>  'teste',
-            'short_description' =>  'teste',
+            'description' =>  '',
+            'short_description' =>  '.',
             'meta_keyword' => null,
             'custom_layout_update' => null,
             'is_salable' =>  '1',
@@ -160,9 +160,11 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
                 }
             }
 
+            Mage::app()->setCurrentStore(Mage::getModel('core/store')->load(Mage_Core_Model_App::ADMIN_STORE_ID));
             $productMG = Mage::getModel('catalog/product')->loadByAttribute('sku', $product->getSku());
             $productMG->addImageToMediaGallery( $filepath, $attrIMG, false, false);
             $productMG->save();
+            Mage::app()->setCurrentStore( $this->getCurrentStoreView() );
         }
 
     }
@@ -175,8 +177,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
      * @param array $AttributeIds
      * @return Mage_Catalog_Model_Product
      */
-    public function createConfigurableProduct($dataProdConfig = array() , $simpleProducts = array(), $AttributeIds = array()){
-        $storeID = $this->getCurrentStoreView();
+    public function createConfigurableProduct($storeID, $dataProdConfig = array() , $simpleProducts = array(), $AttributeIds = array()){
         $confProduct = Mage::getModel('catalog/product')->setSku($dataProdConfig['sku']);
         $confProduct->setTypeId('configurable');
 
@@ -209,19 +210,15 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
 
         $confProduct->setStoreId($storeID)
                      ->setAttributeSetId( Mage::getModel('catalog/product')->getDefaultAttributeSetId() )
-                     ->setStockData($dataProdConfig['stock'])
-                     ->setPrice($dataProdConfig['price'])
-                     ->setName($dataProdConfig['name'])
-                     ->setShortDescription($dataProdConfig['short'])
-                     ->setDescription($dataProdConfig['description'])
                      ->setCategoryIds(array(2,3,4))
                      ->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH)
-                     ->setBrand($dataProdConfig['brand'])
                      ->setStatus(1)
-                     ->setTaxClassId(0)
-                     ->setIdAnymarket( $dataProdConfig['id_anymarket'] )
-                     ->setCategoriaAnymarket( $dataProdConfig['categoria_anymarket'] )
-                     ->save();
+                     ->setTaxClassId(0);
+
+        foreach ($dataProdConfig as $key => $value) {
+            $confProduct->setData($key, $value);
+        }
+        $confProduct->save();
 
         $sku = $dataProdConfig['sku'];
         foreach ($dataProdConfig['images'] as $image) {
@@ -240,8 +237,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
      * @param array $AttributeIds
      * @return Mage_Catalog_Model_Product
      */
-    public function updateConfigurableProduct($idProd, $dataProdConfig = array() , $simpleProducts = array(), $AttributeIds = array()){
-        $storeID = $this->getCurrentStoreView();
+    public function updateConfigurableProduct($storeID, $idProd, $dataProdConfig = array() , $simpleProducts = array(), $AttributeIds = array()){
         $confProduct = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $idProd );
         $confProduct->setTypeId('configurable');
 
@@ -269,18 +265,15 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
         $confProduct->setCanSaveConfigurableAttributes(true);
         $confProduct->setStoreId($storeID)
                      ->setAttributeSetId( Mage::getModel('catalog/product')->getDefaultAttributeSetId() )
-                     ->setStockData($dataProdConfig['stock'])
-                     ->setPrice($dataProdConfig['price'])
-                     ->setName($dataProdConfig['name'])
-                     ->setShortDescription($dataProdConfig['short'])
-                     ->setDescription($dataProdConfig['description'])
                      ->setCategoryIds(array(2,3,4))
                      ->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH)
-                     ->setBrand($dataProdConfig['brand'])
                      ->setStatus(1)
-                     ->setTaxClassId(0)
-                     ->setIdAnymarket( $dataProdConfig['id_anymarket'] )
-                     ->save();
+                     ->setTaxClassId(0);
+
+        foreach ($dataProdConfig as $key => $value) {
+            $confProduct->setData($key, $value);
+        }
+        $confProduct->save();
 
         return $confProduct;
     }

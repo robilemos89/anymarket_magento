@@ -63,8 +63,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketproductsController extends DB1_
     public function listProdsAction()
     {
         $storeID = Mage::getSingleton('core/session')->getStoreListProdVariable();
-        Mage::app()->setCurrentStore($storeID);
-        Mage::helper('db1_anymarket/product')->massUpdtProds();
+        Mage::helper('db1_anymarket/product')->massUpdtProds($storeID);
         $this->_redirect('*/*/');
 
     }
@@ -247,76 +246,6 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketproductsController extends DB1_
         $this->_redirect('*/*/index');
     }
 
-
-    /**
-     * import anymarket products - action
-     *
-     * @access public
-     * @return void
-     * 
-     */
-    public function importProdSincAction()
-    {
-        $anymarketproductsIds = $this->getRequest()->getParam('anymarketproducts');
-        if (!is_array($anymarketproductsIds)) {
-            Mage::getSingleton('adminhtml/session')->addError(
-                Mage::helper('db1_anymarket')->__('Por favor selecione os produtos para importar.')
-            );
-        } else {
-            $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', Mage::app()->getStore()->getId());
-            if($typeSincProd == 1){
-                foreach ($anymarketproductsIds as $anymarketproductsId) {
-                    $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts');
-                    $anymarketproducts->load($anymarketproductsId);
-                    Mage::helper('db1_anymarket/queue')->addQueue($anymarketproducts->getNmpId(), 'IMP', 'PRODUCT');
-                }
-                Mage::getSingleton('adminhtml/session')->addSuccess(
-                    Mage::helper('db1_anymarket')->__('Total %d products were added to the queue.', count($anymarketproductsIds))
-                );
-            }else{
-                Mage::getSingleton('adminhtml/session')->addError(
-                    Mage::helper('db1_anymarket')->__('Integration Products "AnyMarket for Magento" marked as NOT')
-                );
-            }
-        }
-        $this->_redirect('*/*/index');
-    }
-
-
-    /**
-     * export magento products - action
-     *
-     * @access public
-     * @return void
-     * 
-     */
-    public function exportProdSincAction()
-    {
-        $anymarketproductsIds = $this->getRequest()->getParam('anymarketproducts');
-        if (!is_array($anymarketproductsIds)) {
-            Mage::getSingleton('adminhtml/session')->addError(
-                Mage::helper('db1_anymarket')->__('Por favor selecione os produtos para exportar.')
-            );
-        } else {
-            $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', Mage::app()->getStore()->getId());            
-            if($typeSincProd == 0){
-                foreach ($anymarketproductsIds as $anymarketproductsId) {
-                    $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts');
-                    $anymarketproducts->load($anymarketproductsId);
-                    Mage::helper('db1_anymarket/queue')->addQueue($anymarketproducts->getNmpId(), 'EXP', 'PRODUCT');
-                }
-                Mage::getSingleton('adminhtml/session')->addSuccess(
-                    Mage::helper('db1_anymarket')->__('Total %d products were added to the queue.', count($anymarketproductsIds))
-                );
-            }else{
-                Mage::getSingleton('adminhtml/session')->addError(
-                    Mage::helper('db1_anymarket')->__('Integration Products "Magento for Anymarket" marked as NOT')
-                );
-            }
-        }
-        $this->_redirect('*/*/index');
-    }
-
     /**
      * mass sincronize anymarket products - action
      *
@@ -343,12 +272,11 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketproductsController extends DB1_
                     $storeID = $anymarketproducts->getStoreId();
                 }
 
-                Mage::app()->setCurrentStore($storeID);
                 $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
                 if($typeSincProd == 1){
-                    Mage::helper('db1_anymarket/queue')->addQueue($anymarketproducts->getNmpId(), 'IMP', 'PRODUCT');
+                    Mage::helper('db1_anymarket/queue')->addQueue($storeID, $anymarketproducts->getNmpId(), 'IMP', 'PRODUCT');
                 }else{
-                    Mage::helper('db1_anymarket/queue')->addQueue($anymarketproducts->getNmpId(), 'EXP', 'PRODUCT'); 
+                    Mage::helper('db1_anymarket/queue')->addQueue($storeID, $anymarketproducts->getNmpId(), 'EXP', 'PRODUCT');
                 }
             }
             Mage::getSingleton('adminhtml/session')->addSuccess(

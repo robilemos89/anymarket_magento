@@ -9,7 +9,7 @@ class DB1_AnyMarket_IndexController extends Mage_Core_Controller_Front_Action {
 			$anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
 			$anymarketlog->setLogDesc( 'Callback received');
 			$anymarketlog->setLogJson(file_get_contents('php://input'));
-			$anymarketlog->setStatus("1");
+			$anymarketlog->setStatus("0");
 			$anymarketlog->save();
 			sleep(rand(5,25));
 
@@ -58,7 +58,7 @@ class DB1_AnyMarket_IndexController extends Mage_Core_Controller_Front_Action {
 							);
 
 							$JSON = json_encode($listTransmissions);
-							$transRet = Mage::helper('db1_anymarket/product')->getSpecificFeedProduct(json_decode($JSON), $headers, $HOST, $storeID);
+							$transRet = Mage::helper('db1_anymarket/product')->getSpecificFeedProduct($storeID, json_decode($JSON), $headers, $HOST);
 
 							echo $transRet;
 						}
@@ -66,7 +66,7 @@ class DB1_AnyMarket_IndexController extends Mage_Core_Controller_Front_Action {
 						$anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
 						$anymarketlog->setLogDesc('OI nao encontrado');
 						$anymarketlog->setLogJson($value->content->oi);
-						$anymarketlog->setStatus("1");
+						$anymarketlog->setStatus("0");
 						$anymarketlog->save();
 
 						echo "OI NOT FOUND";

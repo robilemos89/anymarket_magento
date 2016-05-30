@@ -64,17 +64,17 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketbrandsController extends DB1_An
     public function sincBrandsAction()
     {
         $storeID = Mage::getSingleton('core/session')->getStoreBrandVariable();
-        Mage::app()->setCurrentStore($storeID);
+        $brandCount = Mage::helper('db1_anymarket/brand')->getBrands($storeID);
 
-        Mage::helper('db1_anymarket/brand')->getBrands();
-
-        Mage::getSingleton('adminhtml/session')->addSuccess(
-            Mage::helper('db1_anymarket')->__('Successfully synchronized brands.')
-        );
+        if( $brandCount > 0 ) {
+            Mage::getSingleton('adminhtml/session')->addSuccess(
+                Mage::helper('db1_anymarket')->__('Successfully synchronized ').$brandCount. Mage::helper('db1_anymarket')->__(' brands.')
+            );
+        }else{
+            Mage::getSingleton('adminhtml/session')->addError( Mage::helper('db1_anymarket')->__('No brand was synchronized.') );
+        }
         $this->_redirect('*/*/');
-
     }
-
 
     /**
      * grid action

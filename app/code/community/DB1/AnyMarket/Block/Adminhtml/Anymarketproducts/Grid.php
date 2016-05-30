@@ -34,7 +34,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid extends Mage_Adminhtm
         parent::__construct();
         $this->setId('anymarketproductsGrid');
         $this->setDefaultSort('entity_id');
-        $this->setDefaultDir('ASC');
+        $this->setDefaultDir('DESC');
         $this->setSaveParametersInSession(true);
         $this->setUseAjax(true);
     }
@@ -66,7 +66,8 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid extends Mage_Adminhtm
         $store_id = Mage::app()->getStore()->getId();
         Mage::getSingleton('core/session')->setStoreListProdVariable($store_id);
         $collection = Mage::getModel('db1_anymarket/anymarketproducts')
-            ->getCollection();
+            ->getCollection()
+            ->setOrder('entity_id','DESC');
         
         $this->setCollection($collection);
         return parent::_prepareCollection();

@@ -38,9 +38,9 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue extends Mage_Adminhtml_Block_
         $this->_removeButton('add');
 
         $this->_addButton('proc_cron', array(
-            'label'   => Mage::helper('db1_anymarket')->__('Processar Fila'),
+            'label'   => Mage::helper('db1_anymarket')->__('Process Queue'),
             'onclick' => "setLocation('{$this->getUrl('*/*/procCron')}')",
-            'class'   => 'add'
+            'class'   => 'scalable go'
         ));
 
     }

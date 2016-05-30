@@ -27,8 +27,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketlog extends Mage_Adminhtml_Block_Wi
      * constructor
      *
      * @access public
-     * @return void
-     * 
+     *
      */
     public function __construct()
     {
@@ -38,11 +37,11 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketlog extends Mage_Adminhtml_Block_Wi
         $this->_headerText         = Mage::helper('db1_anymarket')->__('Log Description');
         $this->_removeButton('add');
 
-        $this->_addButton('clean_log', array(
-            'label'   => Mage::helper('db1_anymarket')->__('Clean Logs'),
-            'onclick' => "setLocation('{$this->getUrl('*/*/cleanLogs')}')",
-            'class'   => 'back'
-        ));
+        //$this->_addButton('clean_log', array(
+        //    'label'   => Mage::helper('db1_anymarket')->__('Clean Logs'),
+        //    'onclick' => "setLocation('{$this->getUrl('*/*/cleanLogs')}')",
+        //    'class'   => 'back'
+        //));
 
     }
 }
