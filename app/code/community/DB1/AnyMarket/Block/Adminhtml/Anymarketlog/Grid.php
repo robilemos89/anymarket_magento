@@ -34,7 +34,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketlog_Grid extends Mage_Adminhtml_Blo
         parent::__construct();
         $this->setId('anymarketlogGrid');
         $this->setDefaultSort('entity_id');
-        $this->setDefaultDir('ASC');
+        $this->setDefaultDir('DESC');
         $this->setSaveParametersInSession(true);
         $this->setUseAjax(true);
     }
@@ -49,7 +49,8 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketlog_Grid extends Mage_Adminhtml_Blo
     protected function _prepareCollection()
     {
         $collection = Mage::getModel('db1_anymarket/anymarketlog')
-            ->getCollection();
+            ->getCollection()
+            ->setOrder('entity_id','DESC');
         
         $this->setCollection($collection);
         return parent::_prepareCollection();

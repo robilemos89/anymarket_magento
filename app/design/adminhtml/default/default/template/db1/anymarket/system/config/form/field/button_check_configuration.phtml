@@ -1,0 +1,17 @@
+<script type="text/javascript">
+    //<![CDATA[
+    function checkconfig() {
+        new Ajax.Request('<?php echo $this->getAjaxCheckConfigUrl() ?>', {
+            method:     'get',
+            parameters: {store: '<?php echo Mage::getModel('core/store')->load( Mage::getSingleton('adminhtml/config_data')->getStore() )->getId() ?>'},
+            onSuccess: function(transport){
+                if (transport.responseText){
+                    alert(transport.responseText);
+                }
+            }
+        });
+    }
+    //]]>
+</script>
+
+<?php echo $this->getButtonHtml() ?>

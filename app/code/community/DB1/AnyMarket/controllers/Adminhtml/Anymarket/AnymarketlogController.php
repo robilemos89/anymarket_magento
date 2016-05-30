@@ -210,7 +210,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketlogController extends DB1_AnyMa
 
         $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
         $anymarketlog->setLogDesc('Clean Logs by User, '.$contLogs.' cleaned');
-        $anymarketlog->setStatus("1");
+        $anymarketlog->setStatus("0");
         $anymarketlog->save();
 
         $this->_redirect('*/*/');

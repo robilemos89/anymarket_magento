@@ -7,7 +7,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
     protected $_shippingMethod = 'freeshipping_freeshipping';
     protected $_AdditionalInformation = 'anymarket';    
     protected $_paymentMethod = 'cashondelivery';
-    protected $_shippingDescription = 'À Combinar - A forma de entrega será definida no momento do fechamento do pedido.'; //ALTERADO POR JOSE EDUARDO
+    protected $_shippingDescription = 'Forma de Entrega - Anymarket.';
     protected $_billing = null;
     protected $_shipping = null;
     protected $_shippingValue = 0;

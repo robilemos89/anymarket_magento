@@ -18,8 +18,15 @@ class DB1_AnyMarket_Model_Cron{
     /**
      * execute the queue
      */
+    public function executeReindex(){
+        Mage::helper('db1_anymarket/queue')->processReindex();
+    }
+
+    /**
+     * execute the queue
+     */
     public function executeQueue(){
-        Mage::helper('db1_anymarket/queue')->processQueue();
+        Mage::helper('db1_anymarket/queue')->processQueue("CRON");
     }
 
     /**
@@ -30,7 +37,7 @@ class DB1_AnyMarket_Model_Cron{
 
         $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
         $anymarketlog->setLogDesc('Clean Logs by System, '.$contLogs.' cleaned');
-        $anymarketlog->setStatus("1");
+        $anymarketlog->setStatus("0");
         $anymarketlog->save();
     }
 

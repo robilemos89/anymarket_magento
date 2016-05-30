@@ -66,12 +66,15 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketcategoriesController extends DB
     public function sincCategsAction()
     {
         $storeID = Mage::getSingleton('core/session')->getStoreCategVariable();
-        Mage::app()->setCurrentStore($storeID);
-        Mage::helper('db1_anymarket/category')->getCategories();
+        $categCount = Mage::helper('db1_anymarket/category')->getCategories($storeID);
 
-        Mage::getSingleton('adminhtml/session')->addSuccess(
-            Mage::helper('db1_anymarket')->__('Successfully synchronized categories.')
-        );
+        if( $categCount > 0 ) {
+            Mage::getSingleton('adminhtml/session')->addSuccess(
+                Mage::helper('db1_anymarket')->__('Successfully synchronized ').$categCount. Mage::helper('db1_anymarket')->__(' categories.')
+            );
+        }else{
+            Mage::getSingleton('adminhtml/session')->addError( Mage::helper('db1_anymarket')->__('No category was synchronized.') );
+        }
         $this->_redirect('*/*/');
 
     }
@@ -93,7 +96,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketcategoriesController extends DB
             );
         }else{
             Mage::getSingleton('adminhtml/session')->addError(
-                Mage::helper('compiler')->__('0 categories exported, verify Catalog -> Manage Categories')
+                Mage::helper('compiler')->__('0 categories exported, verify in Catalog -> Manage Categories')
             );
         }
         $this->_redirect('*/*/');
