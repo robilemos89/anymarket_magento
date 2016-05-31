@@ -178,6 +178,15 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid extends Mage_Adminhtm
         $this->getMassactionBlock()->setFormFieldName('anymarketproducts');
 
         $this->getMassactionBlock()->addItem(
+            'delete',
+            array(
+                'label'=> Mage::helper('db1_anymarket')->__('Delete'),
+                'url'  => $this->getUrl('*/*/massDelete'),
+                'confirm'  => Mage::helper('db1_anymarket')->__('Are you sure?')
+            )
+        );
+
+        $this->getMassactionBlock()->addItem(
             'sincronizar',
             array(
                 'label'=> Mage::helper('db1_anymarket')->__('Synchronize'),
