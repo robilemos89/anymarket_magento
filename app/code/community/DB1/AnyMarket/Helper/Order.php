@@ -584,7 +584,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 }
             }
 
-            if($stateMage != Mage_Sales_Model_Order::STATE_NEW){
+            if($statusMage != Mage_Sales_Model_Order::STATE_NEW){
                 if($stateMage == Mage_Sales_Model_Order::STATE_COMPLETE){
                     $history = $order->addStatusHistoryComment('Finalizado pelo AnyMarket.', false);
                     $history->setIsCustomerNotified(false);

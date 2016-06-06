@@ -46,6 +46,8 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
             $arrValueStore = array_values($anymarketQueue->getStoreId());
             $storeID = array_shift($arrValueStore);
 
+            $storeID = ($storeID != null && $storeID != "0") ? $storeID : 1;
+
             $cronEnabled = Mage::getStoreConfig('anymarket_section/anymarket_cron_group/anymarket_queue_field', $storeID);
             if($cronEnabled == '1' || $typeExec == "FORCE") {
                 $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
