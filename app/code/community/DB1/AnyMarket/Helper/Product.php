@@ -875,7 +875,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $attributesConf = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product); 
 
                 foreach($childProducts as $child) {
-                    $SimpleConfigProd = Mage::getModel('catalog/product')->load($child->getId());
+                    $SimpleConfigProd = Mage::getModel('catalog/product')->setStoreId($storeID)->load($child->getId());
 
                     if ($Weight == "") {
                         $Weight = $SimpleConfigProd->getWeight();
@@ -2043,7 +2043,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 $sku  = $product->getSku();
                                 $IDProd  = $product->getId();
 
-                                $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->load($sku ,'nmp_sku');
+                                $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->load($IDProd ,'nmp_id');
                                 $anymarketproducts->setNmpId( $IDProd );
                                 $anymarketproducts->setNmpSku( $sku );
                                 $anymarketproducts->setNmpName( $name );
