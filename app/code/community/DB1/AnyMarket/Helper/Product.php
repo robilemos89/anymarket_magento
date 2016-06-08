@@ -106,6 +106,38 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
     }
 
     /**
+     * get product by sku in anymarket because dont have endpoint for this
+     *
+     * @param $sku
+     * @param $HOST
+     * @param $header
+     * @return string
+     */
+    private function getProductBySKUInAnymarket( $sku, $HOST, $header ){
+        $returnProd = $this->CallAPICurl("GET", $HOST."/v2/products/", $header, null);
+
+        if($returnProd['error'] != '1'){
+            $currIDProd = "";
+            $JSONProds = $returnProd['return'];
+            foreach ($JSONProds->content as $JSONProduct) {
+                foreach ($JSONProduct->skus as $JSONSku) {
+                    if( $JSONSku->partnerId == $sku ){
+                        $currIDProd = $JSONProduct->id;
+                        break;
+                    }
+                }
+                if( $currIDProd != "" ){
+                    break;
+                }
+            }
+
+            array_push($returnProd, array("id" => $currIDProd) );
+        }
+
+        return $returnProd;
+    }
+
+    /**
      * get decription by configuration
      *
      * @param $product
@@ -1168,7 +1200,25 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }
 
                     }else{
-                        $this->saveLogsProds($storeID, "1", $returnProd, $product);
+
+                        if (strpos($returnProd['return'], 'Duplicidade de SKU: O SKU informado') === false) {
+                            $this->saveLogsProds($storeID, "1", $returnProd, $product);
+                        }else{
+                            $bindProds  = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_bind_product_field', $storeID);
+                            if( $bindProds == '1' ) {
+                                $currentProdDup = $this->getProductBySKUInAnymarket($product->getSku(), $HOST, $headers);
+
+                                if ($returnProd['error'] != '1') {
+                                    $productForSave = Mage::getModel('catalog/product')->setStoreId($storeID)->load($product->getId());
+                                    $productForSave->setIdAnymarket( $currentProdDup["id"] );
+                                    $productForSave->save();
+                                } else {
+                                    $returnProd['error'] = '1';
+                                    $returnProd['return'] = $currentProdDup['return'];
+                                    $this->saveLogsProds($storeID, "1", $returnProd, $product);
+                                }
+                            }
+                        }
                     }
 
                 }else{

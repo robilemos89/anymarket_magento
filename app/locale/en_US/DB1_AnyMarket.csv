@@ -17,6 +17,8 @@
 "Select how you will be treated to their size AnyMarket.","Select how you will be treated to their size AnyMarket."
 "Unit of measurement","Unit of measurement"
 "Atribute set","Atribute set"
+"Relate duplicate products","Relate duplicate products"
+"With this marked parameter, when a product with a sku in Anymarket, it will be automatically connected.","With this marked parameter, when a product with a sku in Anymarket, it will be automatically connected."
 "Successfully exported ","Successfully exported "
 " categories."," categories."
 "Check Configuration","Check Configuration"
