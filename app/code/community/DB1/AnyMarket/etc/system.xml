@@ -450,7 +450,7 @@
                         </anymarket_atribute_set_field>
 
                         <anymarket_bind_product_field translate="label comment">
-                            <label>Relate duplicate products</label>
+                            <label>Associate duplicate products</label>
                             <comment>With this marked parameter, when a product with a sku in Anymarket, it will be automatically connected.</comment>
                             <sort_order>5</sort_order>
                             <show_in_default>0</show_in_default>

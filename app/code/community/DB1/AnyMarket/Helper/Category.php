@@ -174,6 +174,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
             "name" => $name,
             "partnerId" => $id,
             "parent" => array("id" => $IdParent),
+            "priceFactor" => 1,
             "calculatedPrice" => true
         );
 
