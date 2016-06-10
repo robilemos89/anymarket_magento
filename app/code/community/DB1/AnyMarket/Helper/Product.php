@@ -1083,30 +1083,29 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             foreach ($attributes as $attribute){
                 $attrCheck =  Mage::getModel('db1_anymarket/anymarketattributes')->load($attribute->getAttributeId(), 'nma_id_attr');
                 if($attrCheck->getData('nma_id_attr') != null){
-                    if($attrCheck->getData('status') == 1){
-                        if( $attribute->getAttributeCode() != $model ){
-                            if(!$this->checkArrayAttributes($ArrAttributes, "description", $attribute->getFrontendLabel())){
-                                if($confID == ""){
-                                    $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1);
-                                    if( $valAttr != null || $valAttr != '' ){
-                                        $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $valAttr);
-                                        $contIndexAttr = $contIndexAttr+1;
-                                    }
-                                }else{
-                                    foreach ($attributesConf as $attributeConf){
-                                        if(!in_array($attribute->getAttributeCode(), $attributeConf)){
-                                            if(!$this->checkArrayAttributes($ArrAttributes, "description", $attribute->getFrontendLabel())){
-                                                $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1);
-                                                if( $valAttr != null || $valAttr != '' ){
-                                                    $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $valAttr);
-                                                    $contIndexAttr = $contIndexAttr+1;
-                                                }
-                                            }
+                    if( ($attrCheck->getData('status') == 1) &&
+                      ( $attribute->getAttributeCode() != $model ) &&
+                      (!$this->checkArrayAttributes($ArrAttributes, "description", $attribute->getFrontendLabel()))){
+                        if($confID == ""){
+                            $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1);
+                            if( $valAttr != null || $valAttr != '' ){
+                                $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $valAttr);
+                                $contIndexAttr = $contIndexAttr+1;
+                            }
+                        }else{
+                            foreach ($attributesConf as $attributeConf){
+                                if(!in_array($attribute->getAttributeCode(), $attributeConf)){
+                                    if(!$this->checkArrayAttributes($ArrAttributes, "description", $attribute->getFrontendLabel())){
+                                        $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1);
+                                        if( $valAttr != null || $valAttr != '' ){
+                                            $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $valAttr);
+                                            $contIndexAttr = $contIndexAttr+1;
                                         }
                                     }
                                 }
                             }
                         }
+
                     }
                 }
             }

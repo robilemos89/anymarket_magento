@@ -862,7 +862,7 @@
                 </anymarket_integration_order_group>
 
                 <anymarket_information_group translate="label" module="db1_anymarket">
-                    <label>Important informations</label>
+                    <label>About</label>
                     <sort_order>6</sort_order>
                     <show_in_default>0</show_in_default>
                     <show_in_website>0</show_in_website>
@@ -870,8 +870,10 @@
                     <comment>
                         <![CDATA[
                             <div>
-                                <h3>v. 2.5.2 Desenvolvido por<br> NovaPC - Tecnologia da Informação.</h3>
-                                <img src="http://novapc.com.br/images/logo.png" alt="Smiley face" height="200" width="300">
+                                <h2>v. 2.5.2</h2>
+                                <hr>
+                                <h3>Desenvolvido por<br> NovaPC - Tecnologia da Informação.</h3>
+                                <img src="http://novapc.com.br/images/logo.png" alt="NovaPC" height="100" width="150">
                                 <br>
                                 <br>
                                 Site: <a href="http://www.novapc.com.br/" target="_blank">www.novapc.com.br/</a>
@@ -879,6 +881,10 @@
                                 E-mail: novapc@novapc.com.br
                                 <br>
                                 Telefone: 14-2104-5600
+                                <br>
+                                <br>
+                                <h3>Mantido por Anymarket.</h3>
+                                <img src="http://anymarket.com.br/assets/img/logo.png" alt="Anymarket">
                                 <br>
                                 <b>Acesse o github do projeto: <a target="_blank" href="https://github.com/AnyMarket/magento">https://github.com/AnyMarket/magento</a></b>
                             </div>
