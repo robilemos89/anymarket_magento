@@ -34,6 +34,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
         }
         $fItem = true;
         $cCateg = 0;
+        $ctrlCateg = array();
         foreach ($categories as $category) {
             $intAM = $category->getData('categ_integra_anymarket');
 
@@ -43,14 +44,20 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
             $fItem = false;
 
             if($intAM == 1){
-                $amCategParent = Mage::getModel('db1_anymarket/anymarketcategories')->load($category->getParentId(), 'nmc_id_magento');
-                if( $amCategParent->getData('nmc_cat_id') ){
-                    $retuCateg = $this->exportSpecificCategory($category, $amCategParent->getData('nmc_cat_id'), $storeID);
-                }else{
-                    $retuCateg = $this->exportSpecificCategory($category, null, $storeID);
-                }
-                if($retuCateg){
-                    $cCateg++;
+                $checkCategStr = $category->getPath()."_".$category->getParentId()."_".$category->getName();
+
+                if ( !in_array($checkCategStr, $ctrlCateg) ) {
+                    $amCategParent = Mage::getModel('db1_anymarket/anymarketcategories')->load($category->getParentId(), 'nmc_id_magento');
+                    if ($amCategParent->getData('nmc_cat_id')) {
+                        $retuCateg = $this->exportSpecificCategory($category, $amCategParent->getData('nmc_cat_id'), $storeID);
+                    } else {
+                        $retuCateg = $this->exportSpecificCategory($category, null, $storeID);
+                    }
+                    if ($retuCateg) {
+                        $cCateg++;
+
+                        array_push($ctrlCateg, $checkCategStr);
+                    }
                 }
             }
 
