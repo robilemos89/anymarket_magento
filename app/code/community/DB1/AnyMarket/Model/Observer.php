@@ -104,6 +104,13 @@ class DB1_AnyMarket_Model_Observer {
                                             Mage::helper('db1_anymarket/product')->sendImageSkuToAnyMarket($storeID, $product, array($arrSku));
                                         }
                                     }else{
+                                        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                                        $anymarketlog->setLogDesc('Produto possui registro de um Parent, porem esse parent não existe no Magento');
+                                        $anymarketlog->setLogId($product->getSku());
+                                        $anymarketlog->setStatus("1");
+                                        $anymarketlog->setStores(array($storeID));
+                                        $anymarketlog->save();
+
                                         //PRODUTO FILHO DE UM PAI QUE AGORA EH SIMPLES
                                         Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());        
 
