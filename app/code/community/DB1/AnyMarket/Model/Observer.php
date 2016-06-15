@@ -103,13 +103,17 @@ class DB1_AnyMarket_Model_Observer {
 
                                             Mage::helper('db1_anymarket/product')->sendImageSkuToAnyMarket($storeID, $product, array($arrSku));
                                         }
+                                    }else{
+                                        //PRODUTO FILHO DE UM PAI QUE AGORA EH SIMPLES
+                                        Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());        
+
+                                        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $stockQty, $product->getData($filter));
                                     }
                                 }
                             }else{
                                 //PRODUTO SIMPLES E OUTROS
                                 Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
 
-                                $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                                 Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $stockQty, $product->getData($filter));
                             }
 
