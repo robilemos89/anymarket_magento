@@ -68,17 +68,18 @@ class DB1_AnyMarket_Model_Observer {
                             }
                         }else{
                             $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
+
+                            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                            $ean    = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_ean_field', $storeID);
+
+                            if($filter == 'final_price'){
+                                $stkPrice = $product->getFinalPrice();
+                            }else{
+                                $stkPrice = $product->getData($filter);
+                            }
+
                             if($parentIds){
                                 //PRODUTO SIMPLES FILHO DE UM CONFIG
-                                $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
-                                $ean    = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_ean_field', $storeID);
-
-                                if($filter == 'final_price'){
-                                    $stkPrice = $product->getFinalPrice();
-                                }else{
-                                    $stkPrice = $product->getData($filter);
-                                }
-
                                 $attributeOptions = array();
                                 foreach ($parentIds as $parentId) {
                                     $productConfig = Mage::getModel('catalog/product')->load($parentId);
