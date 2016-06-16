@@ -425,10 +425,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
             if( !empty($variation) ){
                 if (in_array( $image->variationValue, $variation)) {
-                    $imagesGalleryAM[] = array('ctrl' => md5($crltImgAM . $idClient), 'img' => $image->standard_resolution, 'main' => $image->main);
+                    $imagesGalleryAM[] = array('ctrl' => md5($crltImgAM . $idClient), 'img' => $image->url, 'main' => $image->main);
                 }
             }else{
-                $imagesGalleryAM[] = array('ctrl' => md5($crltImgAM . $idClient), 'img' => $image->standard_resolution, 'main' => $image->main);
+                $imagesGalleryAM[] = array('ctrl' => md5($crltImgAM . $idClient), 'img' => $image->url, 'main' => $image->main);
             }
         }
 
