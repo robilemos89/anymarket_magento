@@ -1424,9 +1424,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     $anymarketlog->setStores(array($storeID));
                     $anymarketlog->save();
 
-                    $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->load($product->getIdAnymarket(), 'nmp_id');
+                    $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->getIdAnymarket(), 'nmp_id');
                     if ($anymarketproducts->getNmpId() == null) {
-                        $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->load($product->getId(), 'nmp_id');
+                        $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->getId(), 'nmp_id');
                     }
 
                     $anymarketproducts->setNmpId($product->getId());
@@ -2126,7 +2126,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         return $ProdCrt;
     }
 
-    public function massUpdtProds($storeID){
+    public function listAllProds($storeID){
         try {
             $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
             if($typeSincProd == 0){
@@ -2153,7 +2153,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 $sku  = $product->getSku();
                                 $IDProd  = $product->getId();
 
-                                $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->load($IDProd ,'nmp_id');
+                                $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($IDProd ,'nmp_id');
                                 $anymarketproducts->setNmpId( $IDProd );
                                 $anymarketproducts->setNmpSku( $sku );
                                 $anymarketproducts->setNmpName( $name );
@@ -2203,7 +2203,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $IDProd );
         if($product->getTypeID() != "configurable"){
             if( ($product->getStatus() == 1) && ($product->getData('integra_anymarket') == 1) ){
-                $anymarketproductsUpdt =  Mage::getModel('db1_anymarket/anymarketproducts')->load($product->getId(), 'nmp_id');
+                $anymarketproductsUpdt =  Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->getId(), 'nmp_id');
                 if( ($anymarketproductsUpdt->getData('nmp_status_int') != 'Não integrado (Magento)') ){
                     $sincronize = true;
                     if($product->getVisibility() == 1){ //nao exibido individualmente
