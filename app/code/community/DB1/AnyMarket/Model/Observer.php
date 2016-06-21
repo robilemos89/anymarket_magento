@@ -35,10 +35,12 @@ class DB1_AnyMarket_Model_Observer {
 
     /**
      * @param $observer
+	 * @return array
      */
     public function sendProdAnyMarket($observer) {
         $ExportProdSession = Mage::getSingleton('core/session')->getImportProdsVariable();
         if( $ExportProdSession != 'false' ) {
+
             $productOld = $observer->getEvent()->getProduct();
             $QuickCreate = Mage::getSingleton('core/session')->getQuickCreateProdVariable();
             if($QuickCreate == null || $QuickCreate == "" || $QuickCreate != $productOld->getSku() ){
@@ -46,6 +48,12 @@ class DB1_AnyMarket_Model_Observer {
 
                 $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
                 if($typeSincProd == 0){
+					if( Mage::registry('prod_save_observer_executed_'.$productOld->getId()) ){
+						Mage::unregister( 'prod_save_observer_executed_'.$productOld->getId() );
+						return $this;
+					}
+					Mage::register('prod_save_observer_executed_'.$productOld->getId(), true);
+
                     $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($productOld->getId());
                     if( $product->getData('integra_anymarket') == 1 && $product->getStatus() == 1 ){
 

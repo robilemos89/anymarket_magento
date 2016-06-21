@@ -2,13 +2,13 @@
 <config>
     <tabs>
         <anymarket_tab module="db1_anymarket" translate="label">
-            <label>DB1</label>
+            <label>AnyMarket</label>
             <sort_order>100</sort_order>
         </anymarket_tab>
     </tabs>
     <sections>
         <anymarket_section module="db1_anymarket" translate="label">
-            <label>AnyMarket</label>
+            <label>Configurações</label>
             <sort_order>200</sort_order>
             <show_in_default>0</show_in_default>
             <show_in_website>0</show_in_website>
