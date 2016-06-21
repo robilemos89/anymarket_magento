@@ -35,10 +35,12 @@ class DB1_AnyMarket_Model_Observer {
 
     /**
      * @param $observer
+	 * @return array
      */
     public function sendProdAnyMarket($observer) {
         $ExportProdSession = Mage::getSingleton('core/session')->getImportProdsVariable();
         if( $ExportProdSession != 'false' ) {
+
             $productOld = $observer->getEvent()->getProduct();
             $QuickCreate = Mage::getSingleton('core/session')->getQuickCreateProdVariable();
             if($QuickCreate == null || $QuickCreate == "" || $QuickCreate != $productOld->getSku() ){
@@ -46,6 +48,12 @@ class DB1_AnyMarket_Model_Observer {
 
                 $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
                 if($typeSincProd == 0){
+					if( Mage::registry('prod_save_observer_executed_'.$productOld->getId()) ){
+						Mage::unregister( 'prod_save_observer_executed_'.$productOld->getId() );
+						return $this;
+					}
+					Mage::register('prod_save_observer_executed_'.$productOld->getId(), true);
+
                     $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($productOld->getId());
                     if( $product->getData('integra_anymarket') == 1 && $product->getStatus() == 1 ){
 
@@ -68,17 +76,18 @@ class DB1_AnyMarket_Model_Observer {
                             }
                         }else{
                             $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
+
+                            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                            $ean    = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_ean_field', $storeID);
+
+                            if($filter == 'final_price'){
+                                $stkPrice = $product->getFinalPrice();
+                            }else{
+                                $stkPrice = $product->getData($filter);
+                            }
+
                             if($parentIds){
                                 //PRODUTO SIMPLES FILHO DE UM CONFIG
-                                $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
-                                $ean    = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_ean_field', $storeID);
-
-                                if($filter == 'final_price'){
-                                    $stkPrice = $product->getFinalPrice();
-                                }else{
-                                    $stkPrice = $product->getData($filter);
-                                }
-
                                 $attributeOptions = array();
                                 foreach ($parentIds as $parentId) {
                                     $productConfig = Mage::getModel('catalog/product')->load($parentId);
@@ -103,13 +112,24 @@ class DB1_AnyMarket_Model_Observer {
 
                                             Mage::helper('db1_anymarket/product')->sendImageSkuToAnyMarket($storeID, $product, array($arrSku));
                                         }
+                                    }else{
+                                        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                                        $anymarketlog->setLogDesc('Produto possui registro de um Parent, porem esse parent não existe no Magento');
+                                        $anymarketlog->setLogId($product->getSku());
+                                        $anymarketlog->setStatus("1");
+                                        $anymarketlog->setStores(array($storeID));
+                                        $anymarketlog->save();
+
+                                        //PRODUTO FILHO DE UM PAI QUE AGORA EH SIMPLES
+                                        Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());        
+
+                                        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $stockQty, $product->getData($filter));
                                     }
                                 }
                             }else{
                                 //PRODUTO SIMPLES E OUTROS
                                 Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
 
-                                $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                                 Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $stockQty, $product->getData($filter));
                             }
 

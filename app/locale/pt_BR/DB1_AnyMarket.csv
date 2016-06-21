@@ -19,7 +19,8 @@
 "AnyMarket Log","AnyMarket Log"
 "Check the configurations","Valide as Configurações"
 "Check Configuration","Verificar Configurações"
-
+"About","Sobre"
+"SKU to bond not found :","SKU para vinculo não encontrado: "
 "Contact the Anymarket for this information.","Entre em contato com o Anymarket para obter essa informação."
 "URL for access to AnyMarket.","URL da API para acesso ao AnyMarket."
 "Token necessary access to AnyMarket.","Token necessario acesso ao AnyMarket."
@@ -237,6 +238,8 @@
 "Sync Products","Sincronizar Produtos"
 "Products list","Listar Produtos"
 "Sync Orders","Sincronizar Pedidos"
+"Associate duplicate products","Relacionar produtos duplicados"
+"With this marked parameter, when a product with a sku in Anymarket, it will be automatically connected.","Com esse parametro marcado, quando houver um produto com um sku no Anymarket, ele sera relacionado automaticamente."
 "Orders list","Listar Pedidos"
 "There was an error updating the products.","Ocorreu um erro ao atualizar os produtos."
 "Total %d products successfully listed.","Total de %d produtos listados com sucesso."

@@ -670,6 +670,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     if( (strpos($CommentCurr, 'Notafiscal:') !== false) ) {
                         $endNF = strpos($CommentCurr, '<br/>');
                         $nfeID = substr( $CommentCurr, $notaFiscal+11, $endNF-11);
+
+                        if( $nfeID == "" ){
+                            $nfeID = $chaveAcID;
+                        }
                     }
                     $date = gmdate('Y-m-d\TH:i:s\Z');
                     break;
