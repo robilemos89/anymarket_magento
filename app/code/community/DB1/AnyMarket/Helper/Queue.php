@@ -85,7 +85,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                     $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID);
                     $anymarketproducts->load($IdItemQueue, 'nmp_id');
 
-                    $product = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $anymarketproducts->getNmpSku());
+                    $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $IdItemQueue );
                     if (($typImp == 'EXP') && ($typeSincProd == 0)) {
                         try {
                             $anymarketproducts->setStatus('1')->setIsMassupdate(true)->save();
