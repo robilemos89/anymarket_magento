@@ -21,6 +21,13 @@ class DB1_AnyMarket_IndexController extends Mage_Core_Controller_Front_Action {
 
 					if ($TOKEN != '') {
 						if ($value->type == 'ORDER') {
+
+							if( Mage::registry('callback_order_executed_'.$value->content->id ) ){
+								Mage::unregister( 'callback_order_executed_'.$value->content->id );
+								return $this;
+							}
+							Mage::register('callback_order_executed_'.$value->content->id, true);
+
 							$cache = Mage::app()->getCache();
 
 							$lastProcOrder = $cache->load('order_' . $value->content->id);
@@ -40,6 +47,7 @@ class DB1_AnyMarket_IndexController extends Mage_Core_Controller_Front_Action {
 
 								Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($value->content->id, "notoken", $storeID);
 							}
+							Mage::unregister( 'callback_order_executed_'.$value->content->id );
 						} elseif ($value->type == 'TRANSMISSION') {
 							$listTransmissions = array();
 
