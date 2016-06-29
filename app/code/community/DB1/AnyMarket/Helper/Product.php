@@ -113,36 +113,17 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $header
      * @return string
      */
-    private function getProductBySKUInAnymarket( $sku, $HOST, $header ){
-        $contCrtl = 0;
-        $totalItems = 0;
-        do {
-            $returnProd = $this->CallAPICurl("GET", $HOST."/v2/products/?offset=".$contCrtl, $header, null);
+    public function getProductBySKUInAnymarket( $sku, $HOST, $header ){
+        $returnProd = $this->CallAPICurl("GET", $HOST."/v2/products/?sku=".$sku, $header, null);
 
-            if($returnProd['error'] != '1'){
-                $currIDProd = "";
-                $JSONProds = $returnProd['return'];
-                $totalItems = $JSONProds->page->totalElements;
-                foreach ($JSONProds->content as $JSONProduct) {
-                    foreach ($JSONProduct->skus as $JSONSku) {
-                        if( isset($JSONSku->partnerId) &&  $JSONSku->partnerId == $sku ){
-                            $currIDProd = $JSONProduct->id;
-                            $returnProd = array( "id" => $currIDProd );
-                            break;
-                        }
-                    }
-                    if( $currIDProd != "" ){
-                        $contCrtl = 1;
-                        $totalItems = 0;
-                        break;
-                    }
-                }
-            }else{
-                $contCrtl = 1;
-                $totalItems = 0;
+        if($returnProd['error'] != '1'){
+            $JSON = json_decode(json_encode($returnProd['return']));
+            $skuAM = array_shift($JSON->content)->id;
+
+            if($skuAM != '') {
+                $returnProd = array( "id" => $skuAM );
             }
-            $contCrtl += 5;
-        } while ($contCrtl <= $totalItems);
+        }
 
         return $returnProd;
     }
@@ -1222,41 +1203,46 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             if( $bindProds == '1' ) {
 
                                 if($product->getTypeID() == "configurable") {
-                                    $firstItem = array_shift( Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product) );
+                                    //RELACIONA OS FILHOS
+                                    $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
 
-                                    $currentProdDup = $this->getProductBySKUInAnymarket($firstItem->getSku(), $HOST, $headers);
-                                    if ( isset($currentProdDup['id']) ) {
-                                        $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
-                                        if (is_array($childProducts)) {
-                                            $returnProd['error'] = '0';
-                                            foreach ($childProducts as $child) {
-                                                $productC = Mage::getModel('catalog/product')->setStoreId($storeID)->load($child->getId());
+                                    $idProdCh = null;
+                                    foreach ($childProducts as $child){
+                                        $currentProdDup = $this->getProductBySKUInAnymarket($child->getSku(), $HOST, $headers);
 
-                                                if ($productC->getIntegraAnymarket() != '1') {
-                                                    $productC->setIntegraAnymarket('1');
-                                                }
+                                        if ( isset($currentProdDup['id']) ) {
+                                            $currentProdDup['error'] = '0';
+                                            $idProdCh = $currentProdDup["id"];
 
-                                                $productC->setIdAnymarket($currentProdDup["id"]);
-                                                $productC->save();
+                                            $productC = Mage::getModel('catalog/product')->setStoreId($storeID)->load($child->getId());
 
-                                                $returnProd['return'] = Mage::helper('db1_anymarket')->__('SKU Related :') . $productC->getSku() . " - " . $currentProdDup["id"];
-                                                $this->saveLogsProds($storeID, "1", $returnProd, $product);
+                                            if ($productC->getIntegraAnymarket() != '1') {
+                                                $productC->setIntegraAnymarket('1');
                                             }
 
-                                            $productForSave = Mage::getModel('catalog/product')->setStoreId($storeID)->load($product->getId());
-                                            $productForSave->setIdAnymarket( $currentProdDup["id"] );
-                                            $productForSave->save();
+                                            $productC->setIdAnymarket($idProdCh);
+                                            $productC->save();
 
-                                            $returnProd['return'] = Mage::helper('db1_anymarket')->__('SKU Related :') . $productForSave->getSku() . " - " . $currentProdDup["id"];
-                                            $this->saveLogsProds($storeID, "1", $returnProd, $productForSave);
-
+                                            $currentProdDup['return'] = Mage::helper('db1_anymarket')->__('SKU Related :') . $productC->getSku() . " - " . $idProdCh;
+                                            $this->saveLogsProds($storeID, "1", $currentProdDup, $product);
+                                        }else{
+                                            $currentProdDup['error'] = '1';
+                                            $currentProdDup['return'] = Mage::helper('db1_anymarket')->__('SKU to bond not found :').$child->getSku();
+                                            $this->saveLogsProds($storeID, "1", $currentProdDup, $product);
                                         }
-                                    } else {
-                                        $currentProdDup['error'] = '1';
-                                        $currentProdDup['return'] = Mage::helper('db1_anymarket')->__('SKU to bond not found :').$product->getSku();
-                                        $this->saveLogsProds($storeID, "1", $currentProdDup, $product);
                                     }
 
+                                    if($idProdCh != null) {
+                                        $productForSave = Mage::getModel('catalog/product')->setStoreId($storeID)->load($product->getId());
+                                        $productForSave->setIdAnymarket($idProdCh);
+                                        $productForSave->save();
+
+                                        $currentProdDup['error'] = '0';
+                                        $currentProdDup['return'] = Mage::helper('db1_anymarket')->__('SKU Related :') . $productForSave->getSku() . " - " . $idProdCh;
+                                        $this->saveLogsProds($storeID, "1", $currentProdDup, $productForSave);
+
+                                        //$this->sendProductToAnyMarket($storeID, $productForSave->getId());
+                                    }
                                 }else{
                                     $currentProdDup = $this->getProductBySKUInAnymarket($product->getSku(), $HOST, $headers);
                                     if ( isset($currentProdDup['id']) ) {
@@ -1268,6 +1254,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                                         $returnProd['return'] = Mage::helper('db1_anymarket')->__('SKU Related :') . $productForSave->getSku() . " - " . $currentProdDup["id"];
                                         $this->saveLogsProds($storeID, "1", $returnProd, $productForSave);
+
+                                        //$this->sendProductToAnyMarket($storeID, $productForSave->getId());
                                     } else {
                                         $currentProdDup['error'] = '1';
                                         $currentProdDup['return'] = Mage::helper('db1_anymarket')->__('SKU to bond not found :').$product->getSku();
