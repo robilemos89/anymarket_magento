@@ -807,12 +807,23 @@
                             <show_in_store>2</show_in_store>
                         </anymarket_header_order_imp_field>
 
+                        <anymarket_create_reg_pay_field translate="label comment">
+                            <label>Create payment record when importing paid</label>
+                            <comment>By checking to yes, when it is imported into an application status paid in Anymarket, a record in Invoice will be created, remember to link a status that allows billing with PAGO.</comment>
+                            <sort_order>3</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        </anymarket_create_reg_pay_field>
+
                         <anymarket_stauts_order_field translate="label tooltip comment">
                             <label>Status Order</label>
                             <comment>Status of orders that must be imported.</comment>
                             <frontend_type>multiselect</frontend_type>
                             <source_model>db1_anymarket/system_config_source_orders_values</source_model>
-                            <sort_order>3</sort_order>
+                            <sort_order>5</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -821,7 +832,7 @@
                         <anymarket_header_am_mg_field>
                             <label>Anymarket para Magento</label>
                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>4</sort_order>
+                            <sort_order>6</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>2</show_in_store>
@@ -831,7 +842,7 @@
                             <label>Status Order (Anymarket to Magento)</label>
                             <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
                             <frontend_model>db1_anymarket/system_config_source_orders_statusammg_values</frontend_model>
-                            <sort_order>5</sort_order>
+                            <sort_order>6</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -841,7 +852,7 @@
                         <anymarket_header_mg_am_field>
                             <label>Magento para Anymarket</label>
                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>6</sort_order>
+                            <sort_order>7</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>2</show_in_store>
@@ -851,7 +862,7 @@
                             <label>Status Order (Magento to Anymarket)</label>
                             <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
                             <frontend_model>db1_anymarket/system_config_source_orders_statusmgam_values</frontend_model>
-                            <sort_order>7</sort_order>
+                            <sort_order>8</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>

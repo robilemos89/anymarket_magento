@@ -68,6 +68,8 @@
 "There was some error getting data Invoice or Tracking.","Houve algum erro ao obter os dados de Tracking ou Invoice."
 "Export Categories","Exportar Categorias"
 "Gram","Grama"
+"By checking to yes, when it is imported into an application status paid in Anymarket, a record in Invoice will be created, remember to link a status that allows billing with PAGO.","Ao marcar como sim, no momento que for importado um pedido do status pago no Anymarket, sera criado um registro em Fatura, lembre-se de vincular um status que permite faturamento com o PAGO."
+"Create payment record when importing paid","Criar registro de pagamento ao importar pago"
 "Clean Logs by User.","Logs limpo pelo Usuario."
 "Are you sure you want to export the categories?","Tem certeza de que deseja exportar as categorias?"
 "Already existing SKU in anymarket","SKU ja existente no Anymarket"

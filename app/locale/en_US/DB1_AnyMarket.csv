@@ -64,6 +64,8 @@
 "There was some error getting data Invoice or Tracking.","There was some error getting data Invoice or Tracking."
 "Anymarket Products was successfully saved","Anymarket Products was successfully saved"
 "successfully saved","successfully saved"
+"By checking to yes, when it is imported into an application status paid in Anymarket, a record in Invoice will be created, remember to link a status that allows billing with PAGO.","By checking to yes, when it is imported into an application status paid in Anymarket, a record in Invoice will be created, remember to link a status that allows billing with PAGO."
+"Create payment record when importing paid","Create payment record when importing paid"
 "Error synchronizing order number: ","Error synchronizing order number: "
 "Are you sure you want to export the categories?","Are you sure you want to export the categories?"
 "A queue is already in process.","A process is already in process."

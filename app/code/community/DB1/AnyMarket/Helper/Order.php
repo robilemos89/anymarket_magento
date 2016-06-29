@@ -538,9 +538,25 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
         if (strpos($statusMage, 'ERROR:') === false) {
             Mage::getSingleton('core/session')->setImportOrdersVariable('false');
-
             $order = Mage::getModel('sales/order')->loadByIncrementId( $IDOrderMagento );
+
+            //TODO VER SE EH PAGO, SE ESTA COM A FLAG, CASO SIM VALIDAR SE PODE RECEBER UM INVOICE E CRIAR
+            $createRegPay = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_create_reg_pay_field', $storeID);
             $itemsarray = null;
+            if( $createRegPay == "1" ){
+                if( $order->canInvoice() ){
+
+                    $orderItems = $order->getAllItems();
+                    foreach ($orderItems as $_eachItem) {
+                        $opid = $_eachItem->getId();
+                        $qty = $_eachItem->getQtyOrdered();
+                        $itemsarray[$opid] = $qty;
+                    }
+                    $nfeString = "Registro de Pagamento criado por Anymarket";
+                    Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
+                }
+            }
+
             if(isset($JSON->invoice)){
                 if( $order->canInvoice() ){
                     if(isset($JSON->invoice->accessKey) ) {
@@ -550,11 +566,13 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $DateTime = strtotime($dateNfe);
                         $fixedDate = date('d/m/Y H:i:s', $DateTime);
 
-                        $orderItems = $order->getAllItems();
-                        foreach ($orderItems as $_eachItem) {
-                            $opid = $_eachItem->getId();
-                            $qty = $_eachItem->getQtyOrdered();
-                            $itemsarray[$opid] = $qty;
+                        if($itemsarray == null) {
+                            $orderItems = $order->getAllItems();
+                            foreach ($orderItems as $_eachItem) {
+                                $opid = $_eachItem->getId();
+                                $qty = $_eachItem->getQtyOrdered();
+                                $itemsarray[$opid] = $qty;
+                            }
                         }
 
                         if (!$order->hasInvoices()) {
@@ -616,12 +634,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $anymarketlog->setLogId( $IDOrderMagento ); 
             $anymarketlog->setStatus("0");
             $anymarketlog->save();
-/*
-            $this->addMessageInBox(Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
-                                   Mage::helper('db1_anymarket')->__('Error synchronizing order number: ')."Magento(".$IDOrderMagento.") <br/>".
-                                   $statusMage,
-                                   '');
-*/
         }
     }
 
@@ -680,6 +692,9 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 }
             }
         }
+
+        //TODO ADICIONAR PARA VERIFICAR OS ENVIO TBM ATRAS DAS CONFIGURACOES DE NOTA FISCAL
+
 
         $retArr = array("number" => $nfeID, "date" => $date, "accessKey" => $chaveAcID);
         return $retArr;
