@@ -1025,17 +1025,15 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     array_push($arrProd, 'SKU ('.$prodSkuJ.')');
                 }
 
-                if ($product->getData('integra_anymarket') == 1 && $product->getStatus() == 1) {
-                    $ArrSimpleConfigProd[] = array(
-                        "price" => $stkPrice,
-                        "amount" => $stock->getQty(),
-                        "ean" => $product->getData($ean),
-                        "partnerId" => $prodSkuJ,
-                        "title" => $product->getName(),
-                        "idProduct" => $product->getData('id_anymarket'),
-                        "internalIdProduct" => $product->getId(),
-                    );
-                }
+                $ArrSimpleConfigProd[] = array(
+                    "price" => $stkPrice,
+                    "amount" => $stock->getQty(),
+                    "ean" => $product->getData($ean),
+                    "partnerId" => $prodSkuJ,
+                    "title" => $product->getName(),
+                    "idProduct" => $product->getData('id_anymarket'),
+                    "internalIdProduct" => $product->getId(),
+                );
             }
 
             
@@ -2182,31 +2180,50 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         }
     }
 
-    public function defineStockOfBundle($product){
-        $stockAt = 0;
-        $childBundle = $this->getBundledProductChildIds($product);
+    public function getStockPriceOfBundle($product){
+        $selectionCollection = $product->getTypeInstance(true)->getSelectionsCollection(
+            $product->getTypeInstance(true)->getOptionsIds($product), $product
+        );
 
-        foreach($childBundle as $child){
-            //pegar o stock do child e dividr pelo stock correspondente do bundle
-            // se for menor substituir o controle, caso maior ignorar
+        $stockAt = null;
+        $priceBundleProd = $product->getData('price');
+        $priceTot = 0;
+        foreach($selectionCollection as $child){
+            //GET STOCK
+            $requiredStock = $child->getData('selection_qty');
+            $realStock = $child->getStockItem()->getData('qty');
+
+            $tmpStock = (int)($realStock/$requiredStock);
+            if( $stockAt != null ) {
+                if ($tmpStock < $stockAt) {
+                    $stockAt = $tmpStock;
+                }
+            }else{
+                $stockAt = $tmpStock;
+            }
+
+            //GET PRICE
+            $priceType = $child->getData('selection_price_type');
+            $priceValue = $child->getData('selection_price_value');
+
+            if($priceValue > 0) {
+                //fixed
+                if ($priceType == '0') {
+                    $priceItem = ($requiredStock * $priceValue);
+                } else {
+                    $priceValue = ($priceValue / 100) * $priceBundleProd;
+                    $priceItem = ($requiredStock * $priceValue);
+                }
+                $priceTot += $priceItem;
+            }
 
         }
-    }
+        $retArray = array(
+            "price" => $priceTot + $priceBundleProd,
+            "stock" => $stockAt == null ? 0 : $stockAt
+        );
 
-    /**
-     * @param $product
-     * @return array|mixed
-     */
-    private function getBundledProductChildIds($product){
-        $childrenIds = [];
-        if ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE) {
-            $childrenIds = array_reduce(
-                $product->getTypeInstance(true)->getChildrenIds($product->getId()),
-                function (array $reduce, $value) {
-                    return array_merge($reduce, $value);
-                }, []);
-        }
-        return $childrenIds;
+        return $retArray;
     }
 
     /**
@@ -2282,11 +2299,20 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
                             $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
 
-                            if($product->getTypeID() != "bundle") {
-                                $this->defineStockOfBundle($product);
-                                //OBTER OS FILHOS E CALCULAR O STOQUE PARA ENVIAR PARA O AM
-                                //validar isAvailable()
-                                //$_product->getStockItem() - validar
+                            if($product->getTypeID() == "bundle") {
+                                $stockPriceBundle = $this->getStockPriceOfBundle($product);
+                                //OBTEM O STOCK DO ITEM BUNDLE
+                                if( $typeSincOrder == 0 ){
+                                    $QtdStock = null;
+                                }else{
+                                    $QtdStock = $stockPriceBundle["stock"];
+                                }
+
+                                if( $typeSincProd == 0 ){
+                                    $Price = $stockPriceBundle["price"];
+                                }else{
+                                    $Price = null;
+                                }
 
                             }else{
                                 if( $typeSincProd == 0 ){
