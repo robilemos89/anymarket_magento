@@ -2182,6 +2182,62 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         }
     }
 
+    public function defineStockOfBundle($product){
+        $stockAt = 0;
+        $childBundle = $this->getBundledProductChildIds($product);
+
+        foreach($childBundle as $child){
+            //pegar o stock do child e dividr pelo stock correspondente do bundle
+            // se for menor substituir o controle, caso maior ignorar
+
+        }
+    }
+
+    /**
+     * @param $product
+     * @return array|mixed
+     */
+    private function getBundledProductChildIds($product){
+        $childrenIds = [];
+        if ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE) {
+            $childrenIds = array_reduce(
+                $product->getTypeInstance(true)->getChildrenIds($product->getId()),
+                function (array $reduce, $value) {
+                    return array_merge($reduce, $value);
+                }, []);
+        }
+        return $childrenIds;
+    }
+
+    /**
+     * @param $idProd
+     * @return array
+     */
+    private function findBundledProductsWithThisChildProduct($idProd)
+    {
+        $bundles = array();
+        $products = Mage::getModel('catalog/product')
+            ->getCollection()
+            ->addFieldToFilter('type_id','bundle');
+
+        foreach($products as $product){
+            $children_ids_by_option = $product
+                ->getTypeInstance($product)
+                ->getChildrenIds($product->getId(),false);
+
+            $ids = array();
+            foreach($children_ids_by_option as $array){
+                $ids = array_merge($ids, $array);
+            }
+
+            if(in_array($idProd, $ids)){
+                $bundles[] = $product;
+            }
+        }
+
+        return $bundles;
+    }
+
     /**
      * @param $IDProd
      * @param $QtdStock
@@ -2214,23 +2270,41 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 "gumgaToken: ".$TOKEN
                             );
 
-                            $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
-                            if( $typeSincProd == 0 ){
-                                $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
-                                if($filter == 'final_price'){
-                                    $Price = $product->getFinalPrice();
-                                }else{
-                                    $Price = $product->getData($filter);
-                                }
-                            }else{
-                                $Price = null;
+
+                            //TODO VALIDAR SE ISSO NAO IMPACTARA EM NADA
+                            $bundles =  $this->findBundledProductsWithThisChildProduct($IDProd);
+                            foreach($bundles as $prodBund) {
+                                $this->updatePriceStockAnyMarket($storeID, $prodBund->getId(), null, null);
                             }
 
+
+                            //TRATAMENTO PARA BUNDLE
+                            $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
                             $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
-                            if( $typeSincOrder == 0 ){
-                                $QtdStock = null;
-                            }elseif( !is_numeric ( $QtdStock ) ){
-                                $QtdStock = null;
+
+                            if($product->getTypeID() != "bundle") {
+                                $this->defineStockOfBundle($product);
+                                //OBTER OS FILHOS E CALCULAR O STOQUE PARA ENVIAR PARA O AM
+                                //validar isAvailable()
+                                //$_product->getStockItem() - validar
+
+                            }else{
+                                if( $typeSincProd == 0 ){
+                                    $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                                    if($filter == 'final_price'){
+                                        $Price = $product->getFinalPrice();
+                                    }else{
+                                        $Price = $product->getData($filter);
+                                    }
+                                }else{
+                                    $Price = null;
+                                }
+
+                                if( $typeSincOrder == 0 ){
+                                    $QtdStock = null;
+                                }elseif( !is_numeric ( $QtdStock ) ){
+                                    $QtdStock = null;
+                                }
                             }
 
                             if( ($QtdStock != null) || ($Price != null) ){
