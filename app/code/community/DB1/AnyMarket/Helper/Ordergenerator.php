@@ -331,12 +331,15 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         $options = $product->getCustomOptions();
 
         $optionsByCode = array();
-
+        $bundleOptSelAttr = null;
         foreach ($options as $option)
         {
             $quoteOption = Mage::getModel('sales/quote_item_option')->setData($option->getData())
                 ->setProduct($option->getProduct());
 
+            if($quoteOption->getCode() ==  'bundle_selection_attributes' ) {
+                $bundleOptSelAttr = $quoteOption->getValue();
+            }
             $optionsByCode[$quoteOption->getCode()] = $quoteOption;
         }
 
@@ -350,7 +353,10 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         $stockItem->save();
 
         $options = $product->getTypeInstance(true)->getOrderOptions($product);
-
+        
+        if($bundleOptSelAttr != null) {
+            $options['bundle_selection_attributes'] = $bundleOptSelAttr;
+        }
         $orderItem = Mage::getModel('sales/order_item')
             ->setStoreId($this->_storeId)
             ->setQuoteItemId(0)

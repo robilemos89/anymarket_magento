@@ -152,7 +152,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @param $shippValue
      * @return integer
      */
-    private function create_order($anymarketordersSpec, $products, $customer, $IDAnyMarket, $IDSeqAnyMarket, $infoMetPag, $Billing, $Shipping, $shippValue, $storeID)
+    private function create_order($storeID, $anymarketordersSpec, $products, $customer, $IDAnyMarket, $IDSeqAnyMarket, $infoMetPag, $Billing, $Shipping, $shippValue, $ShippingDesc)
     {
         if( ($anymarketordersSpec->getData('nmo_id_anymarket') == null) ||
             ($anymarketordersSpec->getData('nmo_status_int') == "Não integrado (AnyMarket)") ||
@@ -170,6 +170,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $orderGenerator->setBillAddress($Billing);
             $orderGenerator->setCustomer($customer);
             $orderGenerator->setCpfCnpj($customer->getData($AttrToDoc));
+            $orderGenerator->setShippingDescription($ShippingDesc);
 
             $CodOrder = $orderGenerator->createOrder($products);
 
@@ -259,7 +260,12 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         if (strpos($statusMage, 'ERROR:') === false) {
                             //TRATA OS PRODUTOS
                             $_products = array();
+                            $shippingDesc = array();
                             foreach ($OrderJSON->items as $item) {
+                                if( in_array($item->shippingtype, $shippingDesc) ){
+                                    array_push($shippingDesc, $item->shippingtype);
+                                }
+
                                 $productLoaded = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $item->sku->partnerId);
                                 if ($productLoaded) {
                                     $arrayTMP = array(
@@ -420,7 +426,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                             $infoMetPag = $payment->method;
                                         }
 
-                                        $OrderIDMage = $this->create_order($anymarketordersSpec, $_products, $customer, $IDOrderAnyMarket, $idSeqAnyMarket, $infoMetPag, $AddressShipBill, $AddressShipBill, $OrderJSON->freight, $storeID);
+                                        //REFACTOR
+                                        $OrderIDMage = $this->create_order($storeID, $anymarketordersSpec, $_products, $customer, $IDOrderAnyMarket, $idSeqAnyMarket, $infoMetPag, $AddressShipBill, $AddressShipBill, $OrderJSON->freight, implode(",", $shippingDesc) );
                                         $OrderCheck = Mage::getModel('sales/order')->loadByIncrementId($OrderIDMage);
 
                                         $this->changeFeedOrder($HOST, $headers, $idSeqAnyMarket, $tokenFeed);
