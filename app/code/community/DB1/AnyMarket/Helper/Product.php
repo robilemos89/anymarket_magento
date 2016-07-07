@@ -2180,6 +2180,20 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         }
     }
 
+    public function getDetailsOfBundle($product){
+        $selectionCollection = $product->getTypeInstance(true)->getSelectionsCollection(
+            $product->getTypeInstance(true)->getOptionsIds($product), $product
+        );
+
+        $bundled_items = array();
+        foreach($selectionCollection as $option)
+        {
+            $bundled_items[] = $option->getData();
+        }
+
+        return $bundled_items;
+    }
+
     public function getStockPriceOfBundle($product){
         $selectionCollection = $product->getTypeInstance(true)->getSelectionsCollection(
             $product->getTypeInstance(true)->getOptionsIds($product), $product
@@ -2293,7 +2307,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             foreach($bundles as $prodBund) {
                                 $this->updatePriceStockAnyMarket($storeID, $prodBund->getId(), null, null);
                             }
-
 
                             //TRATAMENTO PARA BUNDLE
                             $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);

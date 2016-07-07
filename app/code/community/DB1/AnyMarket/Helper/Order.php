@@ -273,6 +273,21 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         'price' => $item->unit,
                                         'qty' => $item->amount,
                                     );
+
+                                    if($productLoaded->getTypeID() == "bundle") {
+                                        $optionsBundle = Mage::helper('db1_anymarket/product')->getDetailsOfBundle($productLoaded);
+
+                                        $boundOpt = array();
+                                        $boundOptQty = array();
+                                        foreach ($optionsBundle as $detProd) {
+                                            $boundOpt[$detProd['option_id']] = $detProd['selection_id'];
+                                            $boundOptQty[$detProd['option_id']] = $detProd['selection_qty'];
+                                        }
+
+                                        $arrayTMP['bundle_option'] = $boundOpt;
+                                        $arrayTMP['bundle_option_qty'] = $boundOptQty;
+                                    }
+
                                     array_push($_products, $arrayTMP);
                                 } else {
                                     if ($anymarketordersSpec->getData('nmo_id_anymarket') == null) {
@@ -547,7 +562,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             Mage::getSingleton('core/session')->setImportOrdersVariable('false');
             $order = Mage::getModel('sales/order')->loadByIncrementId( $IDOrderMagento );
 
-            //TODO VER SE EH PAGO, SE ESTA COM A FLAG, CASO SIM VALIDAR SE PODE RECEBER UM INVOICE E CRIAR
             $createRegPay = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_create_reg_pay_field', $storeID);
             $itemsarray = null;
             if( $createRegPay == "1" ){
@@ -700,8 +714,29 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
         }
 
-        //TODO ADICIONAR PARA VERIFICAR OS ENVIO TBM ATRAS DAS CONFIGURACOES DE NOTA FISCAL
+        if( $chaveAcID == "" ) {
+            if ($Order->hasShipments()){
+                foreach ($Order->getShipmentsCollection() as $ship) {
+                    $shippment = Mage::getModel('sales/order_shipment')->loadByIncrementId( $ship->getIncrementId() );
+                    foreach ($shippment->getCommentsCollection() as $item) {
+                        $CommentCurr = $item->getComment();
 
+                        $nfeCount = strpos($CommentCurr, 'nfe:');
+                        $emissaoCount = strpos($CommentCurr, 'emiss');
+                        if( (strpos($CommentCurr, 'nfe:') !== false) && (strpos($CommentCurr, 'emiss') !== false) ) {
+                            $caracts = array("/", "-", ".");
+                            $nfeTmp = str_replace($caracts, "", $CommentCurr );
+                            $chaveAcID = substr( $nfeTmp, $nfeCount+4, 44);
+                            $nfeID = $chaveAcID;
+
+                            $date = substr( $CommentCurr, $emissaoCount+8, 19);
+                            $dateTmp = str_replace("/", "-", $date );
+                            $date = gmdate('Y-m-d\TH:i:s\Z', strtotime( $dateTmp ));
+                        }
+                    }
+                }
+            }
+        }
 
         $retArr = array("number" => $nfeID, "date" => $date, "accessKey" => $chaveAcID);
         return $retArr;
