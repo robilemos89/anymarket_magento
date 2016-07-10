@@ -262,8 +262,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             $_products = array();
                             $shippingDesc = array();
                             foreach ($OrderJSON->items as $item) {
-                                if( in_array($item->shippingtype, $shippingDesc) ){
-                                    array_push($shippingDesc, $item->shippingtype);
+
+                                foreach ($item->shippings as $shippItem) {
+                                    if (!in_array($shippItem->shippingtype, $shippingDesc)) {
+                                        array_push($shippingDesc, $shippItem->shippingtype);
+                                    }
                                 }
 
                                 $productLoaded = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $item->sku->partnerId);
