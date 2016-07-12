@@ -152,7 +152,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @param $shippValue
      * @return integer
      */
-    private function create_order($anymarketordersSpec, $products, $customer, $IDAnyMarket, $IDSeqAnyMarket, $infoMetPag, $Billing, $Shipping, $shippValue, $storeID)
+    private function create_order($storeID, $anymarketordersSpec, $products, $customer, $IDAnyMarket, $IDSeqAnyMarket, $infoMetPag, $Billing, $Shipping, $shippValue, $ShippingDesc)
     {
         if( ($anymarketordersSpec->getData('nmo_id_anymarket') == null) ||
             ($anymarketordersSpec->getData('nmo_status_int') == "Não integrado (AnyMarket)") ||
@@ -170,6 +170,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $orderGenerator->setBillAddress($Billing);
             $orderGenerator->setCustomer($customer);
             $orderGenerator->setCpfCnpj($customer->getData($AttrToDoc));
+            $orderGenerator->setShippingDescription($ShippingDesc);
 
             $CodOrder = $orderGenerator->createOrder($products);
 
@@ -259,7 +260,15 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         if (strpos($statusMage, 'ERROR:') === false) {
                             //TRATA OS PRODUTOS
                             $_products = array();
+                            $shippingDesc = array();
                             foreach ($OrderJSON->items as $item) {
+
+                                foreach ($item->shippings as $shippItem) {
+                                    if (!in_array($shippItem->shippingtype, $shippingDesc)) {
+                                        array_push($shippingDesc, $shippItem->shippingtype);
+                                    }
+                                }
+
                                 $productLoaded = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $item->sku->partnerId);
                                 if ($productLoaded) {
                                     $arrayTMP = array(
@@ -267,6 +276,21 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         'price' => $item->unit,
                                         'qty' => $item->amount,
                                     );
+
+                                    if($productLoaded->getTypeID() == "bundle") {
+                                        $optionsBundle = Mage::helper('db1_anymarket/product')->getDetailsOfBundle($productLoaded);
+
+                                        $boundOpt = array();
+                                        $boundOptQty = array();
+                                        foreach ($optionsBundle as $detProd) {
+                                            $boundOpt[$detProd['option_id']] = $detProd['selection_id'];
+                                            $boundOptQty[$detProd['option_id']] = $detProd['selection_qty'];
+                                        }
+
+                                        $arrayTMP['bundle_option'] = $boundOpt;
+                                        $arrayTMP['bundle_option_qty'] = $boundOptQty;
+                                    }
+
                                     array_push($_products, $arrayTMP);
                                 } else {
                                     if ($anymarketordersSpec->getData('nmo_id_anymarket') == null) {
@@ -420,7 +444,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                             $infoMetPag = $payment->method;
                                         }
 
-                                        $OrderIDMage = $this->create_order($anymarketordersSpec, $_products, $customer, $IDOrderAnyMarket, $idSeqAnyMarket, $infoMetPag, $AddressShipBill, $AddressShipBill, $OrderJSON->freight, $storeID);
+                                        //REFACTOR
+                                        $OrderIDMage = $this->create_order($storeID, $anymarketordersSpec, $_products, $customer, $IDOrderAnyMarket, $idSeqAnyMarket, $infoMetPag, $AddressShipBill, $AddressShipBill, $OrderJSON->freight, implode(",", $shippingDesc) );
                                         $OrderCheck = Mage::getModel('sales/order')->loadByIncrementId($OrderIDMage);
 
                                         $this->changeFeedOrder($HOST, $headers, $idSeqAnyMarket, $tokenFeed);
@@ -538,9 +563,24 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
         if (strpos($statusMage, 'ERROR:') === false) {
             Mage::getSingleton('core/session')->setImportOrdersVariable('false');
-
             $order = Mage::getModel('sales/order')->loadByIncrementId( $IDOrderMagento );
+
+            $createRegPay = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_create_reg_pay_field', $storeID);
             $itemsarray = null;
+            if( $createRegPay == "1" ){
+                if( $order->canInvoice() ){
+
+                    $orderItems = $order->getAllItems();
+                    foreach ($orderItems as $_eachItem) {
+                        $opid = $_eachItem->getId();
+                        $qty = $_eachItem->getQtyOrdered();
+                        $itemsarray[$opid] = $qty;
+                    }
+                    $nfeString = "Registro de Pagamento criado por Anymarket";
+                    Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
+                }
+            }
+
             if(isset($JSON->invoice)){
                 if( $order->canInvoice() ){
                     if(isset($JSON->invoice->accessKey) ) {
@@ -550,11 +590,13 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $DateTime = strtotime($dateNfe);
                         $fixedDate = date('d/m/Y H:i:s', $DateTime);
 
-                        $orderItems = $order->getAllItems();
-                        foreach ($orderItems as $_eachItem) {
-                            $opid = $_eachItem->getId();
-                            $qty = $_eachItem->getQtyOrdered();
-                            $itemsarray[$opid] = $qty;
+                        if($itemsarray == null) {
+                            $orderItems = $order->getAllItems();
+                            foreach ($orderItems as $_eachItem) {
+                                $opid = $_eachItem->getId();
+                                $qty = $_eachItem->getQtyOrdered();
+                                $itemsarray[$opid] = $qty;
+                            }
                         }
 
                         if (!$order->hasInvoices()) {
@@ -616,12 +658,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $anymarketlog->setLogId( $IDOrderMagento ); 
             $anymarketlog->setStatus("0");
             $anymarketlog->save();
-/*
-            $this->addMessageInBox(Mage::helper('db1_anymarket')->__('Error on synchronize order.'),
-                                   Mage::helper('db1_anymarket')->__('Error synchronizing order number: ')."Magento(".$IDOrderMagento.") <br/>".
-                                   $statusMage,
-                                   '');
-*/
         }
     }
 
@@ -677,6 +713,30 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     }
                     $date = gmdate('Y-m-d\TH:i:s\Z');
                     break;
+                }
+            }
+        }
+
+        if( $chaveAcID == "" ) {
+            if ($Order->hasShipments()){
+                foreach ($Order->getShipmentsCollection() as $ship) {
+                    $shippment = Mage::getModel('sales/order_shipment')->loadByIncrementId( $ship->getIncrementId() );
+                    foreach ($shippment->getCommentsCollection() as $item) {
+                        $CommentCurr = $item->getComment();
+
+                        $nfeCount = strpos($CommentCurr, 'nfe:');
+                        $emissaoCount = strpos($CommentCurr, 'emiss');
+                        if( (strpos($CommentCurr, 'nfe:') !== false) && (strpos($CommentCurr, 'emiss') !== false) ) {
+                            $caracts = array("/", "-", ".");
+                            $nfeTmp = str_replace($caracts, "", $CommentCurr );
+                            $chaveAcID = substr( $nfeTmp, $nfeCount+4, 44);
+                            $nfeID = $chaveAcID;
+
+                            $date = substr( $CommentCurr, $emissaoCount+8, 19);
+                            $dateTmp = str_replace("/", "-", $date );
+                            $date = gmdate('Y-m-d\TH:i:s\Z', strtotime( $dateTmp ));
+                        }
+                    }
                 }
             }
         }

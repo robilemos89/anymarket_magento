@@ -208,7 +208,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
 
         $this->_order->setShippingAddress($shippingAddress)
             ->setShippingMethod($this->_shippingMethod)
-            ->setShippingDescription($this->_shippingDescription); //ALTERADO POR JOSE EDUARDO
+            ->setShippingDescription($this->_shippingDescription);
 
         $orderPayment = Mage::getModel('sales/order_payment')
             ->setStoreId($this->_storeId)
@@ -244,27 +244,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         $this->_subTotal = 0;
 
         foreach ($products as $productRequest) {
-            if ($productRequest['product'] == 'rand') {
-
-                $productsCollection = Mage::getResourceModel('catalog/product_collection');
-                $productsCollection->addFieldToFilter('type_id', 'simple');
-
-                Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($productsCollection);
-
-                $productsCollection->getSelect()
-                    ->order('RAND()')
-                    ->limit(rand($productRequest['min'], $productRequest['max']));
-
-                foreach ($productsCollection as $product){
-                    $this->_addProduct(array(
-                            'product' => $product->getId(),
-                            'qty' => rand(1, 2)
-                        ));
-                }
-            }
-            else {
-                $this->_addProduct($productRequest);
-            }
+            $this->_addProduct($productRequest);
         }
     }
 
@@ -298,23 +278,16 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         $errors = array();
         $items = array();
         foreach ($cartCandidates as $candidate) {
-
             $item = $this->_productToOrderItem($candidate, $candidate->getCartQty(), $request['price']);
-
             $items[] = $item;
 
-            /**
-             * As parent item we should always use the item of first added product
-             */
             if (!$parentItem) {
                 $parentItem = $item;
             }
             if ($parentItem && $candidate->getParentProductId()) {
                 $item->setParentItem($parentItem);
             }
-            /**
-             * We specify qty after we know about parent (for stock)
-             */
+
             $item->setQty($item->getQty() + $candidate->getCartQty());
 
             // collect errors instead of throwing first one
@@ -347,7 +320,6 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
      */
     function _productToOrderItem(Mage_Catalog_Model_Product $product, $qty = 1, $price)
     {
-
         if($price){
             $finalPrice = $price;
         }else{
@@ -359,12 +331,15 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         $options = $product->getCustomOptions();
 
         $optionsByCode = array();
-
+        $bundleOptSelAttr = null;
         foreach ($options as $option)
         {
             $quoteOption = Mage::getModel('sales/quote_item_option')->setData($option->getData())
                 ->setProduct($option->getProduct());
 
+            if($quoteOption->getCode() ==  'bundle_selection_attributes' ) {
+                $bundleOptSelAttr = $quoteOption->getValue();
+            }
             $optionsByCode[$quoteOption->getCode()] = $quoteOption;
         }
 
@@ -378,7 +353,10 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         $stockItem->save();
 
         $options = $product->getTypeInstance(true)->getOrderOptions($product);
-
+        
+        if($bundleOptSelAttr != null) {
+            $options['bundle_selection_attributes'] = $bundleOptSelAttr;
+        }
         $orderItem = Mage::getModel('sales/order_item')
             ->setStoreId($this->_storeId)
             ->setQuoteItemId(0)

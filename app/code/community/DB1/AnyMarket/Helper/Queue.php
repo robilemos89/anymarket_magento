@@ -90,6 +90,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                         try {
                             $anymarketproducts->setStatus('1')->setIsMassupdate(true)->save();
                             if ($product != null) {
+
                                 Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
                             }
 
