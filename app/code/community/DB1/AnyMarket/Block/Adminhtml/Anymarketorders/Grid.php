@@ -218,12 +218,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketorders_Grid extends Mage_Adminhtml_
      */
     public function getRowUrl($row)
     {
-        $_pullOrder = Mage::getModel('sales/order')->loadByIncrementId( $row->getNmoIdOrder() );
-        if($_pullOrder != null){
-            return Mage::helper('adminhtml')->getUrl('adminhtml/sales_order/view', array('order_id' => $_pullOrder->getId())); 
-        }else{
-            return null;
-        }
+        return $this->getUrl('*/*/edit', array('id' => $row->getId()));
     }
 
     /**
