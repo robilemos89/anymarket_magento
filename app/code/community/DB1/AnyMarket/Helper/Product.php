@@ -1522,7 +1522,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 "title" => $transmission->product->title,
                                 "idTransmission" => $transmissionIDs->id,
                                 "description" => isset($transmission->description) ? $transmission->description : null,
-                                "brand" => isset($transmission->brand->id) ? $transmission->brand->id : null,
+                                "brand" => isset($transmission->brand->name) ? $transmission->brand->name : null,
                                 "model" => isset($transmission->model) ? $transmission->model : null,
                                 "videoURL" => isset($transmission->videoUrl) ? $transmission->videoUrl : null,
                                 "warrantyTime" => isset($transmission->warrantyTime) ? $transmission->warrantyTime : null,
@@ -1870,7 +1870,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $product->setData('weight', $MassUnit == 1 ? $ProdsJSON->weight*1000 : $ProdsJSON->weight);
 
                         $product->setData($priceField, $sku->price);
-                        $product->setData('brand_anymarket', $ProdsJSON->brand);
+                        $product->setData($brand, $this->procAttrConfig($brand, $ProdsJSON->brand, 0));
                         $product->setData($model, $this->procAttrConfig($model, $ProdsJSON->model, 0));
                         $product->setData($video_url, $this->procAttrConfig($video_url, $ProdsJSON->videoURL, 0));
 
@@ -2013,7 +2013,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     'weight' => $MassUnit == 1 ? $ProdsJSON->weight*1000 : $ProdsJSON->weight,
                     'store_id' => $storeID,
                     'website_ids' => array($websiteID),
-                    'brand_anymarket' => $ProdsJSON->brand,
+                    $brand => $this->procAttrConfig($brand, $ProdsJSON->brand, 0),
                     $nbm => $this->procAttrConfig($nbm, $ProdsJSON->nbm, 0),
                     $model => $this->procAttrConfig($model, $ProdsJSON->model, 0),
                     $video_url => $this->procAttrConfig($video_url, $ProdsJSON->videoURL, 0),
@@ -2071,7 +2071,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 $product->setData('weight', $MassUnit == 1 ? $ProdsJSON->weight*1000 : $ProdsJSON->weight);
 
-                $product->setData('brand_anymarket', $ProdsJSON->brand);
+                $product->setData($brand, $this->procAttrConfig($brand, $ProdsJSON->brand, 0));
                 $product->setData($model, $this->procAttrConfig($model, $ProdsJSON->model, 0));
                 $product->setData($video_url, $this->procAttrConfig($video_url, $ProdsJSON->videoURL, 0));
 
