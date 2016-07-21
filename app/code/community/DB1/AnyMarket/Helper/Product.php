@@ -1510,10 +1510,15 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             $arrAttr = array();
                             if (isset($transmission->characteristics)) {
                                 foreach ($transmission->characteristics as $carac) {
-                                    array_push($arrAttr, array(
-                                        "name" => $carac->name,
-                                        "value" => $carac->value
-                                    ));
+                                    $attrMG = Mage::getModel('eav/entity_attribute')->getCollection()
+                                        ->addFieldToFilter('frontend_label', $carac->name);
+
+                                    if ($attrMG->getSize() > 0) {
+                                        array_push($arrAttr, array(
+                                            "name" => $attrMG->getFirstItem()->getData('attribute_code'),
+                                            "value" => $carac->value
+                                        ));
+                                    }
                                 }
                             }
 

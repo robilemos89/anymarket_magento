@@ -763,7 +763,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         foreach ($shipmentCollection as $shipment){
             foreach($shipment->getAllTracks() as $tracknum){
                 $TrackNum = $tracknum->getNumber();
-                $TrackCode = $tracknum->getCarrierTitle();
+                $TrackTitle = $tracknum->getTitle();
                 $TrackCreate = $tracknum->getCreatedAt();
 
                 $dateTmp = str_replace("/", "-", $TrackCreate );
@@ -771,7 +771,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
         }
 
-        return array("number" => $TrackNum, "carrier" => $TrackCode, "date" => $dateTrack, "url" => "");
+        return array("number" => $TrackNum, "carrier" => $TrackTitle, "date" => $dateTrack, "url" => "");
     }
 
     /**
