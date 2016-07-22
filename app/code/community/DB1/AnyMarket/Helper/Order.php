@@ -614,7 +614,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             if(isset($JSON->tracking)){
                 if( $order->canShip() && !$order->hasShipments() ){
                     if(isset($JSON->tracking->number)) {
-                        $TrNumber = $JSON->tracking->nu7096563.mber;
+                        $TrNumber = $JSON->tracking->number;
                         $TrCarrier = strtolower($JSON->tracking->carrier);
 
                         $shipmentId = Mage::getModel('sales/order_shipment_api')->create($order->getIncrementId(), $itemsarray, 'Create by AnyMarket', false, 1);
