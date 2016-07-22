@@ -753,7 +753,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      */
     public function getTrackingOrder($Order){
         $TrackNum = '';
-        $TrackCode = '';
+        $TrackTitle = '';
         $TrackCreate = '';
         $dateTrack = '';
 

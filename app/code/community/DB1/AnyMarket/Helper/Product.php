@@ -404,14 +404,21 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $crltImgAM = basename($image->original);
             $crltImgAM = str_replace(strrchr($crltImgAM,"."), "", $crltImgAM);
 
-            if( !empty($variation) ){
-                if (in_array( $image->variationValue, $variation)) {
-                    $urlImage = isset($image->url) ? $image->url : $image->standardUrl;
+            $urlImage = null;
+            if( isset($image->url) ){
+                $urlImage = $image->url;
+            }elseif( isset($image->url) ){
+                $urlImage = $image->standardUrl;
+            }
+
+            if( $urlImage != null ){
+                if( !empty($variation) ){
+                    if (in_array( $image->variationValue, $variation)) {
+                        $imagesGalleryAM[] = array('ctrl' => md5($crltImgAM . $idClient), 'img' => $urlImage, 'main' => $image->main);
+                    }
+                }else{
                     $imagesGalleryAM[] = array('ctrl' => md5($crltImgAM . $idClient), 'img' => $urlImage, 'main' => $image->main);
                 }
-            }else{
-                $urlImage = isset($image->url) ? $image->url : $image->standardUrl;
-                $imagesGalleryAM[] = array('ctrl' => md5($crltImgAM . $idClient), 'img' => $urlImage, 'main' => $image->main);
             }
         }
 
@@ -1460,7 +1467,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             if($typeSincProd == 1) {
                 if ($transmissionReturn['error'] == '1') {
                     $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                    $anymarketlog->setLogDesc(Mage::helper('db1_anymarket')->__('Error on get transmissions ') . $transmissionReturn['return']);
+                    $anymarketlog->setLogDesc(Mage::helper('db1_anymarket')->__('Error on get transmissions '));
                     $anymarketlog->setStatus("0");
                     $anymarketlog->save();
                 } else {
@@ -1661,13 +1668,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $prodRet = "Product not found (".$skuToLoad.") - Stock Updated";
                     }
                 }else{
+                    Mage::log($transmissionReturn, null, 'mylogfile.log');
                     $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                    $anymarketlog->setLogDesc( $transmissionReturn['return'] . " - Update Stock" );
+                    $anymarketlog->setLogDesc( "Error on Update Stock from transmission" );
                     $anymarketlog->setStatus("0");
                     $anymarketlog->setStores(array($storeID));
                     $anymarketlog->save();
 
-                    $prodRet = $transmissionReturn['return'] . " - Update Stock";
+                    $prodRet = "Error on Update Stock";
                 }
             }
         }
