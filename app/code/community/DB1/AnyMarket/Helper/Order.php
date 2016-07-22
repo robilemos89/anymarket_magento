@@ -263,9 +263,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             $shippingDesc = array();
                             foreach ($OrderJSON->items as $item) {
 
-                                foreach ($item->shippings as $shippItem) {
-                                    if (!in_array($shippItem->shippingtype, $shippingDesc)) {
-                                        array_push($shippingDesc, $shippItem->shippingtype);
+                                if( isset($item->shippings) ) {
+                                    foreach ($item->shippings as $shippItem) {
+                                        if (!in_array($shippItem->shippingtype, $shippingDesc)) {
+                                            array_push($shippingDesc, $shippItem->shippingtype);
+                                        }
                                     }
                                 }
 
@@ -440,8 +442,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         }
 
                                         $infoMetPag = 'ANYMARKET';
-                                        foreach ($OrderJSON->payments as $payment) {
-                                            $infoMetPag = $payment->method;
+                                        if( isset($OrderJSON->payments) ) {
+                                            foreach ($OrderJSON->payments as $payment) {
+                                                $infoMetPag = $payment->method;
+                                            }
                                         }
 
                                         //REFACTOR
@@ -610,7 +614,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             if(isset($JSON->tracking)){
                 if( $order->canShip() && !$order->hasShipments() ){
                     if(isset($JSON->tracking->number)) {
-                        $TrNumber = $JSON->tracking->number;
+                        $TrNumber = $JSON->tracking->nu7096563.mber;
                         $TrCarrier = strtolower($JSON->tracking->carrier);
 
                         $shipmentId = Mage::getModel('sales/order_shipment_api')->create($order->getIncrementId(), $itemsarray, 'Create by AnyMarket', false, 1);
