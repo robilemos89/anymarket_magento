@@ -76,16 +76,30 @@ class DB1_AnyMarket_Model_Anymarketorders_Api extends Mage_Api_Model_Resource_Ab
             if (is_null($data)) {
                 throw new Exception(Mage::helper('db1_anymarket')->__("Data cannot be null"));
             }
-            $data = (array)$data;
-            $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')
-                ->setData((array)$data)
-                ->save();
+            $ret = "";
+            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+            $anymarketlog->setLogDesc( 'Callback received - Order (API)');
+            $anymarketlog->setLogJson( json_encode($data) );
+            $anymarketlog->setStatus("0");
+            $anymarketlog->save();
+
+            $allStores = Mage::helper('db1_anymarket')->getTokenByOi( $data['oi'] );
+            if( !empty($allStores) ) {
+                foreach ($allStores as $store) {
+                    $storeID = $store['storeID'];
+                    $TOKEN = $store['token'];
+
+                    if ($TOKEN != '') {
+                        $ret = Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($data['id'], "notoken", $storeID);
+                    }
+                }
+            }
         } catch (Mage_Core_Exception $e) {
             $this->_fault('data_invalid', $e->getMessage());
         } catch (Exception $e) {
             $this->_fault('data_invalid', $e->getMessage());
         }
-        return $anymarketorders->getId();
+        return $ret;
     }
 
     /**
