@@ -76,16 +76,50 @@ class DB1_AnyMarket_Model_Anymarketproducts_Api extends Mage_Api_Model_Resource_
             if (is_null($data)) {
                 throw new Exception(Mage::helper('db1_anymarket')->__("Data cannot be null"));
             }
-            $data = (array)$data;
-            $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')
-                ->setData((array)$data)
-                ->save();
+
+
+            $ret = "";
+            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+            $anymarketlog->setLogDesc( 'Callback received - Transmission (API)');
+            $anymarketlog->setLogJson( json_encode($data) );
+            $anymarketlog->setStatus("0");
+            $anymarketlog->save();
+
+            $allStores = Mage::helper('db1_anymarket')->getTokenByOi( $data['oi'] );
+            if( !empty($allStores) ) {
+                foreach ($allStores as $store) {
+                    $storeID = $store['storeID'];
+                    $TOKEN = $store['token'];
+
+                    if ($TOKEN != '') {
+
+                        $HOST = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
+
+                        $headers = array(
+                            "Content-type: application/json",
+                            "Accept: */*",
+                            "gumgaToken: " . $TOKEN
+                        );
+
+                        array_push($listTransmissions, array(
+                                "id" => $data['id'],
+                                "token" => "notoken"
+                            )
+                        );
+
+                        $JSON = json_encode($listTransmissions);
+                        $ret = Mage::helper('db1_anymarket/product')->getSpecificFeedProduct($storeID, json_decode($JSON), $headers, $HOST);
+                    }
+                }
+            }
+
+
         } catch (Mage_Core_Exception $e) {
             $this->_fault('data_invalid', $e->getMessage());
         } catch (Exception $e) {
             $this->_fault('data_invalid', $e->getMessage());
         }
-        return $anymarketproducts->getId();
+        return $ret;
     }
 
     /**
