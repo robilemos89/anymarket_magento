@@ -407,8 +407,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $urlImage = null;
             if( isset($image->url) ){
                 $urlImage = $image->url;
-            }elseif( isset($image->url) ){
+            }elseif( isset($image->standardUrl) ){
                 $urlImage = $image->standardUrl;
+            }elseif( isset($image->original) ){
+                $urlImage = $image->original;
             }
 
             if( $urlImage != null ){
@@ -1461,7 +1463,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $transmissionToken = $transmissionIDs->token;
 
             $transmissionReturn = $this->CallAPICurl("GET", $HOST."/v2/transmissions/".$transmissionID, $headers, null);
-
             $prodRet = "";
             $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
             if($typeSincProd == 1) {
@@ -1668,7 +1669,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $prodRet = "Product not found (".$skuToLoad.") - Stock Updated";
                     }
                 }else{
-                    Mage::log($transmissionReturn, null, 'mylogfile.log');
                     $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                     $anymarketlog->setLogDesc( "Error on Update Stock from transmission" );
                     $anymarketlog->setStatus("0");
@@ -1867,6 +1867,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             $anymarketlog->save();
                         }
                     }else{
+                        $product->setUrlKey(false);
+
                         //Atualiza Imagens
                         $this->update_image_product($product, $ProdsJSON, $IDSKUProd);
 
@@ -2063,6 +2065,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 $ProdCrt = $this->create_simple_product($storeID, $data);
             }else{
+                $product->setUrlKey(false);
+
                 //Atualiza Imagens
                 $this->update_image_product($product, $ProdsJSON, $IDSkuJsonProd);
 
@@ -2074,9 +2078,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 $product->setStoreId($storeID);
                 $product->setName( $skuProd->title );
-
-//                $product->setDescription( $ProdsJSON->description );
-//                $product->setShortDescription( $ProdsJSON->description );
 
                 foreach ($configureFieldsConfig as $fieldConfig) {
                     $product->setData($fieldConfig, $ProdsJSON->description);

@@ -955,9 +955,9 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         "value" => $Order->getBaseGrandTotal()
                                     ),
                     ),
-                    "discount" => $Order->getDiscountAmount(),
+                    "discount" => floatval( $Order->getDiscountAmount() ) < 0 ? floatval( $Order->getDiscountAmount() )*-1 : $Order->getDiscountAmount(),
                     "freight" => $Order->getShippingAmount(),
-                    "gross" => $Order->getBaseGrandTotal(),
+                    "gross" => $Order->getBaseSubtotal(),
                     "total" => $Order->getBaseGrandTotal()
                 );
 
