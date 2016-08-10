@@ -638,6 +638,20 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 }
                 $order->setData('state', $stateMage);
                 $order->setStatus($statusMage, true);
+
+                if($stateMage == Mage_Sales_Model_Order::STATE_CANCELED) {
+                    foreach ($order->getAllItems() as $item) {
+                        $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct( $item->getProductId() );
+                        if ($stockItem->getManageStock()) {
+                            $stockItem->setData('qty', $stockItem->getQty() + $item->getQtyOrdered());
+                        }
+                        $stockItem->save();
+
+                        $item->setQtyCanceled($item->getQtyOrdered());
+                        $item->save();
+                    }
+                }
+
                 $order->save();
             }
 
