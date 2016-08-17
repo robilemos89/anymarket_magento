@@ -951,6 +951,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         "state" => $shipping->getRegion(),
                         "country" => $shipping->getCountry(),
                         "address" => $shipping->getStreetFull(),
+                        "street" =>  $shipping->getStreet(1),
+                        "number" =>  $shipping->getStreet(2),
+                        "comment" =>  $shipping->getStreet(3),
+                        "neighborhood" =>  $shipping->getStreet(4),
                         "zipCode" => $shipping->getPostcode()
                     ),
                     "buyer" => array(
