@@ -46,7 +46,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
             $arrValueStore = array_values($anymarketQueue->getStoreId());
             $storeID = array_shift($arrValueStore);
 
-            $storeID = ($storeID != null && $storeID != "0") ? $storeID : 1;
+            $storeID = ($storeID != null && $storeID != "0") ? $storeID : Mage::app()->getDefaultStoreView()->getId();
 
             $cronEnabled = Mage::getStoreConfig('anymarket_section/anymarket_cron_group/anymarket_queue_field', $storeID);
             if($cronEnabled == '1' || $typeExec == "FORCE") {
