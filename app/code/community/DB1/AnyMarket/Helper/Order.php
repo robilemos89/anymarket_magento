@@ -339,9 +339,22 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         $groupCustomer = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_customer_group_field', $storeID);
 
                                         $email = $OrderJSON->buyer->email;
+
                                         $customer = Mage::getModel('customer/customer')
                                             ->getCollection()
                                             ->addFieldToFilter($AttrToDoc, $document)->load()->getFirstItem();
+
+                                        if(!$customer->getId()) {
+                                            if (strlen($document) == 11) {
+                                                $document = $this->Mask('###.###.###-##', $document);
+                                            } else {
+                                                $document = $this->Mask('##.###.###/####-##', $document);
+                                            }
+
+                                            $customer = Mage::getModel('customer/customer')
+                                                ->getCollection()
+                                                ->addFieldToFilter($AttrToDoc, $document)->load()->getFirstItem();
+                                        }
 
                                         $AddressShipBill = null;
 
