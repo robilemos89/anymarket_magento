@@ -56,6 +56,19 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * return text with mask
+     */
+    public function Mask($mask,$str){
+        $str = str_replace(" ","",$str);
+
+        for($i=0;$i<strlen($str);$i++){
+            $mask[strpos($mask,"#")] = $str[$i];
+        }
+
+        return $mask;
+    }
+
+    /**
      * check if module is enabled
      */
     public function anymarketModuleIsEnabled()

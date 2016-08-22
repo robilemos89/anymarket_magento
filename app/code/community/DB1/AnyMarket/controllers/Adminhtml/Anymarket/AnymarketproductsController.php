@@ -63,7 +63,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketproductsController extends DB1_
     public function listProdsAction()
     {
         $storeID = Mage::getSingleton('core/session')->getStoreListProdVariable();
-        $storeID = ($storeID != null && $storeID != "0") ? $storeID : 1;
+        $storeID = ($storeID != null && $storeID != "0") ? $storeID : Mage::app()->getDefaultStoreView()->getId();
         Mage::helper('db1_anymarket/product')->listAllProds($storeID);
         $this->_redirect('*/*/');
 
