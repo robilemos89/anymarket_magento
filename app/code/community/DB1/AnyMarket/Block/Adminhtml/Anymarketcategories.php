@@ -25,10 +25,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories extends Mage_Adminhtml_B
 {
     /**
      * constructor
-     *
      * @access public
-     * @return void
-     
      */
     public function __construct()
     {
@@ -43,13 +40,5 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories extends Mage_Adminhtml_B
             'onclick' => "setLocation('{$this->getUrl('*/*/sincCategs')}')",
             'class'   => 'add'
         ));
-
-        $message = Mage::helper('db1_anymarket')->__('Are you sure you want to export the categories?');
-        $this->_addButton('export_categ', array(
-            'label'   => Mage::helper('db1_anymarket')->__('Export Categories'),
-            'onclick'   => "confirmSetLocation('{$message}', '{$this->getUrl('*/*/exportCategs')}')",
-            'class'   => 'scalable go'
-        ));
-
     }
 }

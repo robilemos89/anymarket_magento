@@ -166,6 +166,18 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * format date time
+     *
+     * @param $date
+     * @return string
+     */
+    public function formatDateTimeZone($date){
+        $timeZone = new DateTimeZone( Mage::getStoreConfig('general/locale/timezone') );
+        $DateTime = new DateTime($date, $timeZone);
+        return date_format($DateTime, 'Y-m-d\TH:i:sP');
+    }
+
+    /**
      * call curl
      *
      * @param $method

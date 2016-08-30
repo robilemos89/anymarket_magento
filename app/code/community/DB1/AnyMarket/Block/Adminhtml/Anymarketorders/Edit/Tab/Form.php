@@ -59,11 +59,34 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketorders_Edit_Tab_Form extends Mage_A
             array(
                 'label' => Mage::helper('db1_anymarket')->__('Code Order Magento'),
                 'name'  => 'nmo_id_order',
-            'required'  => true,
-            'class' => 'required-entry',
-
+            'required'  => false
            )
         );
+
+        $fieldset->addField(
+            'nmo_status_int',
+            'text',
+            array(
+                'label' => Mage::helper('db1_anymarket')->__('Integration Status'),
+                'name'  => 'nmo_status_int',
+                'required'  => true,
+                'class' => 'required-entry',
+
+            )
+        );
+
+        $fieldset->addField(
+            'nmo_desc_error',
+            'text',
+            array(
+                'label' => Mage::helper('db1_anymarket')->__('Error Message'),
+                'name'  => 'nmo_desc_error',
+                'required'  => true,
+                'class' => 'required-entry',
+
+            )
+        );
+
         $fieldset->addField(
             'status',
             'select',
