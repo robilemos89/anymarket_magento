@@ -630,7 +630,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 }else{
                     $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                    $anymarketlog->setLogDesc( 'Error on get images from Anymarket ('.$product->getData('id_anymarket').') - '.$imgGetRet['return'] );
+                    $anymarketlog->setLogDesc( 'Error on get images from Anymarket ('.$product->getData('id_anymarket').') ');
                     $anymarketlog->setStatus("1");
                     $anymarketlog->setStores(array($storeID));
                     $anymarketlog->save();
@@ -871,7 +871,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             }else{
                 // verifica se é um simples pertecente a um Configurable
                 $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
-                $Weight = $product->getWeight();
+
+                $Weight = ($product->getTypeID() == "bundle" && $product->getPriceType() == 0 ) ? $this->getWeightOfBundle($storeID, $product) : $product->getWeight();
+
                 if (isset($parentIds[0])) {
                     $confID = $parentIds[0];
                     $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($confID);
@@ -1015,10 +1017,16 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
 
-                if($filter == 'final_price'){
+                if ($filter == 'final_price') {
                     $stkPrice = $product->getFinalPrice();
-                }else{
+                } else {
                     $stkPrice = $product->getData($filter);
+                }
+
+                if($product->getTypeID() == "bundle" && $product->getPriceType() == 0 && $stkPrice == null) {
+                    $priceModel = $product->getPriceModel();
+                    $PricesBundle = $priceModel->getTotalPrices($product, null, true, false);
+                    $stkPrice = reset($PricesBundle);
                 }
 
                 $prodSkuJ = $product->getSku();
@@ -2208,6 +2216,21 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         return $bundled_items;
     }
 
+    public function getWeightOfBundle($storeID, $product){
+        $selectionCollection = $product->getTypeInstance(true)->getSelectionsCollection(
+            $product->getTypeInstance(true)->getOptionsIds($product), $product
+        );
+
+        $WeightTotal = 0;
+        foreach($selectionCollection as $option)
+        {
+            $prodOfBundle = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $option->getId() );
+            $WeightTotal += $option->getData('selection_qty')*$prodOfBundle->getWeight();
+        }
+
+        return $WeightTotal;
+    }
+
     public function getStockPriceOfBundle($product){
         $selectionCollection = $product->getTypeInstance(true)->getSelectionsCollection(
             $product->getTypeInstance(true)->getOptionsIds($product), $product
@@ -2308,13 +2331,13 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         if($product->getData('id_anymarket') != ""){
                             $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
                             $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
+                            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
 
                             $headers = array(
                                 "Content-type: application/json",
                                 "Accept: */*",
                                 "gumgaToken: ".$TOKEN
                             );
-
 
                             //TODO VALIDAR SE ISSO NAO IMPACTARA EM NADA
                             $bundles =  $this->findBundledProductsWithThisChildProduct($IDProd);
@@ -2341,9 +2364,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                     $Price = null;
                                 }
 
+                                if($product->getPriceType() == 0 && $Price == null ) {
+                                    $priceModel = $product->getPriceModel();
+                                    $PricesBundle = $priceModel->getTotalPrices($product, null, true, false);
+                                    $Price = reset($PricesBundle);
+                                }
+
                             }else{
                                 if( $typeSincProd == 0 ){
-                                    $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                                     if($filter == 'final_price'){
                                         $Price = $product->getFinalPrice();
                                     }else{
@@ -2390,14 +2418,22 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }
                     }
                 }
+            }else{
+                $bundleIds = Mage::getResourceSingleton('bundle/selection')->getParentIdsByChild($IDProd);
+                if( $bundleIds ){
+                    foreach($bundleIds as $bundle) {
+                        $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($bundle);
+                        $this->updatePriceStockAnyMarket($storeID, $bundle, $ProdStock->getQty(), null);
+                    }
+                }
             }
         }else{
-            $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
-
             $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+            $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
             foreach($childProducts as $child) {
                 $this->updatePriceStockAnyMarket($storeID, $child->getId(), $child->getStockItem()->getQty(), $child->getData($filter));
             }
+
         }
 
 
