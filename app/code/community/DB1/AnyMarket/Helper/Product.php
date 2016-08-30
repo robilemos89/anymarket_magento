@@ -630,7 +630,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 }else{
                     $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                    $anymarketlog->setLogDesc( 'Error on get images from Anymarket ('.$product->getData('id_anymarket').') - '.$imgGetRet['return'] );
+                    $anymarketlog->setLogDesc( 'Error on get images from Anymarket ('.$product->getData('id_anymarket').')');
                     $anymarketlog->setStatus("1");
                     $anymarketlog->setStores(array($storeID));
                     $anymarketlog->save();
