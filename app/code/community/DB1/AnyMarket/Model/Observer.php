@@ -253,8 +253,9 @@ class DB1_AnyMarket_Model_Observer {
 		        $itemSold = $item->getTotalQty();
 		        $qty = $item->getProduct()->getStockItem()->getQty();
 		        $qtyNow = $qty - $itemSold;
-		
-		        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket('1', $item->getProductId(), $qtyNow, null);
+
+                $storeID = ($item->getStoreId() != null && $item->getStoreId() != "0") ? $item->getStoreId() : Mage::app()->getDefaultStoreView()->getId();
+		        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $item->getProductId(), $qtyNow, null);
 		    }
 		}
 
@@ -272,7 +273,8 @@ class DB1_AnyMarket_Model_Observer {
                 $itemRevert = ($item->getTotalQty());
                 $qtyNow = $qty + $itemRevert;
 
-                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket('1', $item->getProductId(), $qtyNow, null);
+                $storeID = ($item->getStoreId() != null && $item->getStoreId() != "0") ? $item->getStoreId() : Mage::app()->getDefaultStoreView()->getId();
+                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $item->getProductId(), $qtyNow, null);
             }
         }
     }
