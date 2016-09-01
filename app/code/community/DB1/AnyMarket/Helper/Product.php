@@ -708,7 +708,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             }
         }else{
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-            $anymarketlog->setLogDesc('Error on get Images Anymarket: '. $skusProd['return']);
+            $anymarketlog->setLogDesc('Error on get Images Anymarket from sku.');
             $anymarketlog->setLogJson($skusProd['json']);
             $anymarketlog->setLogId($product->getSku());
             $anymarketlog->setStatus("1");
