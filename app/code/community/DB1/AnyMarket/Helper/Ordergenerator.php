@@ -350,7 +350,9 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
             $options['bundle_selection_attributes'] = $bundleOptSelAttr;
         }
 
-        $finalPrice = $product['final_price'];
+        $finalPrice = ( isset($product['final_price']) && $product['final_price'] ) ? $product['final_price'] : $price;
+
+        $qtdOrdered = $product['cart_qty'];
         $rowTotal = $finalPrice * $qty;
 
         $orderItem = Mage::getModel('sales/order_item')
@@ -361,7 +363,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
             ->setProductType($product->getTypeId())
             ->setQtyBackordered(NULL)
             ->setTotalQtyOrdered($product['rqty'])
-            ->setQtyOrdered($product['cart_qty'])
+            ->setQtyOrdered($qtdOrdered)
             ->setName($product->getName())
             ->setSku($product->getSku())
             ->setPrice($finalPrice)
