@@ -351,6 +351,9 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         }
 
         $finalPrice = ( isset($product['final_price']) && $product['final_price'] ) ? $product['final_price'] : $price;
+        if( $product['type_id'] == "bundle" ){
+            $finalPrice = 0;
+        }
 
         $qtdOrdered = $product['cart_qty'];
         $rowTotal = $finalPrice * $qty;
