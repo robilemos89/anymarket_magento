@@ -320,14 +320,6 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
      */
     function _productToOrderItem(Mage_Catalog_Model_Product $product, $qty = 1, $price)
     {
-        if($price){
-            $finalPrice = $price;
-        }else{
-            $finalPrice = $product->getFinalPrice();
-        }
-
-        $rowTotal = $finalPrice * $qty;
-
         $options = $product->getCustomOptions();
 
         $optionsByCode = array();
@@ -348,7 +340,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         // DECREMENTE O STOCK
         $stockItem =Mage::getModel('cataloginventory/stock_item')->loadByProduct( $product->getId() );
         if( $stockItem->getManageStock() ){
-            $stockItem->setData('qty', $stockItem->getQty()-$product['qty']);
+            $stockItem->setData('qty', $stockItem->getQty()-$product['cart_qty']);
         }
         $stockItem->save();
 
@@ -357,6 +349,15 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         if($bundleOptSelAttr != null) {
             $options['bundle_selection_attributes'] = $bundleOptSelAttr;
         }
+
+        $finalPrice = ( isset($product['final_price']) && $product['final_price'] ) ? $product['final_price'] : $price;
+        if( $product['type_id'] == "bundle" ){
+            $finalPrice = 0;
+        }
+
+        $qtdOrdered = $product['cart_qty'];
+        $rowTotal = $finalPrice * $qty;
+
         $orderItem = Mage::getModel('sales/order_item')
             ->setStoreId($this->_storeId)
             ->setQuoteItemId(0)
@@ -365,12 +366,12 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
             ->setProductType($product->getTypeId())
             ->setQtyBackordered(NULL)
             ->setTotalQtyOrdered($product['rqty'])
-            ->setQtyOrdered($product['qty'])
+            ->setQtyOrdered($qtdOrdered)
             ->setName($product->getName())
             ->setSku($product->getSku())
-            ->setPrice( $finalPrice )
-            ->setBasePrice( $finalPrice )
-            ->setOriginalPrice( $finalPrice )
+            ->setPrice($finalPrice)
+            ->setBasePrice($finalPrice)
+            ->setOriginalPrice($finalPrice)
             ->setRowTotal($rowTotal)
             ->setBaseRowTotal($rowTotal)
 

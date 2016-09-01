@@ -415,6 +415,7 @@
                             <frontend_type>select</frontend_type>
                             <source_model>db1_anymarket/system_config_source_massunit_values</source_model>
                         </anymarket_type_weight_field>
+
                         <anymarket_type_size_field translate="label comment">
                             <label>Unit of measurement</label>
                             <comment>Select how you will be treated to their size AnyMarket.</comment>
@@ -438,10 +439,22 @@
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                         </anymarket_export_image_field>
 
+                        <anymarket_transform_http_image_field translate="label comment tooltip">
+                            <label>Send image as HTTP</label>
+                            <comment>If set to yes, will transform HTTPS to HTTP images for sending.</comment>
+                            <tooltip>This feature will not work if your magento not allow access images as HTTP.</tooltip>
+                            <sort_order>6</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        </anymarket_transform_http_image_field>
+
                         <anymarket_atribute_set_field translate="label comment">
                             <label>Atribute set</label>
                             <comment>Set of attributes that should be registered the Anymarket products.</comment>
-                            <sort_order>6</sort_order>
+                            <sort_order>7</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -452,7 +465,7 @@
                         <anymarket_bind_product_field translate="label comment">
                             <label>Associate duplicate products</label>
                             <comment>With this marked parameter, when a product with a sku in Anymarket, it will be automatically connected.</comment>
-                            <sort_order>5</sort_order>
+                            <sort_order>8</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -881,7 +894,7 @@
                     <comment>
                         <![CDATA[
                             <div>
-                                <h2>v. 2.6.6</h2>
+                                <h2>v. 2.7.0</h2>
                                 <hr>
                                 <h3>Desenvolvido por<br> NovaPC - Tecnologia da Informação.</h3>
                                 <img src="http://novapc.com.br/images/logo.png" alt="NovaPC" height="100" width="150">

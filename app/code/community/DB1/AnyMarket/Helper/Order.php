@@ -719,7 +719,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                         $date = substr( $CommentCurr, $emissaoCount+8, 19);
                         $dateTmp = str_replace("/", "-", $date );
-                        $date = gmdate('Y-m-d\TH:i:s\Z', strtotime( $dateTmp ));
+
+                        $date = $this->formatDateTimeZone($dateTmp);
                     }
                 }
             }
@@ -743,7 +744,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             $nfeID = $chaveAcID;
                         }
                     }
-                    $date = gmdate('Y-m-d\TH:i:s\Z');
+                    $date = $this->formatDateTimeZone(now);
                     break;
                 }
             }
@@ -766,7 +767,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                             $date = substr( $CommentCurr, $emissaoCount+8, 19);
                             $dateTmp = str_replace("/", "-", $date );
-                            $date = gmdate('Y-m-d\TH:i:s\Z', strtotime( $dateTmp ));
+
+                            $date = $this->formatDateTimeZone($dateTmp);
                         }
                     }
                 }
@@ -799,7 +801,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $TrackCreate = $tracknum->getCreatedAt();
 
                 $dateTmp = str_replace("/", "-", $TrackCreate );
-                $dateTrack = gmdate('Y-m-d\TH:i:s\Z', strtotime( $dateTmp ));
+
+                $dateTrack = $this->formatDateTimeZone($dateTmp);
             }
         }
 
@@ -951,10 +954,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $statuAM = $this->getStatusMageToAnyMarketOrderConfig($storeID, $statusOrder);
             }
 
+
             if( (strpos($statuAM, 'ERROR:') === false) && ($statuAM != '') ) {
                 $params = array(
                     'marketPlaceId' => $idOrder,
-                    "createdAt" => gmdate('Y-m-d\TH:i:s\Z', strtotime( $Order->getData('created_at') )),
+                    "createdAt" => $this->formatDateTimeZone( $Order->getData('created_at') ),
                     "status" =>  $statuAM,
                     "marketPlace" => "ECOMMERCE",
                     "marketPlaceStatus" => $statuAM,
