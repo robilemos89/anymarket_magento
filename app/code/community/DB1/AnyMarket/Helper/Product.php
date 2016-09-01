@@ -460,6 +460,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
             $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
             $exportImage = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_export_image_field', $storeID);
+            $transformToHttp = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_transform_http_image_field', $storeID);
 
             $headers = array(
                 "Content-type: application/json", 
@@ -516,7 +517,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             }
 
                             if (!$ctrlAdd) {
-                                array_push($arrAdd, $imgProdMagento->getData('url'));
+                                $urlImageImport = $imgProdMagento->getData('url');
+                                if ($transformToHttp != 0) {
+                                    $urlImageImport = str_replace("https", "http", $urlImageImport);
+                                }
+                                array_push($arrAdd, $urlImageImport);
                             }
                         }
 
@@ -795,6 +800,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $price_factor =       Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_price_factor_field', $storeID);
         $calculated_price =   Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_calculated_price_field', $storeID);
 
+        $transformToHttp = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_transform_http_image_field', $storeID);
+
         $arrProd = array();
         // verifica categoria null ou em branco
         $categProd = $product->getData('categoria_anymarket');
@@ -900,9 +907,13 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $anymarketlog->save();
                     }
                 }else{
+                    $urlImageImport = $g_image['url'];
+                    if ($transformToHttp != 0) {
+                        $urlImageImport = str_replace("https", "http", $urlImageImport);
+                    }
                     $itemsIMG[] = array(
                         "main" => true,
-                        "url" => $g_image['url']
+                        "url" => $urlImageImport
                     );
                 }
             }
@@ -963,9 +974,13 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             }
                         } else {
                             foreach ($ArrVariationValues as $value) {
+                                $urlImageImport = $g_imageSimp['url'];
+                                if ($transformToHttp != 0) {
+                                    $urlImageImport = str_replace("https", "http", $urlImageImport);
+                                }
                                 $itemsIMG[] = array(
                                     "main" => false,
-                                    "url" => $g_imageSimp['url'],
+                                    "url" => $urlImageImport,
                                     "variation" => $value,
                                 );
                             }
