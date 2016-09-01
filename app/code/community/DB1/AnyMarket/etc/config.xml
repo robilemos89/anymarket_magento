@@ -263,6 +263,7 @@
         <anymarket_integration_prod_group>
             <anymarket_type_prod_sync_field>0</anymarket_type_prod_sync_field>
             <anymarket_type_weight_field>0</anymarket_type_weight_field>
+            <anymarket_transform_http_image_field>0</anymarket_transform_http_image_field>
         </anymarket_integration_prod_group>
 
         <anymarket_integration_order_group>
