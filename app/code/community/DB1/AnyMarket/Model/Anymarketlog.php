@@ -74,6 +74,9 @@ class DB1_AnyMarket_Model_Anymarketlog extends Mage_Core_Model_Abstract
             if( $stores != null) {
                 if (is_array($stores)) {
                     $storeID = reset($stores);
+                } elseif ( !is_string($stores) ) {
+                    $this->setStores(null);
+                    $storeID = 0;
                 }
 
                 $nivelLogs = Mage::getStoreConfig('anymarket_section/anymarket_logs_group/anymarket_log_nivel_field', $storeID);
