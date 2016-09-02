@@ -350,8 +350,8 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
             $options['bundle_selection_attributes'] = $bundleOptSelAttr;
         }
 
-        $finalPrice = ( isset($product['final_price']) && $product['final_price'] ) ? $product['final_price'] : $price;
-        if( $product['type_id'] == "bundle" ){
+        $finalPrice = $price;
+        if( $product['parent_product_id'] ){
             $finalPrice = 0;
         }
 
