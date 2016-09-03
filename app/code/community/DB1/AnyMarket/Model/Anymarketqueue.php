@@ -71,6 +71,17 @@ class DB1_AnyMarket_Model_Anymarketqueue extends Mage_Core_Model_Abstract
             $this->setCreatedAt($now);
         }
         $this->setUpdatedAt($now);
+
+        $stores = $this->getStores();
+        if( $stores != null) {
+            if (is_array($stores)) {
+                $storeID = reset($stores);
+            }
+            if (!is_string($storeID) && !is_integer($storeID)) {
+                $this->setStores(array());
+            }
+        }
+
         return $this;
     }
 
