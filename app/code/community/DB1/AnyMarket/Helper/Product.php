@@ -447,204 +447,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
     }
 
     /**
-     *
-     * Send Image to Anymarket
-     *
-     * @param $storeID
-     * @param $product
-     * @param $variation
-     *
-     */
-    public function sendImageToAnyMarket($storeID, $product, $variation){
-        if($product){
-            $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
-            $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
-            $exportImage = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_export_image_field', $storeID);
-            $transformToHttp = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_transform_http_image_field', $storeID);
-
-            $headers = array(
-                "Content-type: application/json", 
-                "gumgaToken: ".$TOKEN
-            );
-
-            if($product->getData('id_anymarket') != ''){
-                $imgGetRet = $this->CallAPICurl("GET", $HOST."/v2/products/".$product->getData('id_anymarket')."/images", $headers, null);
-                if($imgGetRet['error'] == '0'){
-                    $imgsProdAnymarket = $imgGetRet['return'];
-                    $imgsProdMagento = $product->getMediaGalleryImages();
-                    
-                    $arrAdd = array();
-                    $ctrlAdd = false;
-                    $arrRemove = array();
-                    $ctrlRemove = false;
-                    $arrImgs = array();
-
-                    //verifica quais irao adicionar
-                    foreach ($imgsProdMagento as $imgProdMagento) {
-                        $ctrlAdd = false;
-
-                        $urlImage = $imgProdMagento->getData('url');
-                        $infoImg = getimagesize( $urlImage );
-                        $imgSize = filesize( $imgProdMagento->getData('path') );
-
-                        if( ($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000 )) {
-                            if ($exportImage == 0) {
-                                array_push($arrProd, 'Image_c (' . $urlImage . ' - Sku: ' . $product->getSku() . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize . ')');
-                            } else {
-                                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                                $anymarketlog->setLogDesc('Error on export image - ' . $urlImage);
-                                $anymarketlog->setLogId($product->getSku());
-                                $anymarketlog->setStatus("1");
-                                $anymarketlog->setStores(array($storeID));
-                                $anymarketlog->save();
-                            }
-                        }else{
-                            foreach ($imgsProdAnymarket as $imgProdAnymarket) {
-                                if ($variation) {
-                                    if( isset($imgProdAnymarket->variation) ) {
-                                        if (($imgProdMagento->getData('url') == $imgProdAnymarket->url) && ($imgProdAnymarket->variation == $variation)) {
-                                            $ctrlAdd = true;
-                                            break;
-                                        }
-                                    }
-                                } else {
-                                    if ($imgProdMagento->getData('url') == $imgProdAnymarket->url) {
-                                        $ctrlAdd = true;
-                                        break;
-                                    }
-                                }
-
-                            }
-
-                            if (!$ctrlAdd) {
-                                $urlImageImport = $imgProdMagento->getData('url');
-                                if ($transformToHttp != 0) {
-                                    $urlImageImport = str_replace("https", "http", $urlImageImport);
-                                }
-                                array_push($arrAdd, $urlImageImport);
-                            }
-                        }
-
-                    }
-
-                    //verifica quais irao remover
-                    foreach ($imgsProdAnymarket as $imgProdAnymarket) {
-                        $ctrlRemove = false;
-                        foreach ($imgsProdMagento as $imgProdMagento) {
-                            if($variation){
-                                if( isset($imgProdAnymarket->variation) ) {
-                                    if (($imgProdAnymarket->url == $imgProdMagento->getData('url')) && ($imgProdAnymarket->variation == $variation)) {
-                                        $ctrlRemove = true;
-                                        break;
-                                    }
-                                }
-                            }else{
-                                if($imgProdAnymarket->url == $imgProdMagento->getData('url') ){
-                                    $ctrlRemove = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if(!$ctrlRemove){
-                            if($variation){
-                                if( isset($imgProdAnymarket->variation) ) {
-                                    if ($imgProdAnymarket->variation == $variation) {
-                                        array_push($arrRemove, $imgProdAnymarket->id);
-                                    }
-                                }
-                            }else{
-                                array_push($arrRemove, $imgProdAnymarket->id);
-                            }
-                        }
-                    }
-
-                    // Add Image
-                    if( !empty($arrImgs) ){
-                        $returnProd['error'] = '1';
-                        $returnProd['json'] = '';
-
-                        $emptyFields = ' ';
-                        foreach ($arrImgs as $field) {
-                            $emptyFields .= $field.', ';
-                        }
-
-                        $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product with inconsistency:').' '.$emptyFields;
-                        $this->saveLogsProds($storeID, "0", $returnProd, $product);
-                    }else {
-                        foreach ($arrAdd as $imgAdd) {
-                            if ($variation) {
-                                $JSONAdd = array(
-                                    "url" => $imgAdd,
-                                    "variation" => $variation,
-                                );
-                            } else {
-                                $JSONAdd = array(
-                                    "url" => $imgAdd
-                                );
-                            }
-
-                            $imgPostRet = $this->CallAPICurl("POST", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/images", $headers, $JSONAdd);
-                            if ($imgPostRet['error'] == '1') {
-                                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                                $anymarketlog->setLogDesc('Error on export image (' . $product->getData('id_anymarket') . ') - ' . is_string($imgPostRet['return']) ? $imgPostRet['return'] : json_encode($imgPostRet['return']));
-                                $anymarketlog->setLogJson($imgPostRet['json']);
-                                $anymarketlog->setLogId($product->getSku());
-                                $anymarketlog->setStatus("1");
-                                $anymarketlog->setStores(array($storeID));
-                                $anymarketlog->save();
-                            } else {
-                                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                                $anymarketlog->setLogDesc('Exported image (' . $imgAdd . ')');
-                                $anymarketlog->setLogJson($imgPostRet['json']);
-                                $anymarketlog->setLogId($product->getSku());
-                                $anymarketlog->setStatus("1");
-                                $anymarketlog->setStores(array($storeID));
-                                $anymarketlog->save();
-                            }
-                        }
-                    }
-
-                    // remove image
-                    foreach ($arrRemove as $imgRemove) {
-                        $imgDelRet = $this->CallAPICurl("DELETE", $HOST."/v2/products/".$product->getData('id_anymarket')."/images/".$imgRemove, $headers, null);
-                        if($imgDelRet['error'] == '1'){
-                            $anymarketlogDel = Mage::getModel('db1_anymarket/anymarketlog');
-
-                            if( is_string($imgDelRet['return']) ){
-                                $anymarketlogDel->setLogDesc( 'Error on delete image in Anymarket ('.$imgRemove.') - '.$imgDelRet['return']);
-                            }else{
-                                $anymarketlogDel->setLogDesc( 'Error on delete image in Anymarket ('.$imgRemove.') - '.json_encode($imgDelRet['return']));
-                            }
-
-                            $anymarketlogDel->setLogJson('');
-                            $anymarketlogDel->setLogId($product->getSku());
-                            $anymarketlogDel->setStatus("1");
-                            $anymarketlogDel->setStores(array($storeID));
-                            $anymarketlogDel->save();
-                        }else{
-                            $anymarketlogDel = Mage::getModel('db1_anymarket/anymarketlog');
-                            $anymarketlogDel->setLogDesc( 'Deleted image from Anymarket ');
-                            $anymarketlogDel->setLogJson('');
-                            $anymarketlogDel->setLogId($product->getSku());
-                            $anymarketlogDel->setStatus("1");
-                            $anymarketlogDel->setStores(array($storeID));
-                            $anymarketlogDel->save();
-                        }
-                    }
-
-                }else{
-                    $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                    $anymarketlog->setLogDesc( 'Error on get images from Anymarket ('.$product->getData('id_anymarket').') ');
-                    $anymarketlog->setStatus("1");
-                    $anymarketlog->setStores(array($storeID));
-                    $anymarketlog->save();
-                }
-            }
-        }
-    }
-
-    /**
      * @param $product
      * @param $skusParam
      * @param $storeID
@@ -658,67 +460,67 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             "Cache-Control: no-cache",
             "gumgaToken: ".$TOKEN
         );
-
         // SINCRONIZA AS FOTOS E SKUS
-        $skusProd = $this->CallAPICurl("GET", $HOST."/v2/products/".$product->getData('id_anymarket')."/skus", $headers, null);
-        if($skusProd['error'] == '0') {
-            foreach ($skusParam as $skuPut) {
-                $prodSimple = Mage::getModel('catalog/product')->load($skuPut['internalIdProduct']);
+        if($product->getData('id_anymarket') != "" || $product->getData('id_anymarket') != 0) {
+            $skusProd = $this->CallAPICurl("GET", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/skus", $headers, null);
+            if ($skusProd['error'] == '0') {
+                foreach ($skusParam as $skuPut) {
+                    $prodSimple = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $skuPut['partnerId']);
+                    if ($prodSimple->getData('id_anymarket') != '') {
+                        $paramSku = array(
+                            "title" => $skuPut['title'],
+                            "partnerId" => $skuPut['partnerId'],
+                            "ean" => $skuPut['ean'],
+                            "amount" => $skuPut['amount'],
+                            "price" => $skuPut['price'],
+                        );
 
-                if ($prodSimple->getData('id_anymarket') != '') {
-                    $paramSku = array(
-                        "title" => $skuPut['title'],
-                        "partnerId" => $skuPut['partnerId'],
-                        "ean" => $skuPut['ean'],
-                        "amount" => $skuPut['amount'],
-                        "price" => $skuPut['price'],
-                    );
-
-                    if (isset($skuPut['variations'])) {
-                        foreach ($skuPut['variations'] as $variationPut) {
-                            $this->sendImageToAnyMarket($storeID, $prodSimple, $variationPut);
+                        if (isset($skuPut['variations'])) {
+                            foreach ($skuPut['variations'] as $variationPut) {
+                                Mage::helper('db1_anymarket/image')->sendImageToAnyMarket($storeID, $prodSimple, $variationPut);
+                            }
+                            $paramSku['variations'] = $skuPut['variations'];
+                        } else {
+                            Mage::helper('db1_anymarket/image')->sendImageToAnyMarket($storeID, $product, null);
                         }
-                        $paramSku['variations'] = $skuPut['variations'];
-                    } else {
-                        $this->sendImageToAnyMarket($storeID, $product, null);
-                    }
 
-                    $flagHSku = '';
-                    if (isset($skusProd['return'])) {
-                        foreach ($skusProd['return'] as $skuAM) {
-                            if ($skuAM->partnerId == $prodSimple->getSku()) {
-                                $flagHSku = $skuAM->id;
-                                break;
+                        $flagHSku = '';
+                        if (isset($skusProd['return'])) {
+                            foreach ($skusProd['return'] as $skuAM) {
+                                if ($skuAM->partnerId == $prodSimple->getSku()) {
+                                    $flagHSku = $skuAM->id;
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    if ($flagHSku != '') {
-                        $skuProdReturn = $this->CallAPICurl("PUT", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/skus/" . $flagHSku, $headers, $paramSku);
+                        if ($flagHSku != '') {
+                            $skuProdReturn = $this->CallAPICurl("PUT", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/skus/" . $flagHSku, $headers, $paramSku);
 
-                        if ($skuProdReturn['error'] == '0') {
-                            $skuProdReturn['return'] = Mage::helper('db1_anymarket')->__('SKU Updated') . ' (' . $skuPut['partnerId'] . ')';
+                            if ($skuProdReturn['error'] == '0') {
+                                $skuProdReturn['return'] = Mage::helper('db1_anymarket')->__('SKU Updated') . ' (' . $skuPut['partnerId'] . ')';
+                            }
+                        } else {
+                            $skuProdReturn = $this->CallAPICurl("POST", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/skus", $headers, $paramSku);
+
+                            if ($skuProdReturn['error'] == '0') {
+                                $skuProdReturn['return'] = Mage::helper('db1_anymarket')->__('SKU Created') . ' (' . $skuPut['partnerId'] . ')';
+                            }
                         }
-                    } else {
-                        $skuProdReturn = $this->CallAPICurl("POST", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/skus", $headers, $paramSku);
 
-                        if ($skuProdReturn['error'] == '0') {
-                            $skuProdReturn['return'] = Mage::helper('db1_anymarket')->__('SKU Created') . ' (' . $skuPut['partnerId'] . ')';
-                        }
+                        $this->saveLogsProds($storeID, "1", $skuProdReturn, $prodSimple);
+                        $this->updatePriceStockAnyMarket($storeID, $skuPut['internalIdProduct'], $skuPut['amount'], $skuPut['price']);
                     }
-
-                    $this->saveLogsProds($storeID, "1", $skuProdReturn, $prodSimple);
-                    $this->updatePriceStockAnyMarket($storeID, $skuPut['internalIdProduct'], $skuPut['amount'], $skuPut['price']);
                 }
+            } else {
+                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                $anymarketlog->setLogDesc('Error on get Images Anymarket from sku.');
+                $anymarketlog->setLogJson($skusProd['json']);
+                $anymarketlog->setLogId($product->getSku());
+                $anymarketlog->setStatus("1");
+                $anymarketlog->setStores(array($storeID));
+                $anymarketlog->save();
             }
-        }else{
-            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-            $anymarketlog->setLogDesc('Error on get Images Anymarket from sku.');
-            $anymarketlog->setLogJson($skusProd['json']);
-            $anymarketlog->setLogId($product->getSku());
-            $anymarketlog->setStatus("1");
-            $anymarketlog->setStores(array($storeID));
-            $anymarketlog->save();
         }
     }
 
@@ -878,9 +680,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             }else{
                 // verifica se é um simples pertecente a um Configurable
                 $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
-
                 $Weight = ($product->getTypeID() == "bundle" && $product->getPriceType() == 0 ) ? $this->getWeightOfBundle($storeID, $product) : $product->getWeight();
-
                 if (isset($parentIds[0])) {
                     $confID = $parentIds[0];
                     $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($confID);
@@ -888,35 +688,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             }
 
             //obtem as imagens do produto(Config ou Simples)
-            $itemsIMG = array();
-            $galleryData = $product->getMediaGalleryImages();
-            $exportImage = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_export_image_field', $storeID);
-            foreach($galleryData as $g_image) {
-                $infoImg = getimagesize($g_image['url']);
-                $imgSize = filesize($g_image['path']);
-
-                if( ($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000) ){
-                    if($exportImage == 0) {
-                        array_push($arrProd, 'Image_a (' . $g_image['url'] . ' - Sku: ' . $product->getSku() . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize . ')');
-                    }else{
-                        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                        $anymarketlog->setLogDesc('Error on export image - ' . $g_image['url']);
-                        $anymarketlog->setLogId($product->getSku());
-                        $anymarketlog->setStatus("1");
-                        $anymarketlog->setStores(array($storeID));
-                        $anymarketlog->save();
-                    }
-                }else{
-                    $urlImageImport = $g_image['url'];
-                    if ($transformToHttp != 0) {
-                        $urlImageImport = str_replace("https", "http", $urlImageImport);
-                    }
-                    $itemsIMG[] = array(
-                        "main" => true,
-                        "url" => $urlImageImport
-                    );
-                }
-            }
+            $itemsIMG = Mage::helper('db1_anymarket/image')->getImagesOfProduct($storeID, $product, null);
 
             //obtem os produtos configs - verifica se e configurable
             $ArrSimpleConfigProd = array();
@@ -956,36 +728,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     }
 
                     //obtem as imagens do produto (Obtem os simples e relaciona as variacoes)
-                    $galleryDataSimp = $SimpleConfigProd->getMediaGalleryImages();
-                    foreach ($galleryDataSimp as $g_imageSimp) {
-                        $infoImg = getimagesize($g_imageSimp['url']);
-                        $imgSize = filesize($g_imageSimp['path']);
-
-                        if (($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000)) {
-                            if ($exportImage == 0) {
-                                array_push($arrProd, 'Image_b (' . $g_imageSimp['url'] . ' - Sku: ' . $SimpleConfigProd->getSku() . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize . ')');
-                            } else {
-                                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                                $anymarketlog->setLogDesc('Error on export image - ' . $g_imageSimp['url']);
-                                $anymarketlog->setLogId($SimpleConfigProd->getSku());
-                                $anymarketlog->setStatus("1");
-                                $anymarketlog->setStores(array($storeID));
-                                $anymarketlog->save();
-                            }
-                        } else {
-                            foreach ($ArrVariationValues as $value) {
-                                $urlImageImport = $g_imageSimp['url'];
-                                if ($transformToHttp != 0) {
-                                    $urlImageImport = str_replace("https", "http", $urlImageImport);
-                                }
-                                $itemsIMG[] = array(
-                                    "main" => false,
-                                    "url" => $urlImageImport,
-                                    "variation" => $value,
-                                );
-                            }
-                        }
-                    }
+                    $itemsIMG = Mage::helper('db1_anymarket/image')->getImagesOfProduct($storeID, $SimpleConfigProd, $ArrVariationValues);
 
                     $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
 
@@ -1326,7 +1069,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     }
 
                     $this->sendImageSkuToAnyMarket($storeID, $product, $param['skus']);
-
                     $this->saveLogsProds($storeID, "1", $returnProd, $product);
                 }
                 return true;
@@ -2332,105 +2074,92 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             if( ($product->getStatus() == 1) && ($product->getData('integra_anymarket') == 1) ){
                 $anymarketproductsUpdt =  Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->getId(), 'nmp_id');
                 if( ($anymarketproductsUpdt->getData('nmp_status_int') != 'Não integrado (Magento)') ){
-                    $sincronize = true;
-                    if($product->getVisibility() == 1){ //nao exibido individualmente
-                        $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
-                        if ($parentIds) {
-                            $sincronize = true;
-                        }else{
-                            $sincronize = false;
+                    if($product->getData('id_anymarket') != ""){
+                        $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
+                        $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
+                        $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+
+                        $headers = array(
+                            "Content-type: application/json",
+                            "Accept: */*",
+                            "gumgaToken: ".$TOKEN
+                        );
+
+                        //TRATAMENTO PARA BUNDLE
+                        $bundles =  $this->findBundledProductsWithThisChildProduct($IDProd);
+                        foreach($bundles as $prodBund) {
+                            $this->updatePriceStockAnyMarket($storeID, $prodBund->getId(), null, null);
                         }
-                    }
 
-                    if ($sincronize == true) {
-                        if($product->getData('id_anymarket') != ""){
-                            $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
-                            $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
-                            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                        $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
+                        $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
 
-                            $headers = array(
-                                "Content-type: application/json",
-                                "Accept: */*",
-                                "gumgaToken: ".$TOKEN
+                        if($product->getTypeID() == "bundle") {
+                            $stockPriceBundle = $this->getStockPriceOfBundle($product);
+                            //OBTEM O STOCK DO ITEM BUNDLE
+                            if( $typeSincOrder == 0 ){
+                                $QtdStock = null;
+                            }else{
+                                $QtdStock = $stockPriceBundle["stock"];
+                            }
+
+                            if( $typeSincProd == 0 ){
+                                $Price = $stockPriceBundle["price"];
+                            }else{
+                                $Price = null;
+                            }
+
+                            if($product->getPriceType() == 0 && $Price == null ) {
+                                $priceModel = $product->getPriceModel();
+                                $PricesBundle = $priceModel->getTotalPrices($product, null, true, false);
+                                $Price = reset($PricesBundle);
+                            }
+
+                        }else{
+                            if( $typeSincProd == 0 ){
+                                if($filter == 'final_price'){
+                                    $Price = $product->getFinalPrice();
+                                }else{
+                                    $Price = $product->getData($filter);
+                                }
+                            }else{
+                                $Price = null;
+                            }
+
+                            if( $typeSincOrder == 0 ){
+                                $QtdStock = null;
+                            }elseif( !is_numeric ( $QtdStock ) ){
+                                $QtdStock = null;
+                            }
+                        }
+
+                        if( ($QtdStock != null) || ($Price != null) ){
+                            $params = array(
+                                "partnerId" => $product->getSku(),
+                                "quantity" => $QtdStock,
+                                "cost" => $Price
                             );
 
-                            //TODO VALIDAR SE ISSO NAO IMPACTARA EM NADA
-                            $bundles =  $this->findBundledProductsWithThisChildProduct($IDProd);
-                            foreach($bundles as $prodBund) {
-                                $this->updatePriceStockAnyMarket($storeID, $prodBund->getId(), null, null);
+                            $returnProd = $this->CallAPICurl("PUT", $HOST."/v2/stocks", $headers, array($params));
+                            if($returnProd['return'] == ''){
+                                $returnProd['return'] = Mage::helper('db1_anymarket')->__('Update Stock and Price');
+                                $returnProd['error'] = '0';
+                                $returnProd['json'] = json_encode($params);
                             }
 
-                            //TRATAMENTO PARA BUNDLE
-                            $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
-                            $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
-
-                            if($product->getTypeID() == "bundle") {
-                                $stockPriceBundle = $this->getStockPriceOfBundle($product);
-                                //OBTEM O STOCK DO ITEM BUNDLE
-                                if( $typeSincOrder == 0 ){
-                                    $QtdStock = null;
-                                }else{
-                                    $QtdStock = $stockPriceBundle["stock"];
-                                }
-
-                                if( $typeSincProd == 0 ){
-                                    $Price = $stockPriceBundle["price"];
-                                }else{
-                                    $Price = null;
-                                }
-
-                                if($product->getPriceType() == 0 && $Price == null ) {
-                                    $priceModel = $product->getPriceModel();
-                                    $PricesBundle = $priceModel->getTotalPrices($product, null, true, false);
-                                    $Price = reset($PricesBundle);
-                                }
-
+                            if( $returnProd['error'] == '1' ){
+                                $this->saveLogsProds($storeID, "0", $returnProd, $product);
                             }else{
-                                if( $typeSincProd == 0 ){
-                                    if($filter == 'final_price'){
-                                        $Price = $product->getFinalPrice();
-                                    }else{
-                                        $Price = $product->getData($filter);
-                                    }
-                                }else{
-                                    $Price = null;
-                                }
-
-                                if( $typeSincOrder == 0 ){
-                                    $QtdStock = null;
-                                }elseif( !is_numeric ( $QtdStock ) ){
-                                    $QtdStock = null;
-                                }
+                                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                                $anymarketlog->setLogDesc(  Mage::helper('db1_anymarket')->__('Update stock and price.') );
+                                $anymarketlog->setStatus("0");
+                                $anymarketlog->setLogId( $product->getId() );
+                                $anymarketlog->setLogJson( json_encode($params) );
+                                $anymarketlog->setStores(array($storeID));
+                                $anymarketlog->save();
                             }
-
-                            if( ($QtdStock != null) || ($Price != null) ){
-                                $params = array(
-                                    "partnerId" => $product->getSku(),
-                                    "quantity" => $QtdStock,
-                                    "cost" => $Price
-                                );
-
-                                $returnProd = $this->CallAPICurl("PUT", $HOST."/v2/stocks", $headers, array($params));
-                                if($returnProd['return'] == ''){
-                                    $returnProd['return'] = Mage::helper('db1_anymarket')->__('Update Stock and Price');
-                                    $returnProd['error'] = '0';
-                                    $returnProd['json'] = json_encode($params);
-                                }
-
-                                if( $returnProd['error'] == '1' ){
-                                    $this->saveLogsProds($storeID, "0", $returnProd, $product);
-                                }else{
-                                    $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                                    $anymarketlog->setLogDesc(  Mage::helper('db1_anymarket')->__('Update stock and price.') );
-                                    $anymarketlog->setStatus("0");
-                                    $anymarketlog->setLogId( $product->getId() );
-                                    $anymarketlog->setLogJson( json_encode($params) );
-                                    $anymarketlog->setStores(array($storeID));
-                                    $anymarketlog->save();
-                                }
-                            }
-
                         }
+
                     }
                 }
             }else{
