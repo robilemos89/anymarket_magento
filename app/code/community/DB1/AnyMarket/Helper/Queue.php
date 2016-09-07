@@ -11,12 +11,16 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
      * @param $tableItem
      */
     public function addQueue($storeID, $IdItem, $typeItem, $tableItem){
-        $queueItem = Mage::getModel('db1_anymarket/anymarketqueue');
-        $queueItem->setNmqId($IdItem);
-        $queueItem->setNmqType($typeItem);
-        $queueItem->setNmqTable($tableItem);
-        $queueItem->setStores(array($storeID));
-        $queueItem->save();
+        $queueItemCheck = Mage::getModel('db1_anymarket/anymarketqueue')->setStoreId($storeID)
+                                                                        ->load($IdItem, 'nmq_id');
+        if( !$queueItemCheck->getNmqId() ){
+            $queueItem = Mage::getModel('db1_anymarket/anymarketqueue');
+            $queueItem->setNmqId($IdItem);
+            $queueItem->setNmqType($typeItem);
+            $queueItem->setNmqTable($tableItem);
+            $queueItem->setStores(array($storeID));
+            $queueItem->save();
+        }
     }
 
     /**
