@@ -216,7 +216,7 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         if ( $status == 200 || $status == 204 || $status == 201 ) {
-    			$retorno = array("error" => "0", "json" => $data_string, "return" => json_encode($curl_response));
+    			$retorno = array("error" => "0", "json" => $data_string, "return" => json_decode($curl_response));
     	}elseif ( $status == 404 || $status == 500 || $status == 503 ) {
     			$retorno = array("error" => "1", "json" => $data_string, "return" => json_encode($curl_response));
         }else{
