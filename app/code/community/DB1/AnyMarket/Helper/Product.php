@@ -577,27 +577,13 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
     }
 
 
-    public function prepareForSendProduct($storeID, $productOld){
-
-        $ExportProdSession = Mage::getSingleton('core/session')->getImportProdsVariable();
+    public function prepareForSendProduct($storeID, $product){
         $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
-        if( $ExportProdSession == 'false' || $typeSincProd != 0 ) {
+        if( $typeSincProd != 0 ) {
             return false;
         }
 
-        if( Mage::registry('prod_save_observer_executed_'.$productOld->getId()) ){
-            Mage::unregister( 'prod_save_observer_executed_'.$productOld->getId() );
-            return $this;
-        }
-        Mage::register('prod_save_observer_executed_'.$productOld->getId(), true);
-
-        $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($productOld->getId());
         if( $product->getData('integra_anymarket') != 1 ){
-            return false;
-        }
-
-        if( $this->asyncMode($storeID) ) {
-            Mage::helper('db1_anymarket/queue')->addQueue($storeID, $product->getId(), 'EXP', 'PRODUCT');
             return false;
         }
 

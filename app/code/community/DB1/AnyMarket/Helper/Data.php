@@ -192,7 +192,7 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function CallAPICurl($method, $url, $headers, $params){
         $curl = curl_init($url);
-Mage::log($method.' '.$url, null, 'ctrl.log');
+
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $data_string = "";
         if ($method == "POST"){

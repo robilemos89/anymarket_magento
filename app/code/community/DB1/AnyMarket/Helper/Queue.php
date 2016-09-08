@@ -84,6 +84,18 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                     } catch (Exception $e) {
                         Mage::logException($e);
                     }
+                } else if ($item['nmq_table'] == 'STOCK') {
+                    $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $IdItemQueue );
+
+                    // TRATA STOCK
+                    if ($product) {
+                        $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
+                        if ($typeSincOrder == 1) {
+                            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                            $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
+                            Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $ProdStock->getQty(), $product->getData($filter));
+                        }
+                    }
                 } else if ($item['nmq_table'] == 'PRODUCT') {
                     // EXPORT PRODUCT
                     $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
@@ -95,7 +107,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                         try {
                             $anymarketproducts->setStatus('1')->setIsMassupdate(true)->save();
                             if ($product != null) {
-                                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
+                                Mage::helper('db1_anymarket/product')->prepareForSendProduct($storeID, $product);
                             }
 
                         } catch (Exception $e) {
