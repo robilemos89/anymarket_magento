@@ -306,20 +306,16 @@
 <!-- CRON -->
     <crontab>
         <jobs>            
-            <db1_anymarket_getorders>
-                <schedule><cron_expr>0 0,12 * * *</cron_expr></schedule> <!-- 12 horas -->
-                <run><model>db1_anymarket/cron::sincOrders</model></run>
-            </db1_anymarket_getorders>
-            <db1_anymarket_getprods>
-                <schedule><cron_expr>0 * * * *</cron_expr></schedule> <!-- 1 hora -->
-                <run><model>db1_anymarket/cron::sincProducts</model></run>
-            </db1_anymarket_getprods>
+            <db1_anymarket_getstocks>
+                <schedule><cron_expr>*/2 * * * *</cron_expr></schedule> <!-- 2 minutos -->
+                <run><model>db1_anymarket/cron::sincStocks</model></run>
+            </db1_anymarket_getstocks>
             <db1_anymarket_cleanlogs>
                 <schedule><cron_expr>5 5 * * 6</cron_expr></schedule>  <!-- 1 vez por semana -->
                 <run><model>db1_anymarket/cron::executeCleanLogs</model></run>
             </db1_anymarket_cleanlogs>
             <db1_anymarket_executereindex>
-                <schedule><cron_expr>59 0 * * * </cron_expr></schedule>  <!-- 15 min -->
+                <schedule><cron_expr>59 0 * * * </cron_expr></schedule>  <!-- toda madrugada -->
                 <run><model>db1_anymarket/cron::executeReindex</model></run>
             </db1_anymarket_executereindex>
             <db1_anymarket_execqueue>
