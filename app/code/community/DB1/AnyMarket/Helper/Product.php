@@ -403,7 +403,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         //OBTEM IMAGENS DO ANYMARKET
         $imagesGalleryAM = array();
         foreach ($ProdsJSON->photos as $image) {
-            $crltImgAM = basename($image->original);
+            $crltImgAM = $image->original;
             $crltImgAM = str_replace(strrchr($crltImgAM,"."), "", $crltImgAM);
 
             $urlImage = null;
@@ -426,6 +426,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             }
         }
 
+        //COMPARA IMG AM COM MG SE TIVER DIVERCIA REMOVE DO PRODUTO
+        $diffMG = $this->compareArrayImage($imagesGalleryMG, $imagesGalleryAM);
+        if ($diffMG) {
+            foreach ($diffMG as $diffMG_value) {
+                $mediaApi->remove($Prod->getId(), $diffMG_value['file']);
+            }
+        }
+
         //COMPARA IMG AM COM MG SE TIVER DIVERGENCIA ADD NO PRODUTO
         $diffAM = $this->compareArrayImage($imagesGalleryAM, $imagesGalleryMG);
         if ($diffAM) {
@@ -436,15 +444,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $dataImgs = array('images' => $imagesGallery, 'sku' => $idClient);
             $productGenerator = Mage::helper('db1_anymarket/productgenerator');
             $productGenerator->updateImages($Prod, $dataImgs);
-        }
-
-        //COMPARA IMG AM COM MG SE TIVER DIVERCIA REMOVE DO PRODUTO
-        $diffMG = $this->compareArrayImage($imagesGalleryMG, $imagesGalleryAM);
-        if ($diffMG) {
-            foreach ($diffMG as $diffMG_value) {
-                $mediaApi->remove($Prod->getId(), $diffMG_value['file']);
-                //remover arquivo fisicamente
-            }
         }
     }
 
