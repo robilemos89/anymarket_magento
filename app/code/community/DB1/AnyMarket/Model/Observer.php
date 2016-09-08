@@ -46,109 +46,109 @@ class DB1_AnyMarket_Model_Observer {
         $storeID = ($productOld->getStoreId() != null && $productOld->getStoreId() != "0") ? $productOld->getStoreId() : Mage::app()->getDefaultStoreView()->getId();
 
         $ExportProdSession = Mage::getSingleton('core/session')->getImportProdsVariable();
-        if( $ExportProdSession != 'false' ) {
-            $QuickCreate = Mage::getSingleton('core/session')->getQuickCreateProdVariable();
-            if($QuickCreate == null || $QuickCreate == "" || $QuickCreate != $productOld->getSku() ){
-                $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
-                if($typeSincProd == 0){
-					if( Mage::registry('prod_save_observer_executed_'.$productOld->getId()) ){
-						Mage::unregister( 'prod_save_observer_executed_'.$productOld->getId() );
-						return $this;
-					}
-					Mage::register('prod_save_observer_executed_'.$productOld->getId(), true);
+        $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
+        if( $ExportProdSession == 'false' || $typeSincProd != 0 ) {
+            return false;
+        }
 
-                    $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($productOld->getId());
-                    if( $product->getData('integra_anymarket') == 1 && $product->getStatus() == 1 ){
-                        if( $this->asyncMode($storeID) ) {
-                            Mage::helper('db1_anymarket/queue')->addQueue($storeID, $product->getId(), 'EXP', 'PRODUCT');
-                            return false;
+        $QuickCreate = Mage::getSingleton('core/session')->getQuickCreateProdVariable();
+        if($QuickCreate != null || $QuickCreate != "" || $QuickCreate == $productOld->getSku() ) {
+            Mage::getSingleton('core/session')->setQuickCreateProdVariable('');
+            return false;
+        }
+
+        if( Mage::registry('prod_save_observer_executed_'.$productOld->getId()) ){
+            Mage::unregister( 'prod_save_observer_executed_'.$productOld->getId() );
+            return $this;
+        }
+        Mage::register('prod_save_observer_executed_'.$productOld->getId(), true);
+
+        $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($productOld->getId());
+        if( $product->getData('integra_anymarket') != 1 ){
+            return false;
+        }
+
+        if( $this->asyncMode($storeID) ) {
+            Mage::helper('db1_anymarket/queue')->addQueue($storeID, $product->getId(), 'EXP', 'PRODUCT');
+            return false;
+        }
+
+        $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
+        $stockQty = $stock->getQty();
+        if($product->getTypeID() == "configurable"){
+            //PRODUTO CONFIGURAVEL
+            Mage::getModel('catalog/product_type_configurable')->getProduct($product)->unsetData('_cache_instance_products');
+            $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
+            if(count($childProducts) > 0){
+                Mage::getSingleton('core/session')->setImportProdsVariable('false');
+                foreach ($childProducts as $prodCh) {
+                    $productChild = Mage::getModel('catalog/product')->setStoreId($storeID)->load($prodCh->getId());
+                    $productChild->setData('integra_anymarket', $product->getData('integra_anymarket') );
+                    $productChild->save();
+                }
+                Mage::getSingleton('core/session')->setImportProdsVariable('true');
+
+                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
+            }
+        }else{
+            $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
+
+            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+            $ean    = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_ean_field', $storeID);
+
+            if($filter == 'final_price'){
+                $stkPrice = $product->getFinalPrice();
+            }else{
+                $stkPrice = $product->getData($filter);
+            }
+
+            if($parentIds){
+                //PRODUTO SIMPLES FILHO DE UM CONFIG
+                $attributeOptions = array();
+                foreach ($parentIds as $parentId) {
+                    $productConfig = Mage::getModel('catalog/product')->load($parentId);
+
+                    if( $productConfig->getId() ) {
+                        foreach ($productConfig->getTypeInstance()->getConfigurableAttributes() as $attribute) {
+                            $value = $product->getAttributeText($attribute->getProductAttribute()->getAttributeCode());
+                            $attributeOptions[$attribute->getLabel()] = $value;
                         }
 
-                        $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
-                        $stockQty = $stock->getQty();
-                        if($product->getTypeID() == "configurable"){
-                            //PRODUTO CONFIGURAVEL
-                            Mage::getModel('catalog/product_type_configurable')->getProduct($product)->unsetData('_cache_instance_products');
-                            $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
-                            if(count($childProducts) > 0){
-                                Mage::getSingleton('core/session')->setImportProdsVariable('false');
-                                foreach ($childProducts as $prodCh) {
-                                    $productChild = Mage::getModel('catalog/product')->setStoreId($storeID)->load($prodCh->getId());
-                                    $productChild->setData('integra_anymarket', $product->getData('integra_anymarket') );
-                                    $productChild->save();
-                                }
-                                Mage::getSingleton('core/session')->setImportProdsVariable('true');
+                        foreach ($parentIds as $parentId) {
+                            $arrSku = array(
+                                "variations" => $attributeOptions,
+                                "price" => $stkPrice,
+                                "amount" => $stockQty,
+                                "ean" => $product->getData($ean),
+                                "partnerId" => $product->getSku(),
+                                "title" => $product->getName(),
+                                "idProduct" => $product->getData('id_anymarket'),
+                                "internalIdProduct" => $product->getId(),
+                            );
 
-                                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
-                            }
-                        }else{
-                            $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
-
-                            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
-                            $ean    = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_ean_field', $storeID);
-
-                            if($filter == 'final_price'){
-                                $stkPrice = $product->getFinalPrice();
-                            }else{
-                                $stkPrice = $product->getData($filter);
-                            }
-
-                            if($parentIds){
-                                //PRODUTO SIMPLES FILHO DE UM CONFIG
-                                $attributeOptions = array();
-                                foreach ($parentIds as $parentId) {
-                                    $productConfig = Mage::getModel('catalog/product')->load($parentId);
-
-                                    if( $productConfig->getId() ) {
-                                        foreach ($productConfig->getTypeInstance()->getConfigurableAttributes() as $attribute) {
-                                            $value = $product->getAttributeText($attribute->getProductAttribute()->getAttributeCode());
-                                            $attributeOptions[$attribute->getLabel()] = $value;
-                                        }
-
-                                        foreach ($parentIds as $parentId) {
-                                            $arrSku = array(
-                                                "variations" => $attributeOptions,
-                                                "price" => $stkPrice,
-                                                "amount" => $stockQty,
-                                                "ean" => $product->getData($ean),
-                                                "partnerId" => $product->getSku(),
-                                                "title" => $product->getName(),
-                                                "idProduct" => $product->getData('id_anymarket'),
-                                                "internalIdProduct" => $product->getId(),
-                                            );
-
-                                            Mage::helper('db1_anymarket/product')->sendImageSkuToAnyMarket($storeID, $product, array($arrSku));
-                                        }
-                                    }else{
-                                        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                                        $anymarketlog->setLogDesc('Produto possui registro de um Parent, porem esse parent não existe no Magento');
-                                        $anymarketlog->setLogId($product->getSku());
-                                        $anymarketlog->setStatus("1");
-                                        $anymarketlog->setStores(array($storeID));
-                                        $anymarketlog->save();
-
-                                        //PRODUTO FILHO DE UM PAI QUE AGORA EH SIMPLES
-                                        Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());        
-
-                                        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $stockQty, $product->getData($filter));
-                                    }
-                                }
-                            }else{
-                                //PRODUTO SIMPLES E OUTROS
-                                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
-
-                                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $stockQty, $product->getData($filter));
-                            }
-
+                            Mage::helper('db1_anymarket/product')->sendImageSkuToAnyMarket($storeID, $product, array($arrSku));
                         }
+                    }else{
+                        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                        $anymarketlog->setLogDesc('Produto possui registro de um Parent, porem esse parent não existe no Magento');
+                        $anymarketlog->setLogId($product->getSku());
+                        $anymarketlog->setStatus("1");
+                        $anymarketlog->setStores(array($storeID));
+                        $anymarketlog->save();
 
+                        //PRODUTO FILHO DE UM PAI QUE AGORA EH SIMPLES
+                        Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
+                        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $stockQty, $product->getData($filter));
                     }
                 }
             }else{
-                Mage::getSingleton('core/session')->setQuickCreateProdVariable('');
+                //PRODUTO SIMPLES E OUTROS
+                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
+                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $stockQty, $product->getData($filter));
             }
 
         }
+
     }
 
     /**

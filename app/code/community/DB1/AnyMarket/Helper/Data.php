@@ -192,7 +192,7 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function CallAPICurl($method, $url, $headers, $params){
         $curl = curl_init($url);
-
+Mage::log($method.' '.$url, null, 'ctrl.log');
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $data_string = "";
         if ($method == "POST"){
@@ -220,35 +220,35 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
     	}elseif ( $status == 404 || $status == 500 || $status == 503 ) {
     			$retorno = array("error" => "1", "json" => $data_string, "return" => json_encode($curl_response));
         }else{
-          if($err){
-              $retorno = array("error" => "1", "json" => $data_string, "return" => 'Error Curl: '.$err );
-          }else{
-              $retJsonCurlResp = json_decode($curl_response);
+            if($err){
+                $retorno = array("error" => "1", "json" => $data_string, "return" => 'Error Curl: '.$err );
+            }else{
+                $retJsonCurlResp = json_decode($curl_response);
 
-              $retString = '';
-              if( isset($retJsonCurlResp->message) ){
-                  $retString = 'Message: '.utf8_encode($retJsonCurlResp->message);
-              }
+                $retString = '';
+                if( isset($retJsonCurlResp->message) ){
+                    $retString = 'Message: '.utf8_encode($retJsonCurlResp->message);
+                }
 
-              if( isset($retJsonCurlResp->details) ){
-                  $retString .= '; Details: '.utf8_encode($retJsonCurlResp->details);
-              }
+                if( isset($retJsonCurlResp->details) ){
+                    $retString .= '; Details: '.utf8_encode($retJsonCurlResp->details);
+                }
 
-              if( isset($retJsonCurlResp->fieldErrors) ){
-                  $retString .= '; Field Erros: (';
-                  foreach ($retJsonCurlResp->fieldErrors as $error) {
-                      $retString .= 'Field: '.utf8_encode($error->field);
-                      $retString .= ', Message: '.utf8_encode($error->message).';';
-                  }
-                  $retString .= ')';
-              }
+                if( isset($retJsonCurlResp->fieldErrors) ){
+                    $retString .= '; Field Erros: (';
+                    foreach ($retJsonCurlResp->fieldErrors as $error) {
+                        $retString .= 'Field: '.utf8_encode($error->field);
+                        $retString .= ', Message: '.utf8_encode($error->message).';';
+                    }
+                    $retString .= ')';
+                }
 
-              if($retString != ''){
-                  $retorno = array("error" => "1", "json" => $data_string, "return" => json_encode($retString) );
-              }else{
-                  $retorno = array("error" => "1", "json" => $data_string, "return" => utf8_encode($curl_response) );
-              }
-          }
+                if($retString != ''){
+                    $retorno = array("error" => "1", "json" => $data_string, "return" => json_encode($retString) );
+                }else{
+                    $retorno = array("error" => "1", "json" => $data_string, "return" => utf8_encode($curl_response) );
+                }
+            }
 
         }
         if($retorno == ""){
