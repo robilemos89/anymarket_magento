@@ -90,6 +90,14 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid extends Mage_Adminh
             )
         );
         $this->addColumn(
+            'nmc_id_magento',
+            array(
+                'header' => Mage::helper('db1_anymarket')->__('Id magento'),
+                'index'  => 'nmc_id_magento',
+                'type'   => 'text'
+            )
+        );
+        $this->addColumn(
             'nmc_cat_desc',
             array(
                 'header'    => Mage::helper('db1_anymarket')->__('Category description'),
