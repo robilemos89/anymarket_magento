@@ -101,6 +101,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketqueue_Grid extends Mage_Adminhtml_B
                 'options' => array(
                     'ORDER' => Mage::helper('db1_anymarket')->__('Order'),
                     'PRODUCT' => Mage::helper('db1_anymarket')->__('Product'),
+                    'STOCK' => Mage::helper('db1_anymarket')->__('Stock')
                 )
 
             )

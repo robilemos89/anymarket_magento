@@ -2,17 +2,10 @@
 class DB1_AnyMarket_Model_Cron{
 
     /**
-     * sinc all orders in feed and orders with errors
+     * sinc all stocks in feed and products with errors
      */
-    public function sincOrders(){
-        Mage::helper('db1_anymarket/queue')->processOrders();
-    }
-
-    /**
-     * sinc all products in feed and products with errors
-     */
-    public function sincProducts(){
-        Mage::helper('db1_anymarket/queue')->processProducts();
+    public function sincStocks(){
+        Mage::helper('db1_anymarket/queue')->processStocks();
     }
 
     /**
