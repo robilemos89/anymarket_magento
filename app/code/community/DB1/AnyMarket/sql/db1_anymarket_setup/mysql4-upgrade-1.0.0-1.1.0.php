@@ -59,7 +59,7 @@ $config = array(
     'input'    => 'text',
     'apply_to' => 'simple,bundle,grouped,configurable',
 	'user_defined' => 1,
-    'note'     => '<a style="cursor:pointer" onclick="showDialogCategory();">Selecione uma categoria para subir ao Anymarket</a>'
+    'note'     => '<a style="cursor:pointer" onclick="showDialogCategory();">Selecione uma categoria para enviar ao Anymarket</a>'
 );
 
 $setup->addAttribute('catalog_product', $codigo, $config);
