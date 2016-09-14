@@ -969,6 +969,15 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $vHeight = $this->procAttrConfig($volume_altura, $product->getData( $volume_altura ), 1);
             $vWidth  = $this->procAttrConfig($volume_largura, $product->getData( $volume_largura ), 1);
             $vLength = $this->procAttrConfig($volume_comprimento, $product->getData( $volume_comprimento ), 1);
+            if( $product->getTypeID() == "bundle" ){
+                if( ($vHeight == "") || ($vWidth == "") || ($vLength == "") ) {
+                    $arrDim = $this->getDimensionsOfBundle($storeID, $product, $volume_altura, $volume_largura, $volume_comprimento);
+
+                    $vHeight = $arrDim['height'];
+                    $vWidth = $arrDim['width'];
+                    $vLength = $arrDim['length'];
+                }
+            }
 
             //Cria os params
             $param = array(
@@ -1630,9 +1639,18 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     }
 
                     //trata as dimensoes
-                    $vHeight = $this->procAttrConfig($volume_altura,      $ProdsJSON->height, 0);
-                    $vWidth  = $this->procAttrConfig($volume_largura,     $ProdsJSON->width,  0);
+                    $vHeight = $this->procAttrConfig($volume_altura, $ProdsJSON->height, 0);
+                    $vWidth = $this->procAttrConfig($volume_largura, $ProdsJSON->width, 0);
                     $vLength = $this->procAttrConfig($volume_comprimento, $ProdsJSON->length, 0);
+                    if( $product->getTypeID() == "bundle" ){
+                        if( ($vHeight == "") || ($vWidth == "") || ($vLength == "") ) {
+                            $arrDim = $this->getDimensionsOfBundle($storeID, $product, $volume_altura, $volume_largura, $volume_comprimento);
+
+                            $vHeight = $arrDim['height'];
+                            $vWidth = $arrDim['width'];
+                            $vLength = $arrDim['length'];
+                        }
+                    }
 
                     if(!$product){
                         $AttributeId = Mage::getModel('eav/entity_attribute')->getIdByCode('catalog_product', $variationArray[ $idVar ]);
@@ -2079,6 +2097,31 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         }
 
         return $WeightTotal;
+    }
+
+    public function getDimensionsOfBundle($storeID, $product, $volume_altura, $volume_largura, $volume_comprimento){
+        $selectionCollection = $product->getTypeInstance(true)->getSelectionsCollection(
+            $product->getTypeInstance(true)->getOptionsIds($product), $product
+        );
+
+        $height = 0;
+        $width  = 0;
+        $length = 0;
+        foreach($selectionCollection as $option)
+        {
+            $prodOfBundle = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $option->getId() );
+            if( $prodOfBundle->getData( $volume_comprimento ) > $length ){
+                $length = $prodOfBundle->getData( $volume_comprimento );
+            }
+
+            if( $prodOfBundle->getData( $volume_largura ) > $width ){
+                $width = $prodOfBundle->getData( $volume_largura );
+            }
+
+            $height += $prodOfBundle->getData( $volume_altura );
+        }
+
+        return array( "length" => $length, "width" => $width, "height" => $height );
     }
 
     public function getStockPriceOfBundle($product){
