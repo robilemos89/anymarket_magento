@@ -596,8 +596,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 Mage::getSingleton('core/session')->setImportProdsVariable('false');
                 foreach ($childProducts as $prodCh) {
                     $productChild = Mage::getModel('catalog/product')->setStoreId($storeID)->load($prodCh->getId());
-                    $productChild->setData('integra_anymarket', $product->getData('integra_anymarket') );
-                    $productChild->save();
+                    if( $productChild->getData('integra_anymarket') != 1 ){
+                        $productChild->setData('integra_anymarket', $product->getData('integra_anymarket') );
+                        $productChild->save();
+                    }
                 }
                 Mage::getSingleton('core/session')->setImportProdsVariable('true');
 
