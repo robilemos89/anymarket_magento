@@ -344,6 +344,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                             ->getCollection()
                                             ->addFieldToFilter($AttrToDoc, $document)->load()->getFirstItem();
 
+                                        //caso nao ache pelo CPF valida se nao tem mascara
                                         if(!$customer->getId()) {
                                             if (strlen($document) == 11) {
                                                 $document = $this->Mask('###.###.###-##', $document);
@@ -354,6 +355,14 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                             $customer = Mage::getModel('customer/customer')
                                                 ->getCollection()
                                                 ->addFieldToFilter($AttrToDoc, $document)->load()->getFirstItem();
+
+                                            //caso ainda nao encontrou valida se existe o email
+                                            if(!$customer->getId()) {
+                                                $customer = Mage::getModel('customer/customer')
+                                                    ->getCollection()
+                                                    ->addFieldToFilter('email', $email)->load()->getFirstItem();
+
+                                            }
                                         }
 
                                         $AddressShipBill = null;

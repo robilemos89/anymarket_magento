@@ -234,6 +234,39 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         return $reservedOrderId;
     }
 
+    private function groupProductByID($products){
+        $arryProdAt = array();
+        $ctrlProds = array();
+        foreach ($products as $idxProd => $prod) {
+            for ($i=$idxProd+1; $i < count($products); $i++) {
+                $prodToGroup = $products[$i];
+
+                $arrToComp1 = $prod;
+                $arrToComp2 = $prodToGroup;
+
+                unset($arrToComp1['qty']);
+                unset($arrToComp2['qty']);
+                if (md5(serialize($arrToComp1)) == md5(serialize($arrToComp2))) {
+                    $prod['qty'] += $prodToGroup['qty'];
+
+                    if( isset($prod['bundle_option_qty']) ) {
+                        foreach ($prod['bundle_option_qty'] as $key => $value) {
+                            $prod['bundle_option_qty'][$key] += $prodToGroup['bundle_option_qty'][$key];
+                        }
+                    }
+
+                }
+            }
+
+            if( !in_array($prod['product'], $ctrlProds) ) {
+                array_push($arryProdAt, $prod);
+                array_push($ctrlProds, $prod['product']);
+            }
+        }
+
+        return $arryProdAt;
+    }
+
     /**
      * add products in order
      *
@@ -243,7 +276,10 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
     {
         $this->_subTotal = 0;
 
-        foreach ($products as $productRequest) {
+        //GROUP ITENS
+        $arryProdAt = $this->groupProductByID($products);
+
+        foreach ($arryProdAt as $productRequest) {
             $this->_addProduct($productRequest);
         }
     }
@@ -352,6 +388,25 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
 
         $finalPrice = $price;
         if( $product['parent_product_id'] ){
+            $productParent = Mage::getModel('catalog/product')->load( $product['parent_product_id'] );
+
+            if( $productParent->getTypeID() == "bundle" && $productParent->getPriceType() == 0 ) {
+                //GET PROC FROM REAL PRICE
+                $priceModel = $productParent->getPriceModel();
+                $PriceBundle = $priceModel->getTotalPrices($productParent, null, true, false);
+
+                $PriceBundle = reset($PriceBundle);
+                $priceProdCur = $product->getFinalPrice();
+
+                $currPorc = (100*$priceProdCur)/$PriceBundle;
+                $finalPrice =  ($currPorc*$price)/100;
+            }else{
+                $finalPrice = 0;
+            }
+
+        }
+
+        if( $product->getTypeID() == "bundle" ) {
             $finalPrice = 0;
         }
 
@@ -371,7 +426,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
             ->setSku($product->getSku())
             ->setPrice($finalPrice)
             ->setBasePrice($finalPrice)
-            ->setOriginalPrice($finalPrice)
+            ->setOriginalPrice( $product->getFinalPrice() )
             ->setRowTotal($rowTotal)
             ->setBaseRowTotal($rowTotal)
 

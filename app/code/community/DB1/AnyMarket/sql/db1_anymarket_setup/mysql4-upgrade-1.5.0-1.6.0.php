@@ -9,5 +9,5 @@ $installer->updateAttribute($entityTypeId, $idAttributeOldSelect, 'backend_type'
 $installer->updateAttribute($entityTypeId, $idAttributeOldSelect, 'backend_model','eav/entity_attribute_backend_array');
 $installer->updateAttribute($entityTypeId, $idAttributeOldSelect, 'source_model','db1_anymarket/system_config_source_categories_values');
 
-$installer->updateAttribute($entityTypeId, $idAttributeOldSelect, 'note','Selecione uma categoria para subir ao Anymarket');
+$installer->updateAttribute($entityTypeId, $idAttributeOldSelect, 'note','Selecione uma categoria para enviar ao Anymarket');
 $installer->endSetup();
