@@ -400,18 +400,16 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
 
                 $currPorc = (100*$priceProdCur)/$PriceBundle;
                 $finalPrice =  ($currPorc*$price)/100;
-            }else{
-                $finalPrice = 0;
             }
 
         }
 
-        if( $product->getTypeID() == "bundle" ) {
-            $finalPrice = 0;
-        }
-
         $qtdOrdered = $product['cart_qty'];
-        $rowTotal = $finalPrice * $qty;
+        if( $product->getTypeID() == "bundle" ) {
+            $rowTotal = 0;
+        }else{
+            $rowTotal = $finalPrice * $qty;
+        }
 
         $orderItem = Mage::getModel('sales/order_item')
             ->setStoreId($this->_storeId)
