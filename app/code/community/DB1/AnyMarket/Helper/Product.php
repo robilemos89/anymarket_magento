@@ -765,6 +765,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $Weight = "";
             if($product->getTypeID() == "configurable"){
                 $confID = $product->getId();
+                if( $product->getData('integra_images_root_anymarket') == 1 ) {
+                    //obtem as imagens do produto(Config)
+                    $itemsIMG = Mage::helper('db1_anymarket/image')->getImagesOfProduct($storeID, $product, null);
+                }
             }else{
                 // verifica se é um simples pertecente a um Configurable
                 $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
@@ -773,10 +777,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     $confID = $parentIds[0];
                     $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($confID);
                 }
-            }
 
-            //obtem as imagens do produto(Config ou Simples)
-            $itemsIMG = Mage::helper('db1_anymarket/image')->getImagesOfProduct($storeID, $product, null);
+                //obtem as imagens do produto(Simples)
+                $itemsIMG = Mage::helper('db1_anymarket/image')->getImagesOfProduct($storeID, $product, null);
+            }
 
             if( !$product->getId() ){
                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
@@ -828,7 +832,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     }
 
                     //obtem as imagens do produto (Obtem os simples e relaciona as variacoes)
-                    $itemsIMG = Mage::helper('db1_anymarket/image')->getImagesOfProduct($storeID, $SimpleConfigProd, $ArrVariationValues);
+                    $itemsIMGSimple = Mage::helper('db1_anymarket/image')->getImagesOfProduct($storeID, $SimpleConfigProd, $ArrVariationValues);
+                    if( count($itemsIMG) > 0 ){
+                        foreach ($itemsIMGSimple as $itemImg){
+                            array_push($itemsIMG, $itemImg);
+                        }
+                    }else{
+                        $itemsIMG = $itemsIMGSimple;
+                    }
 
                     $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
 
