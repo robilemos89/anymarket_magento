@@ -833,9 +833,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                     //obtem as imagens do produto (Obtem os simples e relaciona as variacoes)
                     $itemsIMGSimple = Mage::helper('db1_anymarket/image')->getImagesOfProduct($storeID, $SimpleConfigProd, $ArrVariationValues);
-                    if( count($itemsIMG) > 0 ){
+                    if( isset($itemsIMG) &&  count($itemsIMG) > 0 ){
                         foreach ($itemsIMGSimple as $itemImg){
-                            array_push($itemsIMG, $itemImg);
+                            if( !in_array($itemImg, $itemsIMG) ){
+                                array_push($itemsIMG, $itemImg);
+                            }
                         }
                     }else{
                         $itemsIMG = $itemsIMGSimple;
@@ -1017,7 +1019,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 "height" => $this->convertUnitMeasurement($UnitMeasurement, $vHeight, 1),
                 "width"  => $this->convertUnitMeasurement($UnitMeasurement, $vWidth,  1),
                 "length" => $this->convertUnitMeasurement($UnitMeasurement, $vLength, 1),
-                "images" => $itemsIMG,
+                "images" => $this->unique_multidim_array($itemsIMG, 'url'),
                 "priceFactor" => $varPriceFactor,
                 "calculatedPrice" => $product->getData( $calculated_price ) == 0 ? false : true,
                 // OBTER ATRIBUTOS CUSTOM
