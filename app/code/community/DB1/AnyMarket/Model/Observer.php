@@ -79,7 +79,8 @@ class DB1_AnyMarket_Model_Observer {
         if( !$category->getName() ) {
             $category = Mage::getModel('catalog/category')->load($category->getId());
         }
-        $storeID = Mage::helper('db1_anymarket')->getCurrentStoreView();
+
+        $storeID = Mage::app()->getRequest()->getParam('store') == 0 ? Mage::helper('db1_anymarket')->getCurrentStoreView() : Mage::app()->getRequest()->getParam('store');
         if( $category->getData('categ_integra_anymarket') == 1 ){
             $amCategParent = Mage::getModel('db1_anymarket/anymarketcategories')->load($category->getParentId(), 'nmc_id_magento');
             if( $amCategParent->getData('nmc_cat_id') ){
