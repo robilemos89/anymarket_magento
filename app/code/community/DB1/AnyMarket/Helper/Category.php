@@ -221,6 +221,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
                 $anymarketcategories->setNmcCatRootId( $IdParent != null ? $IdParent : '000' );
                 $anymarketcategories->setNmcCatDesc( $name );
                 $anymarketcategories->setNmcIdMagento( $id );
+                $anymarketcategories->setStores(array($storeID));
                 $anymarketcategories->setStatus('1');
                 $anymarketcategories->save();
 
