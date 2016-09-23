@@ -119,7 +119,6 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
     public function sendImageToAnyMarket($storeID, $product, $variation){
         if($product){
             $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $product->getId() );
-
             $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
             $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
             $exportImage = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_export_image_field', $storeID);
@@ -187,7 +186,7 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                     foreach ($imgsProdAnymarket as $imgProdAnymarket) {
                         $exportImages = true;
                         if ($variation) {
-                            if( $imgProdAnymarket->variation != $variation ){
+                            if( !isset($imgProdAnymarket->variation) || $imgProdAnymarket->variation != $variation ){
                                 $exportImages = false;
                             }
                         }
