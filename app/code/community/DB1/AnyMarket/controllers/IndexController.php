@@ -57,6 +57,16 @@ class DB1_AnyMarket_IndexController extends Mage_Core_Controller_Front_Action {
 						} elseif ($value->type == 'TRANSMISSION') {
 							$listTransmissions = array();
 
+                            if( !Mage::helper('db1_anymarket/product')->validateCallbackReceiver($storeID, $value->content->id) ){
+                                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                                $anymarketlog->setLogDesc('Callback Rejected');
+                                $anymarketlog->setLogJson(file_get_contents('php://input'));
+                                $anymarketlog->setStatus("0");
+                                $anymarketlog->save();
+
+                                return $this;
+                            }
+
 							$HOST = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
 
 							$headers = array(

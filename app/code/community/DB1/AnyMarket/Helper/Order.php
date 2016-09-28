@@ -172,7 +172,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $orderGenerator->setCpfCnpj($customer->getData($AttrToDoc));
             $orderGenerator->setShippingDescription($ShippingDesc);
 
-            $CodOrder = $orderGenerator->createOrder($products);
+            $CodOrder = $orderGenerator->createOrder($storeID, $products);
 
             $this->saveLogOrder('nmo_id_anymarket', $IDAnyMarket, 'Integrado', '', $IDSeqAnyMarket, $IDAnyMarket, $CodOrder, $storeID);
 
