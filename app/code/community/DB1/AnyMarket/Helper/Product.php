@@ -107,7 +107,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
     public function saveCallbackReceiver($sku){
         $cache = Mage::app()->getCache();
-        $cache->save("sendToAnymarket", "callback_product_executed_".$sku, array($sku."_cached"), 180);
+        $cache->save("sendToAnymarket", "callback_product_executed_".$sku, array($sku."_cached"), 60);
     }
 
     /**
