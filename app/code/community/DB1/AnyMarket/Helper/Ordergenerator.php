@@ -104,7 +104,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
      * @param $products
      * @return int
      */
-    public function createOrder($products)
+    public function createOrder($storeID, $products)
     {
         if (!($this->_customer instanceof Mage_Customer_Model_Customer)){
             $this->setCustomer(self::CUSTOMER_RANDOM);
@@ -219,7 +219,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
 
         $this->_order->setPayment($orderPayment);
 
-        $this->_addProducts($products);
+        $this->_addProducts($storeID, $products);
 
         $this->_order->setSubtotal($this->_subTotal)
             ->setBaseSubtotal($this->_subTotal)
@@ -276,7 +276,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
      *
      * @param $products
      */
-    protected function _addProducts($products)
+    protected function _addProducts($storeID, $products)
     {
         $this->_subTotal = 0;
 
@@ -284,7 +284,7 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         $arryProdAt = $this->groupProductByID($products);
 
         foreach ($arryProdAt as $productRequest) {
-            $this->_addProduct($productRequest);
+            $this->_addProduct($storeID, $productRequest);
         }
     }
 
@@ -295,13 +295,12 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
      * @return array
      * @throws Exception
      */
-    protected function _addProduct($requestData)
+    protected function _addProduct($storeID, $requestData)
     {
         $request = new Varien_Object();
         $request->setData($requestData);
 
-        $product = Mage::getModel('catalog/product')->load($request['product']);
-
+        $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($request['product']);
 
         $cartCandidates = $product->getTypeInstance(true)
             ->prepareForCartAdvanced($request, $product);
