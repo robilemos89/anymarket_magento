@@ -89,12 +89,9 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
 
                     // TRATA STOCK
                     if ($product) {
-                        $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
-                        if ($typeSincOrder == 1) {
-                            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
-                            $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
-                            Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $ProdStock->getQty(), $product->getData($filter));
-                        }
+                        $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                        $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
+                        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $ProdStock->getQty(), $product->getData($filter));
                     }
                 } else if ($item['nmq_table'] == 'PRODUCT') {
                     // EXPORT PRODUCT
