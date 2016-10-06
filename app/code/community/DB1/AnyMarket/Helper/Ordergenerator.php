@@ -238,8 +238,10 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
         $arryProdAt = array();
         $ctrlProds = array();
         foreach ($products as $idxProd => $prod) {
-            foreach ($prod['bundle_option_qty'] as $key => $value) {
-                $prod['bundle_option_qty'][$key] = $prod['bundle_option_qty'][$key]*$prod['qty'];
+            if( isset($prod['bundle_option_qty']) ) {
+                foreach ($prod['bundle_option_qty'] as $key => $value) {
+                    $prod['bundle_option_qty'][$key] = $prod['bundle_option_qty'][$key] * $prod['qty'];
+                }
             }
 
             for ($i=$idxProd+1; $i < count($products); $i++) {
