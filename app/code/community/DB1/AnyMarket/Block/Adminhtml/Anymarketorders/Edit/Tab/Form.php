@@ -64,6 +64,16 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketorders_Edit_Tab_Form extends Mage_A
         );
 
         $fieldset->addField(
+            'nmo_id_seq_anymarket',
+            'text',
+            array(
+                'label' => Mage::helper('db1_anymarket')->__('Code Order Seq Magento'),
+                'name'  => 'nmo_id_seq_anymarket',
+                'required'  => false
+            )
+        );
+
+        $fieldset->addField(
             'nmo_status_int',
             'text',
             array(

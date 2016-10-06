@@ -139,6 +139,12 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
 
                     $processImage = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_transform_process_image_field', $storeID);
                     $imgsProdMagento = $product->getMediaGalleryImages();
+
+                    if (count($imgsProdMagento) <= 0) {
+                        $productIMG = Mage::getModel('catalog/product')->load( $product->getId() );
+                        $imgsProdMagento = $productIMG->getMediaGalleryImages();
+                    }
+
                     if (count($imgsProdMagento) > 0) {
                         if( $processImage == 0 ) {
                             foreach ($imgsProdMagento as $imgProdMagento) {

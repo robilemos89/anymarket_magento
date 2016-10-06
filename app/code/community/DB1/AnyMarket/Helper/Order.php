@@ -574,6 +574,23 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
     }
 
+    private function checkIfCanCreateInvoice($Order){
+        $continueOrder = true;
+        foreach ($Order->getInvoiceCollection() as $inv) {
+            $invoice = Mage::getModel('sales/order_invoice')->loadByIncrementId( $inv->getIncrementId() );
+            foreach ($invoice->getCommentsCollection() as $item) {
+                $CommentCurr = $item->getComment();
+                if ((strpos($CommentCurr, 'Registro de Pagamento criado por Anymarket') !== false)) {
+                    $continueOrder = false;
+                    break;
+                }
+
+            }
+        }
+
+        return $continueOrder;
+    }
+
     /**
      * change status order
      *
@@ -597,14 +614,16 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             if( $createRegPay == "1" && $StatusPedAnyMarket == 'PAID_WAITING_SHIP' ){
                 if( $order->canInvoice() ){
 
-                    $orderItems = $order->getAllItems();
-                    foreach ($orderItems as $_eachItem) {
-                        $opid = $_eachItem->getId();
-                        $qty = $_eachItem->getQtyOrdered();
-                        $itemsarray[$opid] = $qty;
+                    if( $this->checkIfCanCreateInvoice($order) ) {
+                        $orderItems = $order->getAllItems();
+                        foreach ($orderItems as $_eachItem) {
+                            $opid = $_eachItem->getId();
+                            $qty = $_eachItem->getQtyOrdered();
+                            $itemsarray[$opid] = $qty;
+                        }
+                        $nfeString = "Registro de Pagamento criado por Anymarket";
+                        Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
                     }
-                    $nfeString = "Registro de Pagamento criado por Anymarket";
-                    Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
                 }
             }
 
