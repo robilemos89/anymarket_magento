@@ -77,7 +77,6 @@ class DB1_AnyMarket_Model_Anymarketproducts_Api extends Mage_Api_Model_Resource_
                 throw new Exception(Mage::helper('db1_anymarket')->__("Data cannot be null"));
             }
 
-
             $ret = "";
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
             $anymarketlog->setLogDesc( 'Callback received - Transmission (API)');
@@ -101,6 +100,7 @@ class DB1_AnyMarket_Model_Anymarketproducts_Api extends Mage_Api_Model_Resource_
                             "gumgaToken: " . $TOKEN
                         );
 
+                        $listTransmissions = array();
                         array_push($listTransmissions, array(
                                 "id" => $data['id'],
                                 "token" => "notoken"

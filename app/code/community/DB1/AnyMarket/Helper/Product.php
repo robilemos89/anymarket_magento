@@ -2358,11 +2358,14 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     }
                 }
             }else{
-                $bundleIds = Mage::getResourceSingleton('bundle/selection')->getParentIdsByChild($IDProd);
-                if( $bundleIds ){
-                    foreach($bundleIds as $bundle) {
-                        $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($bundle);
-                        $this->updatePriceStockAnyMarket($storeID, $bundle, $ProdStock->getQty(), null);
+                $bundleModel = Mage::getResourceSingleton('bundle/selection');
+                if($bundleModel) {
+                    $bundleIds = $bundleModel->getParentIdsByChild($IDProd);
+                    if ($bundleIds) {
+                        foreach ($bundleIds as $bundle) {
+                            $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($bundle);
+                            $this->updatePriceStockAnyMarket($storeID, $bundle, $ProdStock->getQty(), null);
+                        }
                     }
                 }
             }

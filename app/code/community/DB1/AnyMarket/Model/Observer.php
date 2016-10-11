@@ -44,31 +44,36 @@ class DB1_AnyMarket_Model_Observer {
     public function sendProdAnyMarket($observer) {
         $productOld = $observer->getEvent()->getProduct();
         $storeID = ($productOld->getStoreId() != null && $productOld->getStoreId() != "0") ? $productOld->getStoreId() : Mage::app()->getDefaultStoreView()->getId();
+        try{
+            $ExportProdSession = Mage::getSingleton('core/session')->getImportProdsVariable();
+            if( $ExportProdSession == 'false' ) {
+                return false;
+            }
 
-        $ExportProdSession = Mage::getSingleton('core/session')->getImportProdsVariable();
-        if( $ExportProdSession == 'false' ) {
-            return false;
-        }
+            $QuickCreate = Mage::getSingleton('core/session')->getQuickCreateProdVariable();
+            if($QuickCreate != null || $QuickCreate != "" || $QuickCreate == $productOld->getSku() ) {
+                Mage::getSingleton('core/session')->setQuickCreateProdVariable('');
+                return false;
+            }
 
-        $QuickCreate = Mage::getSingleton('core/session')->getQuickCreateProdVariable();
-        if($QuickCreate != null || $QuickCreate != "" || $QuickCreate == $productOld->getSku() ) {
-            Mage::getSingleton('core/session')->setQuickCreateProdVariable('');
-            return false;
-        }
+            if( Mage::registry('prod_save_observer_executed_'.$productOld->getId()) ){
+                Mage::unregister( 'prod_save_observer_executed_'.$productOld->getId() );
+                return $this;
+            }
+            Mage::register('prod_save_observer_executed_'.$productOld->getId(), true);
 
-        if( Mage::registry('prod_save_observer_executed_'.$productOld->getId()) ){
+            $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($productOld->getId());
+            if( $this->asyncMode($storeID) && $product->getData('integra_anymarket') == 1 ) {
+                Mage::helper('db1_anymarket/queue')->addQueue($storeID, $product->getId(), 'EXP', 'PRODUCT');
+                return false;
+            }
+
+            Mage::helper('db1_anymarket/product')->prepareForSendProduct($storeID, $product);
+
+        } catch (Exception $e) {
             Mage::unregister( 'prod_save_observer_executed_'.$productOld->getId() );
-            return $this;
+            Mage::logException($e);
         }
-        Mage::register('prod_save_observer_executed_'.$productOld->getId(), true);
-
-        $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($productOld->getId());
-        if( $this->asyncMode($storeID) && $product->getData('integra_anymarket') == 1 ) {
-            Mage::helper('db1_anymarket/queue')->addQueue($storeID, $product->getId(), 'EXP', 'PRODUCT');
-            return false;
-        }
-
-        Mage::helper('db1_anymarket/product')->prepareForSendProduct($storeID, $product);
     }
 
     /**
@@ -118,33 +123,38 @@ class DB1_AnyMarket_Model_Observer {
     public function updateOrderAnyMarketObs($observer){
         $storeID = $observer->getEvent()->getOrder()->getStoreId();
         $OrderID = $observer->getEvent()->getOrder()->getIncrementId();
-
-        if(Mage::registry('order_save_observer_executed_'.$OrderID )){
-            return $this;
-        }
-
-        Mage::register('order_save_observer_executed_'.$OrderID, true);
-        $order = $observer->getEvent()->getOrder();
-
-        if( $this->asyncMode($storeID) ){
-            Mage::helper('db1_anymarket/queue')->addQueue($storeID, $OrderID, 'EXP', 'ORDER');
-        }else{
-            Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($storeID, $order );
-        }
-
-        //DECREMENTA STOCK ANYMARKET
-        $orderItems = $order->getItemsCollection();
-        $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
-        foreach ($orderItems as $item){
-            $product_id = $item->product_id;
-            if( $this->asyncMode($storeID) ) {
-                Mage::helper('db1_anymarket/queue')->addQueue($storeID, $product_id, 'EXP', 'STOCK');
-            }else {
-                $_product = Mage::getModel('catalog/product')->load($product_id);
-
-                $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($_product);
-                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product_id, $stock->getQty(), $_product->getData($filter));
+        try {
+            if(Mage::registry('order_save_observer_executed_'.$OrderID )){
+                return $this;
             }
+
+            Mage::register('order_save_observer_executed_'.$OrderID, true);
+            $order = $observer->getEvent()->getOrder();
+
+            if( $this->asyncMode($storeID) ){
+                Mage::helper('db1_anymarket/queue')->addQueue($storeID, $OrderID, 'EXP', 'ORDER');
+            }else{
+                Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($storeID, $order );
+            }
+
+            //DECREMENTA STOCK ANYMARKET
+            $orderItems = $order->getItemsCollection();
+            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+            foreach ($orderItems as $item){
+                $product_id = $item->product_id;
+                if( $this->asyncMode($storeID) ) {
+                    Mage::helper('db1_anymarket/queue')->addQueue($storeID, $product_id, 'EXP', 'STOCK');
+                }else {
+                    $_product = Mage::getModel('catalog/product')->load($product_id);
+
+                    $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($_product);
+                    Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product_id, $stock->getQty(), $_product->getData($filter));
+                }
+            }
+
+        } catch (Exception $e) {
+            Mage::unregister( 'order_save_observer_executed_'.$OrderID->getId() );
+            Mage::logException($e);
         }
 
     }
