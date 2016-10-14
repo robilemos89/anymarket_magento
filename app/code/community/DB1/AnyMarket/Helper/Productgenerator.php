@@ -7,7 +7,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
             'attribute_set_id' => '4',
             'type_id' =>  'simple',
             'sku' =>  '0124ASF3',
-            'has_options' =>  '0', 
+            'has_options' =>  '0',
             'required_options' =>  '0',
             'created_at' =>  '',
             'updated_at' =>  '',
@@ -18,8 +18,8 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
             'volume_largura' => null,
             'warranty_time' => null,
             'id_anymarket' => null,
-            'tax_class_id' =>  '0', 
-            'is_recurring' =>  '0', 
+            'tax_class_id' =>  '0',
+            'is_recurring' =>  '0',
             'weight' =>  '1.0000',
             'price' =>  '0',
             'cost' =>  '0',
@@ -134,7 +134,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
         $imgName = str_replace('.'.$image_type, "", $imgName);
         $filename  = md5($imgName . $sku).'.'.$image_type;
 
-        $dirPath = Mage::getBaseDir('media') . DS . 'import'; 
+        $dirPath = Mage::getBaseDir('media') . DS . 'import';
         if (!file_exists($dirPath)) {
             mkdir($dirPath, 0777, true);
         }
@@ -209,11 +209,11 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
         $confProduct->setCanSaveConfigurableAttributes(true);
 
         $confProduct->setStoreId($storeID)
-                     ->setAttributeSetId( Mage::getModel('catalog/product')->getDefaultAttributeSetId() )
-                     ->setCategoryIds(array(2,3,4))
-                     ->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH)
-                     ->setStatus(1)
-                     ->setTaxClassId(0);
+            ->setAttributeSetId( Mage::getModel('catalog/product')->getDefaultAttributeSetId() )
+            ->setCategoryIds(array(2,3,4))
+            ->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH)
+            ->setStatus(1)
+            ->setTaxClassId(0);
 
         foreach ($dataProdConfig as $key => $value) {
             $confProduct->setData($key, $value);
@@ -260,15 +260,28 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
 
             $configurableProductsData[ $sProd->getId() ] = $simpleProductsData;
         }
+        //ADICIONA OS JA EXISTENTES NO PRODUTO
+        $childProducts = Mage::getModel('catalog/product_type_configurable')
+            ->getUsedProducts(null, $confProduct);
+
+        foreach($childProducts as $child) {
+            $sProd = Mage::getModel('catalog/product')->load( $child->getId() );
+            $simpleProductsData = array(
+                'is_percent'    => 0,
+                'pricing_value' => $sProd->getPrice(),
+            );
+
+            $configurableProductsData[ $sProd->getId() ] = $simpleProductsData;
+        }
 
         $confProduct->setConfigurableProductsData($configurableProductsData);
         $confProduct->setCanSaveConfigurableAttributes(true);
         $confProduct->setStoreId($storeID)
-                     ->setAttributeSetId( Mage::getModel('catalog/product')->getDefaultAttributeSetId() )
-                     ->setCategoryIds(array(2,3,4))
-                     ->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH)
-                     ->setStatus(1)
-                     ->setTaxClassId(0);
+            ->setAttributeSetId( Mage::getModel('catalog/product')->getDefaultAttributeSetId() )
+            ->setCategoryIds(array(2,3,4))
+            ->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH)
+            ->setStatus(1)
+            ->setTaxClassId(0);
 
         foreach ($dataProdConfig as $key => $value) {
             $confProduct->setData($key, $value);

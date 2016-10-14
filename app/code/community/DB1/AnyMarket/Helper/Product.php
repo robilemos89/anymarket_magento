@@ -1625,6 +1625,66 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         return $prodRet;
     }
 
+    private function prepareToSaveSimpleProductConfigurable($storeID, $ProdsJSON, $sku, $variationArray){
+        $imagesGallery = array();
+        $AttributeIds = array();
+        $objVariations = array();
+        foreach ($sku->variations as  $varValues) {
+            $descVar = $varValues->description;
+            $idVar = $varValues->variationTypeId;
+
+            $AttributeId = Mage::getModel('eav/entity_attribute')->getIdByCode('catalog_product', $variationArray[ $idVar ] );
+            if (!in_array($AttributeId, $AttributeIds)) {
+                $AttributeIds[] = $AttributeId;
+                $collectionAttr = Mage::getResourceModel('eav/entity_attribute_option_collection')
+                    ->setPositionOrder('asc')
+                    ->setAttributeFilter($AttributeId)
+                    ->setStoreFilter(0)
+                    ->load();
+
+                $AttributeOptions[$idVar] = $collectionAttr->toOptionArray();
+
+            }
+
+            $varAttr = '';
+            $descVarAttr = '';
+            foreach ( $AttributeOptions[$idVar] as $attrOpt) {
+                if($attrOpt['label'] == $descVar ){
+                    $varAttr = $attrOpt['value'];
+                    $descVarAttr = $attrOpt['label'];
+                    break;
+                }
+            }
+
+            if($varAttr != ''){
+                foreach ($ProdsJSON->photos as $image) {
+                    if( $image->variationValue != null ){
+                        if( $image->variationValue == $descVarAttr ){
+                            $imagesGallery[] = array('img' => $image->standard_resolution, 'main' => $image->main);
+                        }
+                    }
+                }
+
+                $objVariations[ $variationArray[ $idVar ] ] = $varAttr;
+            }else{
+                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                $anymarketlog->setLogDesc( 'Opção de variação sem correspondente no magento ('.$varValues->variationTypeName.') - '.$descVar );
+                $anymarketlog->setStatus("0");
+                $anymarketlog->setStores(array($storeID));
+                $anymarketlog->save();
+
+                return null;
+            }
+
+
+        }
+
+        return array( "idsVariations" => $AttributeIds,
+            "variations" => $objVariations,
+            "images" => $imagesGallery
+        );
+    }
+
 
     /**
      * @param $ProdsJSON
@@ -1673,17 +1733,19 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         if ( !empty( $ProdsJSON->variations ) ) {
             $prodSimpleFromConfig = array();
             $AttributeIds = array();
-            $AttributeOptions = array();
 
             $variationArray = array();
             $sinc = '';
             foreach ($ProdsJSON->variations as $variation) {
-                $variationArray[$variation->id] = $variation->name;
-                $AttrCtlr = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product', $variation->name);
-                if(!$AttrCtlr->getData()){
+                $AttrCtlr = Mage::getModel('eav/entity_attribute')->getCollection()
+                    ->addFieldToFilter('frontend_label', $variation->name);
+                $attrConfig = $AttrCtlr->getFirstItem();
+
+                if(!$attrConfig->getData()){
                     $sinc = $variation->name;
                     break;
                 }
+                $variationArray[$variation->id] = $attrConfig->getData('attribute_code');
             }
 
             if($sinc == ''){
@@ -1693,7 +1755,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     $product = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $IDSKUProd);
 
                     foreach ($sku->variations as  $varValues) {
-                        $descVar = $varValues->description;
                         $idVar = $varValues->variationTypeId;
                     }
 
@@ -1701,106 +1762,67 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     $vHeight = $this->procAttrConfig($volume_altura, $ProdsJSON->height, 0);
                     $vWidth = $this->procAttrConfig($volume_largura, $ProdsJSON->width, 0);
                     $vLength = $this->procAttrConfig($volume_comprimento, $ProdsJSON->length, 0);
-                    if( $product->getTypeID() == "bundle" ){
-                        if( ($vHeight == "") || ($vWidth == "") || ($vLength == "") ) {
-                            $arrDim = $this->getDimensionsOfBundle($storeID, $product, $volume_altura, $volume_largura, $volume_comprimento);
-
-                            $vHeight = $arrDim['height'];
-                            $vWidth = $arrDim['width'];
-                            $vLength = $arrDim['length'];
-                        }
-                    }
 
                     if(!$product){
-                        $AttributeId = Mage::getModel('eav/entity_attribute')->getIdByCode('catalog_product', $variationArray[ $idVar ]);
-                        if (!in_array($AttributeId, $AttributeIds)) {
-                            $AttributeIds[] = $AttributeId;
-                            $collectionAttr = Mage::getResourceModel('eav/entity_attribute_option_collection')
-                                ->setPositionOrder('asc')
-                                ->setAttributeFilter($AttributeId)
-                                ->setStoreFilter(0)
-                                ->load();
-
-                            $AttributeOptions[$idVar] = $collectionAttr->toOptionArray();
-
+                        $preparedProduct = $this->prepareToSaveSimpleProductConfigurable($storeID, $ProdsJSON, $sku, $variationArray);
+                        if( $preparedProduct == null ) {
+                            return false;
                         }
 
-                        $varAttr = '';
-                        $descVarAttr = '';
-                        foreach ( $AttributeOptions[$idVar] as $attrOpt) {
-                            if($attrOpt['label'] == $descVar ){
-                                $varAttr = $attrOpt['value'];
-                                $descVarAttr = $attrOpt['label'];
-                                break;
-                            }
+                        $AttributeIds = $preparedProduct['idsVariations'];
+                        $dataPrd = array(
+                            'attribute_set_id' => $AttrSet == null ? Mage::getModel('catalog/product')->getDefaultAttributeSetId() : $AttrSet,
+                            'type_id' => 'simple',
+                            'sku' => $IDSKUProd,
+                            'name' => $sku->title,
+                            'description' => $sku->title,
+                            'short_description' => $sku->title,
+                            $priceField => $sku->price,
+                            'created_at' => strtotime('now'),
+                            'updated_at' => strtotime('now'),
+                            'id_anymarket' => $sku->idProduct,
+                            'weight' => $MassUnit == 1 ? $ProdsJSON->weight * 1000 : $ProdsJSON->weight,
+                            'store_id' => $storeID,
+                            'website_ids' => array($websiteID),
+                            $brand => $this->procAttrConfig($brand, $ProdsJSON->brand, 0),
+                            $model => $this->procAttrConfig($model, $ProdsJSON->model, 0),
+                            $video_url => $this->procAttrConfig($video_url, $ProdsJSON->videoURL, 0),
+
+                            $volume_comprimento => $this->convertUnitMeasurement($UnitMeasurement, $vLength, 0),
+                            $volume_altura => $this->convertUnitMeasurement($UnitMeasurement, $vHeight, 0),
+                            $volume_largura => $this->convertUnitMeasurement($UnitMeasurement, $vWidth, 0),
+
+                            $warranty_time => $this->procAttrConfig($warranty_time, $ProdsJSON->warrantyTime, 0),
+                            $nbm => $this->procAttrConfig($nbm, $ProdsJSON->nbm, 0),
+                            $nbm_origin => $this->procAttrConfig($nbm_origin, $ProdsJSON->originCode, 0),
+                            $ean => $this->procAttrConfig($ean, $sku->ean, 0),
+                            $warranty_text => $this->procAttrConfig($warranty_text, $ProdsJSON->warranty, 0),
+                            'msrp_enabled' => '2',
+                            'categoria_anymarket' => $ProdsJSON->category
+                        );
+
+                        //adiciona no produto as variacoes
+                        foreach ($preparedProduct['variations'] as $varKey => $varObg) {
+                            $dataPrd[$varKey] = $varObg;
                         }
 
-                        $imagesGallery = array();
-                        foreach ($ProdsJSON->photos as $image) {
-                            if( $image->variationValue != null ){
-                                if( $image->variationValue == $descVarAttr ){
-                                    $imagesGallery[] = array('img' => $image->standard_resolution, 'main' => $image->main);
-                                }
-                            }
+                        foreach ($ProdsJSON->attributes as $attrProd) {
+                            $dataPrd[strtolower($attrProd->name)] = $this->procAttrConfig(strtolower($attrProd->name), $attrProd->value, 0);
                         }
 
-                        if($varAttr != ''){
-                            $dataPrd = array(
-                                'attribute_set_id' => $AttrSet == null ? Mage::getModel('catalog/product')->getDefaultAttributeSetId() : $AttrSet,
-                                'type_id' =>  'simple',
-                                'sku' => $IDSKUProd,
-                                'name' => $sku->title,
-                                'description' => $sku->title,
-                                'short_description' => $sku->title,
-                                $priceField => $sku->price,
-                                'created_at' =>  strtotime('now'),
-                                'updated_at' =>  strtotime('now'),
-                                'id_anymarket' => $sku->idProduct,
-                                'weight' => $MassUnit == 1 ? $ProdsJSON->weight*1000 : $ProdsJSON->weight,
-                                'store_id' => $storeID,
-                                'website_ids' => array($websiteID),
-                                $brand => $this->procAttrConfig($brand, $ProdsJSON->brand, 0),
-                                $model => $this->procAttrConfig($model, $ProdsJSON->model, 0),
-                                $video_url => $this->procAttrConfig($video_url, $ProdsJSON->videoURL, 0),
+                        $dataPrdSimple = array(
+                            'product' => $dataPrd,
+                            'stock_item' => array(
+                                'is_in_stock' => $sku->stockAmount > 0 ? '1' : '0',
+                                'qty' => $sku->stockAmount,
+                            ),
+                            'images' => $preparedProduct['images'],
+                        );
 
-                                $volume_comprimento => $this->convertUnitMeasurement($UnitMeasurement, $vLength, 0),
-                                $volume_altura  => $this->convertUnitMeasurement($UnitMeasurement, $vHeight, 0),
-                                $volume_largura => $this->convertUnitMeasurement($UnitMeasurement, $vWidth, 0),
+                        $ProdReturn = $this->create_simple_product($storeID, $dataPrdSimple);
+                        $ProdCrt = $ProdReturn->getEntityId();
 
-                                $warranty_time => $this->procAttrConfig($warranty_time, $ProdsJSON->warrantyTime, 0),
-                                $nbm => $this->procAttrConfig($nbm, $ProdsJSON->nbm, 0),
-                                $nbm_origin => $this->procAttrConfig($nbm_origin, $ProdsJSON->originCode, 0),
-                                $ean => $this->procAttrConfig($ean, $sku->ean, 0),
-                                $warranty_text => $this->procAttrConfig($warranty_text, $ProdsJSON->warranty, 0),
-                                'msrp_enabled' =>  '2',
-                                'categoria_anymarket' => $ProdsJSON->category,
-                                $variationArray[ $idVar ] => $varAttr,
-                            );
-
-                            foreach ($ProdsJSON->attributes as  $attrProd) {
-                                $dataPrd[ strtolower($attrProd->name) ] = $this->procAttrConfig(strtolower($attrProd->name), $attrProd->value, 0);
-                            }
-
-                            $dataPrdSimple = array(
-                                'product' => $dataPrd,
-                                'stock_item' => array(
-                                    'is_in_stock' =>  $sku->stockAmount > 0 ? '1' : '0',
-                                    'qty' => $sku->stockAmount,
-                                ),
-                                'images' => $imagesGallery,
-                            );
-
-                            $ProdReturn = $this->create_simple_product($storeID, $dataPrdSimple);
-                            $ProdCrt = $ProdReturn->getEntityId();
-
-                            $product = Mage::getModel('catalog/product')->load($ProdCrt);
-                        }else{
-                            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                            $anymarketlog->setLogDesc( 'Opção de variação sem correspondente no magento ('.$variationArray[ $idVar ].') - '.$descVar );
-                            $anymarketlog->setStatus("0");
-                            $anymarketlog->setStores(array($storeID));
-                            $anymarketlog->save();
-                        }
+                        $product = Mage::getModel('catalog/product')->load($ProdCrt);
                     }else{
                         $product->setUrlKey(false);
 
@@ -1873,7 +1895,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 $prod = null;
                 foreach ($collectionConfigurable as $prodConfig) {
-                    $prod = Mage::getModel('catalog/product')->setStoreId(1)->load( $prodConfig->getId() );
+                    $prod = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $prodConfig->getId() );
                     if( $prod->getData('id_anymarket') == $ProdsJSON->id ){
                         break;
                     }
