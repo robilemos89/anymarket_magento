@@ -1621,6 +1621,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $prodRet = 'Product Created or updated.';
             }
         }
+        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+        $anymarketlog->setLogDesc($prodRet);
+        $anymarketlog->setStatus("1");
+        $anymarketlog->setStores(array($storeID));
+        $anymarketlog->save();
 
         return $prodRet;
     }
