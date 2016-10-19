@@ -125,6 +125,7 @@ class DB1_AnyMarket_Model_Observer {
         $OrderID = $observer->getEvent()->getOrder()->getIncrementId();
         try {
             if(Mage::registry('order_save_observer_executed_'.$OrderID )){
+                Mage::unregister( 'order_save_observer_executed_'.$OrderID );
                 return $this;
             }
 
@@ -153,7 +154,7 @@ class DB1_AnyMarket_Model_Observer {
             }
 
         } catch (Exception $e) {
-            Mage::unregister( 'order_save_observer_executed_'.$OrderID->getId() );
+            Mage::unregister( 'order_save_observer_executed_'.$OrderID );
             Mage::logException($e);
         }
 

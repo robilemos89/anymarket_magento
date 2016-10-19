@@ -195,28 +195,34 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
-        $headers = array( 
-            "Content-type: application/json",
-            "Accept: */*",
-            "gumgaToken: ".$TOKEN
-        );
+        if( $TOKEN != '' && $TOKEN != null ) {
+            $headers = array(
+                "Content-type: application/json",
+                "Accept: */*",
+                "gumgaToken: " . $TOKEN
+            );
 
-        $returnProd = $this->CallAPICurl("GET", $HOST."/v2/orders/feeds?limit=100", $headers, null);
+            $returnProd = $this->CallAPICurl("GET", $HOST . "/v2/orders/feeds?limit=100", $headers, null);
 
-        if($returnProd['error'] == '1'){
-            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-            $anymarketlog->setLogDesc( 'Error on get feed orders '. $returnProd['return'] );
-            $anymarketlog->setStatus("1");
-            $anymarketlog->save();
-        }else{
-            $listOrders = $returnProd['return'];
+            if ($returnProd['error'] == '1') {
+                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                $anymarketlog->setLogDesc('Error on get feed orders ' . $returnProd['return']);
+                $anymarketlog->setStatus("1");
+                $anymarketlog->save();
+            } else {
+                $listOrders = $returnProd['return'];
+                foreach ($listOrders as $order) {
+                    $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                    $anymarketlog->setLogDesc('Consumed Order from feed: ' . $order->id . ' with token: ' . $order->token);
+                    $anymarketlog->setStatus("1");
+                    $anymarketlog->save();
 
-            foreach ($listOrders as  $order) {
-                $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->load($order->id, 'nmo_id_seq_anymarket');
-                if( $anymarketorders->getData('nmo_id_anymarket') != null ){
-                    $this->getSpecificOrderFromAnyMarket($anymarketorders->getData('nmo_id_seq_anymarket'), '', $storeID);
-                }else{
-                    $this->getSpecificOrderFromAnyMarket($order->id, $order->token, $storeID);                    
+                    $this->getSpecificOrderFromAnyMarket($order->id, $order->token, $storeID);
+
+                    $paramFeed = array(
+                        "token" => $order->token
+                    );
+                    $this->CallAPICurl("PUT", $HOST . "/rest/api/v2/orders/feeds/" . $order->id, $headers, $paramFeed);
                 }
             }
         }
@@ -613,7 +619,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
             if( $createRegPay == "1" && $StatusPedAnyMarket == 'PAID_WAITING_SHIP' ){
                 if( $order->canInvoice() ){
-
                     if( $this->checkIfCanCreateInvoice($order) ) {
                         $orderItems = $order->getAllItems();
                         foreach ($orderItems as $_eachItem) {
@@ -759,6 +764,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $CommentCurr = $item->getComment();
 
                 $CommentCurr = str_replace(array(" ", "<b>", "</b>"), "", $CommentCurr );
+                $CommentCurr = str_replace(array("<br>"), "<br/>", $CommentCurr );
                 $chaveAcesso = strpos($CommentCurr, 'ChavedeAcesso:');
                 if( (strpos($CommentCurr, 'ChavedeAcesso:') !== false) ) {
                     $chaveAcID = substr( $CommentCurr, $chaveAcesso+14, 44);

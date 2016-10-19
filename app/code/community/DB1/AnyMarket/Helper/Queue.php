@@ -99,9 +99,9 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                     $anymarketproducts = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID);
                     $anymarketproducts->load($IdItemQueue, 'nmp_id');
 
-                    $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $IdItemQueue );
                     if (($typImp == 'EXP') && ($typeSincProd == 0)) {
                         try {
+                            $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $IdItemQueue );
                             $anymarketproducts->setStatus('1')->setIsMassupdate(true)->save();
                             if ($product != null) {
                                 Mage::helper('db1_anymarket/product')->prepareForSendProduct($storeID, $product);
@@ -110,21 +110,56 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                         } catch (Exception $e) {
                             Mage::logException($e);
                         }
-                    }
 
-                    // TRATA STOCK
-                    if ($product) {
-                        if ($typeSincOrder == 1) {
-                            $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
-                            $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
-                            Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $ProdStock->getQty(), $product->getData($filter));
-                        } else {
-                            Mage::helper('db1_anymarket/product')->getStockProductAnyMarket($storeID, $product->getId());
+
+                        // TRATA STOCK
+                        if ($product) {
+                            if ($typeSincOrder == 1) {
+                                $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                                $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
+                                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $ProdStock->getQty(), $product->getData($filter));
+                            } else {
+                                Mage::helper('db1_anymarket/product')->getStockProductAnyMarket($storeID, $product->getId());
+                            }
                         }
+                    }else if ($typImp == 'IMP'){
+                        $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
+                        $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
+
+                        $headers = array(
+                            "Content-type: application/json",
+                            "Accept: */*",
+                            "gumgaToken: " . $TOKEN
+                        );
+
+                        $listTransmissions = array();
+                        array_push($listTransmissions, array(
+                                "id" => $IdItemQueue,
+                                "token" => "notoken"
+                            )
+                        );
+
+                        $JSON = json_encode($listTransmissions);
+                        Mage::helper('db1_anymarket/product')->getSpecificFeedProduct($storeID, json_decode($JSON), $headers, $HOST);
                     }
 
                 }
                 $this->removeQueue($item['entity_id']);
+            }
+        }
+
+    }
+
+    /**
+     * process Orders By CRON
+     */
+    public function processOrders(){
+        $allStores = Mage::helper('db1_anymarket')->getAllStores();
+        foreach ($allStores as $store) {
+            $storeID = $store['store_id'];
+            $cronEnabled = Mage::getStoreConfig('anymarket_section/anymarket_cron_group/anymarket_order_field', $storeID);
+            if( $cronEnabled == '1' ) {
+                Mage::helper('db1_anymarket/order')->getFeedOrdersFromAnyMarket($storeID);
             }
         }
 

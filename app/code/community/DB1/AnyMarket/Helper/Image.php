@@ -34,13 +34,15 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                         }
                     } else {
                         $urlImageImport = $g_image['url'];
+                        $defaultImage = $product->getImage();
+                        $isMain =  strpos($urlImageImport, $defaultImage) === false ? false : true;
                         if ($ArrVariationValues) {
                             foreach ($ArrVariationValues as $value) {
                                 if ($transformToHttp != 0) {
                                     $urlImageImport = str_replace("https", "http", $urlImageImport);
                                 }
                                 $itemsIMG[] = array(
-                                    "main" => false,
+                                    "main" => $isMain,
                                     "url" => $urlImageImport,
                                     "variation" => $value,
                                 );
@@ -51,7 +53,7 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                             }
 
                             $itemsIMG[] = array(
-                                "main" => true,
+                                "main" => $isMain,
                                 "url" => $urlImageImport
                             );
                         }
@@ -240,15 +242,19 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                         $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product with inconsistency:').' '.$emptyFields;
                         $this->saveLogsProds($storeID, "0", $returnProd, $product);
                     }else {
+                        $defaultImage = $product->getImage();
                         foreach ($arrAdd as $imgAdd) {
+                            $isMain =  strpos($imgAdd, $defaultImage) === false ? false : true;
                             if ($variation) {
                                 $JSONAdd = array(
                                     "url" => $imgAdd,
                                     "variation" => $variation,
+                                    "main" => $isMain
                                 );
                             } else {
                                 $JSONAdd = array(
-                                    "url" => $imgAdd
+                                    "url" => $imgAdd,
+                                    "main" => $isMain
                                 );
                             }
 
