@@ -82,9 +82,14 @@ class DB1_AnyMarket_IndexController extends Mage_Core_Controller_Front_Action {
 							);
 
 							$JSON = json_encode($listTransmissions);
-							$transRet = Mage::helper('db1_anymarket/product')->getSpecificFeedProduct($storeID, json_decode($JSON), $headers, $HOST);
-
-							echo $transRet;
+                            $sincMode = Mage::getStoreConfig('anymarket_section/anymarket_general_group/anymarket_operation_type_field', $storeID);
+                            if( $sincMode ) {
+                                Mage::helper('db1_anymarket/queue')->addQueue($storeID, $value->content->id, 'IMP', 'PRODUCT');
+                                echo "Adicionado na fila Magento.";
+                            }else{
+                                $transRet = Mage::helper('db1_anymarket/product')->getSpecificFeedProduct($storeID, json_decode($JSON), $headers, $HOST);
+                                echo $transRet;
+                            }
 						}
 					} else {
 						$anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');

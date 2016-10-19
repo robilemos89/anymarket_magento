@@ -10,8 +10,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      */
     private function checkArrayAttributes($arrAttr, $key, $value){
         foreach ($arrAttr as $arrVal) {
-            if( $arrVal[$key] == $value ){
-                return true;
+            if( isset($arrVal[$key]) ){
+                if( $arrVal[$key] == $value ){
+                    return true;
+                }
             }
         }
         return false;
@@ -336,12 +338,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $idProd
      * @param $dataProdConfig
      * @param $simpleProducts
-     * @param $AttributeIds
      * @return Mage_Catalog_Model_Product
      */
-    private function update_configurable_product($storeID, $idProd, $dataProdConfig, $simpleProducts, $AttributeIds){
+    private function update_configurable_product($storeID, $idProd, $dataProdConfig, $simpleProducts){
         $productGenerator = Mage::helper('db1_anymarket/productgenerator');
-        $product = $productGenerator->updateConfigurableProduct($storeID, $idProd, $dataProdConfig, $simpleProducts, $AttributeIds);
+        $product = $productGenerator->updateConfigurableProduct($storeID, $idProd, $dataProdConfig, $simpleProducts);
 
         $returnProd['return'] = Mage::helper('db1_anymarket')->__('Configurable product Updated').' ('.$product->getSku().')';
         $returnProd['error'] = '0';
@@ -1575,7 +1576,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             }
                             $stockItem->save();
                         }
-                        $prodLoaded->save();
 
                         $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                         $anymarketlog->setLogDesc( "Stock Updated" );
@@ -1900,8 +1900,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                 $prod = null;
                 foreach ($collectionConfigurable as $prodConfig) {
-                    $prod = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $prodConfig->getId() );
-                    if( $prod->getData('id_anymarket') == $ProdsJSON->id ){
+                    $prodTmp = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $prodConfig->getId() );
+                    if( $prodTmp->getData('id_anymarket') == $ProdsJSON->id ){
+                        $prod = $prodTmp;
                         break;
                     }
 
@@ -1946,7 +1947,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $dataProdConfig[$fieldConfig] = $ProdsJSON->description;
                     }
 
-                    $this->update_configurable_product($storeID, $prod->getId(), $dataProdConfig, $prodSimpleFromConfig, $AttributeIds);
+                    $this->update_configurable_product($storeID, $prod->getId(), $dataProdConfig, $prodSimpleFromConfig);
                 }
             }else{
                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');

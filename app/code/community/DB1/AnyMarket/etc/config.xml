@@ -2,7 +2,7 @@
 <config>
     <modules>
         <DB1_AnyMarket>
-            <version>2.9.7</version>
+            <version>2.9.8</version>
         </DB1_AnyMarket>
     </modules>
     <global>
@@ -264,6 +264,7 @@
             <anymarket_type_prod_sync_field>0</anymarket_type_prod_sync_field>
             <anymarket_type_weight_field>0</anymarket_type_weight_field>
             <anymarket_transform_http_image_field>0</anymarket_transform_http_image_field>
+            <anymarket_transform_process_image_field>0</anymarket_transform_process_image_field>
         </anymarket_integration_prod_group>
 
         <anymarket_integration_order_group>
@@ -293,8 +294,7 @@
         </anymarket_attribute_group>
 
         <anymarket_cron_group>
-            <anymarket_order_field>1</anymarket_order_field>
-            <anymarket_product_field>1</anymarket_product_field>
+            <anymarket_order_field>0</anymarket_order_field>
         </anymarket_cron_group>
 
         <anymarket_logs_group>

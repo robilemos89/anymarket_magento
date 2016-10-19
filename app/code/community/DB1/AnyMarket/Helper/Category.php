@@ -286,7 +286,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
         $arrOrderCod = null;
         $this->arrNewCateg = array();
         while ($startRec <= $countRec) {
-            $returnCat = $this->CallAPICurl("GET", $HOST."/rest/api/v2/categories/?offset=".$startRec."&limit=30", $headers, null);
+            $returnCat = $this->CallAPICurl("GET", $HOST."/v2/categories/?offset=".$startRec."&limit=30", $headers, null);
 
             if($returnCat['error'] == '1'){
                 $startRec = 1;
@@ -353,7 +353,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
      * @return integer
      */
     private function getChildCat($HOST, $headers, $catID, $IDCatRoot, $id_store){
-        $returnCatSpecific = $this->CallAPICurl("GET", $HOST."/rest/api/v2/categories/".$catID, $headers, null);
+        $returnCatSpecific = $this->CallAPICurl("GET", $HOST."/v2/categories/".$catID, $headers, null);
         $CatSpecifivJSON = $returnCatSpecific['return'];
         $retCategCount = 0;
         if($returnCatSpecific['error'] == '0'){
