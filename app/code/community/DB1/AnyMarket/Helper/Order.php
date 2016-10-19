@@ -600,8 +600,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     /**
      * change status order
      *
+     * @param $storeID
      * @param $JSON
      * @param $IDOrderMagento
+     *
+     * @return boolean
      */
     private function changeStatusOrder($storeID, $JSON, $IDOrderMagento){
         $StatusPedAnyMarket = $JSON->status;
@@ -613,6 +616,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         if (strpos($statusMage, 'ERROR:') === false) {
             Mage::getSingleton('core/session')->setImportOrdersVariable('false');
             $order = Mage::getModel('sales/order')->loadByIncrementId( $IDOrderMagento );
+
+            if( $order->getData('state') == $stateMage ){
+                return false;
+            }
 
             $createRegPay = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_create_reg_pay_field', $storeID);
             $itemsarray = null;
