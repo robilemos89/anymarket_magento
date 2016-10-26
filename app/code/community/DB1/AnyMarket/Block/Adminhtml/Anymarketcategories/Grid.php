@@ -136,6 +136,15 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Grid extends Mage_Adminh
 
             )
         );
+        $this->addColumn(
+            'nmc_id_magento',
+            array(
+                'header' => Mage::helper('db1_anymarket')->__('Code in Magento'),
+                'index'  => 'nmc_id_magento',
+                'type'=> 'text',
+
+            )
+        );
         if (!Mage::app()->isSingleStoreMode() && !$this->_isExport) {
             $this->addColumn(
                 'store_id',

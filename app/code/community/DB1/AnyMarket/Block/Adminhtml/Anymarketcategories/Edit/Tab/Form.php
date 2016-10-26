@@ -70,6 +70,16 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketcategories_Edit_Tab_Form extends Ma
            )
         );
         $fieldset->addField(
+            'nmc_id_magento',
+            'text',
+            array(
+                'label' => Mage::helper('db1_anymarket')->__('Code in Magento'),
+                'name'  => 'nmc_id_magento',
+                'required'  => false
+            )
+        );
+
+        $fieldset->addField(
             'status',
             'select',
             array(
