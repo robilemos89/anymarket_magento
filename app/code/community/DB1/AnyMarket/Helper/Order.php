@@ -57,8 +57,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         $anymarketorders->setStatus("0");
         $anymarketorders->setNmoStatusInt($statusInt);
         $anymarketorders->setNmoDescError($descError);
-        $anymarketorders->setNmoIdSeqAnymarket( $idSeqAnyMarket );
+
+        $anymarketorders->setNmoIdSeqAnymarket($idSeqAnyMarket);
         $anymarketorders->setNmoIdAnymarket( $IDOrderAnyMarket );
+
         $anymarketorders->setNmoIdOrder($nmoIdOrder);
         $anymarketorders->setStores(array($storeID));
         $anymarketorders->save();
@@ -639,7 +641,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 }
             }
 
-            if(isset($JSON->invoice)){
+            if( isset($JSON->invoice) && $StatusPedAnyMarket == 'INVOICED' ){
                 if( $order->canInvoice() ){
                     if(isset($JSON->invoice->accessKey) ) {
                         $nfe = $JSON->invoice->accessKey;
@@ -660,12 +662,31 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         if (!$order->hasInvoices()) {
                             $nfeString = 'nfe:' . $nfe . ', emissao:' . $fixedDate;
                             Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
+                        }else{
+                            $firstInvoiceID = $order->getInvoiceCollection()->getFirstItem()->getIncrementId();
+                            $invoice = Mage::getModel('sales/order_invoice')->loadByIncrementId( $firstInvoiceID );
+                            $addComment = true;
+                            foreach ($invoice->getCommentsCollection() as $item) {
+                                $CommentCurr = $item->getComment();
+                                if ((strpos($CommentCurr, 'Adicionado por Anymarket - nfe:') !== false)) {
+                                    $addComment = false;
+                                    break;
+                                }
+                            }
+
+                            if( $addComment ){
+                                $nfeString = 'Adicionado por Anymarket - nfe:' . $nfe . ', emissao:' . $fixedDate;
+
+                                $invoice->addComment($nfeString, "");
+                                $invoice->setEmailSent(false);
+                                $invoice->save();
+                            }
                         }
                     }
                 }
             }
 
-            if(isset($JSON->tracking)){
+            if( isset($JSON->tracking) && $StatusPedAnyMarket == 'PAID_WAITING_DELIVERY' ){
                 if( $order->canShip() && !$order->hasShipments() ){
                     if(isset($JSON->tracking->number)) {
                         $TrNumber = $JSON->tracking->number;
@@ -675,10 +696,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                         $TracCodeArr = Mage::getModel('sales/order_shipment_api')->getCarriers($order->getIncrementId());
                         if (isset($TracCodeArr[$TrCarrier])) {
-                            $trackmodel = Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId, $TrCarrier, $TrCarrier, $TrNumber);
+                            Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId, $TrCarrier, $TrCarrier, $TrNumber);
                         } else {
                             $arrVar = array_keys($TracCodeArr);
-                            $trackmodel = Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId, array_shift($arrVar), 'Não Econtrado(' . $TrCarrier . ')', $TrNumber);
+                            Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId, array_shift($arrVar), 'Não Econtrado(' . $TrCarrier . ')', $TrNumber);
                         }
                     }
                 }
@@ -1173,8 +1194,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $anymarketorders->setStatus("0");
                 $anymarketorders->setNmoStatusInt('Não integrado (Magento)');
                 $anymarketorders->setNmoDescError('');
-                $anymarketorders->setNmoIdSeqAnymarket('');
-                $anymarketorders->setNmoIdAnymarket('');
                 $anymarketorders->setNmoIdOrder( $orderId );
                 $anymarketorders->setStores(array($storeID));
                 $anymarketorders->save();

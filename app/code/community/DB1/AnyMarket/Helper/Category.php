@@ -66,6 +66,26 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
     }
 
     /**
+     * get Specific Category by name
+     *
+     * @param $arrOfCategs
+     * @param integer
+     */
+    function getCategoryByPathName( $arrOfCategs ){
+        $categoryMain = Mage::getResourceModel('catalog/category_collection')
+            ->addFieldToFilter('name', reset($arrOfCategs))
+            ->getFirstItem();
+
+        for ($i=1; $i < count($arrOfCategs); $i++) {
+            $categoryMain = $categoryMain->getChildrenCategories()
+                ->addFieldToFilter('name', $arrOfCategs[$i])
+                ->getFirstItem();
+        }
+
+        return $categoryMain->getId();
+    }
+
+    /**
      * Delete Specific Category Recursively
      *
      * @param $category

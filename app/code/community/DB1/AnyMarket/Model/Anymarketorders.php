@@ -67,6 +67,7 @@ class DB1_AnyMarket_Model_Anymarketorders extends Mage_Core_Model_Abstract
     protected function _beforeSave()
     {
         parent::_beforeSave();
+
         $now = Mage::getSingleton('core/date')->gmtDate();
         if ($this->isObjectNew()) {
             $this->setCreatedAt($now);
@@ -80,6 +81,17 @@ class DB1_AnyMarket_Model_Anymarketorders extends Mage_Core_Model_Abstract
             }
             if (!is_string($storeID) && !is_integer($storeID)) {
                 $this->setStores(array());
+            }
+        }
+
+        if( $this->getNmoStatusInt() == 'ERROR 02' ) {
+            $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->load( $this->getId() );
+
+            if ($this->getNmoIdSeqAnymarket() == "" || $this->getNmoIdSeqAnymarket() == null ) {
+                $this->setNmoIdSeqAnymarket( $anymarketorders->getNmoIdSeqAnymarket() );
+            }
+            if ($this->getNmoIdAnymarket() == "" || $this->getNmoIdAnymarket() == null ) {
+                $this->setNmoIdAnymarket( $anymarketorders->getNmoIdAnymarket() );
             }
         }
 

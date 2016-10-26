@@ -152,7 +152,7 @@ class DB1_AnyMarket_Model_Observer {
                     Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product_id, $stock->getQty(), $_product->getData($filter));
                 }
             }
-
+            Mage::unregister( 'order_save_observer_executed_'.$OrderID );
         } catch (Exception $e) {
             Mage::unregister( 'order_save_observer_executed_'.$OrderID );
             Mage::logException($e);

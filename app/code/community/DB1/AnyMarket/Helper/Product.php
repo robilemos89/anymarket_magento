@@ -1332,9 +1332,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $ProdsJSON = $returnProdSpecific['return'];
 
                 foreach ($ProdsJSON->skus as $sku) {
-                    $IDSKUProd = $sku->partnerId != null ? $sku->partnerId : $ProdsJSON->idProduct;
-                    $product = Mage::getModel('catalog/product')->loadByAttribute('sku', $IDSKUProd);
-
                     $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
                     $stockItem->setData('is_in_stock', $sku->amount > 0 ? '1' : '0');
                     $stockItem->setData('qty', $sku->amount);
