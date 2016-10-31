@@ -844,10 +844,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     /**
      * get tracking order
      *
+     * * @param $storeID
      * @param $Order
      * @return array
      */
-    public function getTrackingOrder($Order){
+    public function getTrackingOrder($storeID, $Order){
         $TrackNum = '';
         $TrackTitle = '';
         $TrackCreate = '';
@@ -862,13 +863,21 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $TrackTitle = $tracknum->getTitle();
                 $TrackCreate = $tracknum->getCreatedAt();
 
-                $dateTmp = str_replace("/", "-", $TrackCreate );
-
-                $dateTrack = $this->formatDateTimeZone($dateTmp);
+                $dateTmp =  new DateTime(str_replace("/", "-", $TrackCreate ));
+                $dateTrack = date_format($dateTmp, 'Y-m-d\TH:i:s\Z');
             }
         }
 
-        return array("number" => $TrackNum, "carrier" => $TrackTitle, "date" => $dateTrack, "url" => "");
+        $days = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_estimate_date_field', $storeID);
+
+        $days = ($days == "" || $days == null) ? 10 : $days;
+        $stimatedDate = date('Y-m-d\TH:i:s\Z', strtotime("+".$days." days", strtotime($dateTrack)));
+        return array("number" => $TrackNum,
+                     "carrier" => $TrackTitle,
+                     "date" => $dateTrack,
+                     "shippedDate" => $dateTrack,
+                     "url" => "",
+                     "estimateDate" => $stimatedDate);
     }
 
     /**
@@ -905,7 +914,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         );
 
                         $invoiceData = $this->getInvoiceOrder($Order);
-                        $trackingData = $this->getTrackingOrder($Order);
+                        $trackingData = $this->getTrackingOrder($storeID, $Order);
 
                         if ($invoiceData['number'] != '') {
                             $params["invoice"] = $invoiceData;
@@ -1058,7 +1067,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     "total" => $Order->getBaseGrandTotal()
                 );
 
-                $arrTracking = $this->getTrackingOrder($Order);
+                $arrTracking = $this->getTrackingOrder($storeID, $Order);
                 $arrInvoice = $this->getInvoiceOrder($Order);
 
                 if($arrTracking["number"] != ''){
