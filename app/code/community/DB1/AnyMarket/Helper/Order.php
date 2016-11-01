@@ -806,7 +806,9 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             $nfeID = $chaveAcID;
                         }
                     }
-                    $date = $this->formatDateTimeZone(now);
+					
+					$dateTmp =  new DateTime(str_replace("/", "-", $item->getData('created_at') ));
+					$date = date_format($dateTmp, 'Y-m-d\TH:i:s\Z');					
                     break;
                 }
             }
