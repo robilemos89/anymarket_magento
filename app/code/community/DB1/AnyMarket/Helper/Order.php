@@ -176,6 +176,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
             $CodOrder = $orderGenerator->createOrder($storeID, $products);
 
+
+
             $this->saveLogOrder('nmo_id_anymarket', $IDAnyMarket, 'Integrado', '', $IDSeqAnyMarket, $IDAnyMarket, $CodOrder, $storeID);
 
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
@@ -472,9 +474,13 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         }
 
                                         $infoMetPag = 'ANYMARKET';
+                                        $infoMetPagCom = array();
                                         if( isset($OrderJSON->payments) ) {
                                             foreach ($OrderJSON->payments as $payment) {
                                                 $infoMetPag = $payment->method;
+                                                if($payment->paymentMethodNormalized) {
+                                                    array_push($infoMetPagCom, $payment->paymentMethodNormalized." - Parcelas: ".$payment->installments);
+                                                }
                                             }
                                         }
 
@@ -485,6 +491,25 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         $this->changeFeedOrder($HOST, $headers, $idSeqAnyMarket, $tokenFeed);
 
                                         if ($OrderCheck->getId()) {
+                                            $comment = '<b>Código do Pedido no Canal de Vendas: </b>'.$OrderJSON->marketPlaceNumber.'<br>';
+                                            $comment .= '<b>Canal de Vendas: </b>'.$OrderJSON->marketPlace.'<br>';
+
+                                            if( count($infoMetPagCom) > 0 ) {
+                                                foreach ($infoMetPagCom as $iMetPag) {
+                                                    $comment .= '<b>Forma de Pagamento: </b>' . $iMetPag . '<br>';
+                                                }
+                                            }else{
+                                                $comment .= '<b>Forma de Pagamento: </b>Inf. não disponibilizada pelo marketplace.<br>';
+                                            }
+
+                                            $addressComp = (isset($OrderJSON->shipping->address)) ? $OrderJSON->shipping->address : 'Não especificado';
+                                            $comment .= '<b>Endereço Completo: </b>'.$addressComp;
+
+                                            $OrderCheck->addStatusHistoryComment( $comment );
+                                            $OrderCheck->setEmailSent(false);
+                                            $OrderCheck->save();
+
+
                                             $this->changeStatusOrder($storeID, $OrderJSON, $OrderIDMage);
                                         }
                                     } catch (Exception $e) {
