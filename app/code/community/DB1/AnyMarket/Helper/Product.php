@@ -2216,18 +2216,23 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $stockAt = null;
         $priceBundleProd = $product->getData('price');
         $priceTot = 0;
+        $outStock = false;
         foreach($selectionCollection as $child){
             //GET STOCK
             $requiredStock = $child->getData('selection_qty');
             $realStock = $child->getStockItem()->getData('qty');
 
-            $tmpStock = (int)($realStock/$requiredStock);
-            if( $stockAt != null ) {
-                if ($tmpStock < $stockAt) {
+            if( $realStock > $requiredStock) {
+                $tmpStock = (int)($realStock / $requiredStock);
+                if ($stockAt != null) {
+                    if ($tmpStock < $stockAt) {
+                        $stockAt = $tmpStock;
+                    }
+                } else {
                     $stockAt = $tmpStock;
                 }
             }else{
-                $stockAt = $tmpStock;
+                $outStock = true;
             }
 
             //GET PRICE
@@ -2248,7 +2253,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         }
         $retArray = array(
             "price" => $priceTot + $priceBundleProd,
-            "stock" => $stockAt == null ? 0 : $stockAt
+            "stock" => $stockAt == null || $outStock ? 0 : $stockAt
         );
 
         return $retArray;
