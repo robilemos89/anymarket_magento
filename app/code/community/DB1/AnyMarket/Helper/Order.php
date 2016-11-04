@@ -1008,7 +1008,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      */
     private function sendOrderToAnyMarket($storeID, $idOrder, $HOST, $TOKEN){
         $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
-        if($ConfigOrder == 0){
+        if($ConfigOrder == 0 && $idOrder){
             $Order = Mage::getModel('sales/order')->setStoreId($storeID)->loadByIncrementId( $idOrder );
 
             //TRATA OS ITEMS
