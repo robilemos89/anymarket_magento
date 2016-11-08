@@ -1,7 +1,8 @@
 <?php
 $this->startSetup();
+$tp = (string)Mage::getConfig()->getTablePrefix();
 
-$tableName = $this->getTable('db1_anymarket/anymarketbrands');
+$tableName = $tp.$this->getTable('db1_anymarket/anymarketbrands');
 if( $this->getConnection()->isTableExists($tableName) != true ) {
     $table = $this->getConnection()
         ->newTable($this->getTable('db1_anymarket/anymarketbrands'))
@@ -56,7 +57,7 @@ if( $this->getConnection()->isTableExists($tableName) != true ) {
     $this->getConnection()->createTable($table);
 }
 
-$tableName = $this->getTable('db1_anymarket/anymarketbrands_store');
+$tableName = $tp.$this->getTable('db1_anymarket/anymarketbrands_store');
 if( $this->getConnection()->isTableExists($tableName) != true ) {
     $table = $this->getConnection()
         ->newTable($this->getTable('db1_anymarket/anymarketbrands_store'))
