@@ -31,7 +31,7 @@ INSERT IGNORE INTO `{$installer->getTable('catalog_category_entity_int')}`
         FROM `{$installer->getTable('catalog_category_entity')}`;
 ");
 
-$setup->run("DELETE FROM `core_config_data` WHERE `path` LIKE 'anymarket_section%'");
+$setup->run("DELETE FROM `".$tp."core_config_data` WHERE `path` LIKE 'anymarket_section%'");
 
 $installer->endSetup();
 ?>
