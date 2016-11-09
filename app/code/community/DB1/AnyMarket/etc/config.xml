@@ -240,6 +240,15 @@
                 </observers>
             </sales_order_creditmemo_save_after>
 
+            <sales_order_shipment_save_before>
+                <observers>
+                    <db1_anymarket>
+                        <class>db1_anymarket/observer</class>
+                        <method>saveShippingObs</method>
+                    </db1_anymarket>
+                </observers>
+            </sales_order_shipment_save_before>
+
         </events>
 
     </global>

@@ -71,6 +71,58 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     }
 
     /**
+     * get estimated date from order comment
+     *
+     * @param $Order
+     * @return string
+     */
+    public function getEstimatedDateFromOrder( $Order ){
+        $estimatedDate = "";
+        foreach ($Order->getStatusHistoryCollection() as $item) {
+            $CommentCurr = $item->getComment();
+
+            $CommentCurr = str_replace(array("<br>"), "<br/>", $CommentCurr );
+            $iniEstimatedDate = strpos($CommentCurr, 'Data Estimada de Entrega:');
+            if( $iniEstimatedDate !== false ) {
+                $estimatedDate = substr( $CommentCurr, $iniEstimatedDate+30, 19);
+                break;
+            }
+
+        }
+        return $estimatedDate;
+    }
+
+    /**
+     * get estimated date from order comment
+     *
+     * @param $shipping
+     * @return string
+     */
+    public function getDatesFromShipping( $shipping ){
+        $estimatedDate = "";
+        $shippedDate = "";
+        foreach ($shipping->getCommentsCollection() as $item) {
+            $CommentCurr = $item->getComment();
+
+            $iniEstimatedDate = strpos($CommentCurr, 'Data Estimada de Entrega:');
+            if ($iniEstimatedDate !== false) {
+                $estimatedDate = substr($CommentCurr, $iniEstimatedDate+30, 19);
+            }
+
+            $iniShippedDate = strpos($CommentCurr, 'Data de Entrega na Transportadora:');
+            if ($iniShippedDate !== false) {
+                $shippedDate = substr($CommentCurr, $iniShippedDate + 39, 19);
+            }
+
+        }
+
+        $shippedDate   = $this->formatDateTimeZone( str_replace("/", "-", $shippedDate ) );
+        $estimatedDate = $this->formatDateTimeZone( str_replace("/", "-", $estimatedDate ) );
+
+        return array($estimatedDate, $shippedDate);
+    }
+
+    /**
      * get status order MG to AM from configs
      *
      * @param $OrderRowData
@@ -491,8 +543,16 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         $this->changeFeedOrder($HOST, $headers, $idSeqAnyMarket, $tokenFeed);
 
                                         if ($OrderCheck->getId()) {
+
                                             $comment = '<b>Código do Pedido no Canal de Vendas: </b>'.$OrderJSON->marketPlaceNumber.'<br>';
                                             $comment .= '<b>Canal de Vendas: </b>'.$OrderJSON->marketPlace.'<br>';
+
+                                            if(isset($OrderJSON->shipping->promisedShippingTime)){
+                                                $dateTmpPromis =  new DateTime($OrderJSON->shipping->promisedShippingTime);
+                                                $dateTmpPromis = date_format($dateTmpPromis, 'd/m/Y H:i:s');
+
+                                                $comment .= '<b>Data Estimada de Entrega: </b>'.$dateTmpPromis.'<br>';
+                                            }
 
                                             if( count($infoMetPagCom) > 0 ) {
                                                 foreach ($infoMetPagCom as $iMetPag) {
@@ -871,20 +931,21 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     /**
      * get tracking order
      *
-     * * @param $storeID
      * @param $Order
      * @return array
      */
-    public function getTrackingOrder($storeID, $Order){
+    public function getTrackingOrder($Order){
         $TrackNum = '';
         $TrackTitle = '';
         $TrackCreate = '';
         $dateTrack = '';
+        $datesRes = array("", "");
 
         $shipmentCollection = Mage::getResourceModel('sales/order_shipment_collection')
                                                     ->setOrderFilter($Order)
                                                     ->load();
         foreach ($shipmentCollection as $shipment){
+            $datesRes = $this->getDatesFromShipping($shipment);
             foreach($shipment->getAllTracks() as $tracknum){
                 $TrackNum = $tracknum->getNumber();
                 $TrackTitle = $tracknum->getTitle();
@@ -895,16 +956,15 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
         }
 
-        $days = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_estimate_date_field', $storeID);
-
-        $days = ($days == "" || $days == null) ? 10 : $days;
-        $stimatedDate = date('Y-m-d\TH:i:s\Z', strtotime("+".$days." days", strtotime($dateTrack)));
-        return array("number" => $TrackNum,
+        $retArray = array("number" => $TrackNum,
                      "carrier" => $TrackTitle,
                      "date" => $dateTrack,
-                     "shippedDate" => $dateTrack,
+                     "shippedDate" => $datesRes[1],
                      "url" => "",
-                     "estimateDate" => $stimatedDate);
+                     "estimateDate" => $datesRes[0]);
+
+
+        return $retArray;
     }
 
     /**
@@ -941,7 +1001,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         );
 
                         $invoiceData = $this->getInvoiceOrder($Order);
-                        $trackingData = $this->getTrackingOrder($storeID, $Order);
+                        $trackingData = $this->getTrackingOrder($Order);
 
                         if ($invoiceData['number'] != '') {
                             $params["invoice"] = $invoiceData;
@@ -1094,7 +1154,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     "total" => $Order->getBaseGrandTotal()
                 );
 
-                $arrTracking = $this->getTrackingOrder($storeID, $Order);
+                $arrTracking = $this->getTrackingOrder($Order);
                 $arrInvoice = $this->getInvoiceOrder($Order);
 
                 if($arrTracking["number"] != ''){

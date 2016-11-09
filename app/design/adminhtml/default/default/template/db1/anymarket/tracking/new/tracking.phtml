@@ -1,0 +1,139 @@
+<?php /** @var $this Mage_Adminhtml_Block_Sales_Order_Shipment_Create_Tracking */ ?>
+<?php
+
+$_order = $this->getShipment()->getOrder();
+$estimateDate = Mage::helper('db1_anymarket/order')->getEstimatedDateFromOrder( $_order );
+
+$currTimezone = Mage::getStoreConfig('general/locale/timezone');
+$currDate = new DateTime("now", new DateTimeZone($currTimezone));
+$currDate = $currDate->format("d/m/Y H:i:s");
+?>
+<script type="text/javascript">
+    //<![CDATA[
+    var trackingControl;
+    trackingControl = {
+        index : 0,
+        add : function () {
+            this.index++;
+            var data = {index:this.index};
+            Element.insert($('track_row_container'), {bottom: this.template.evaluate(data)});
+            $('trackingC' + this.index).disabled = false;
+            $('trackingT' + this.index).disabled = false;
+            $('trackingN' + this.index).disabled = false;
+            this.bindCurrierOnchange();
+        },
+        deleteRow : function(event) {
+            var row = Event.findElement(event, 'tr');
+            if (row) {
+                row.parentNode.removeChild(row)
+            }
+        },
+        bindCurrierOnchange : function() {
+            var elems = $('tracking_numbers_table').select('.select');
+            elems.each(function (elem) {
+                if (!elem.onchangeBound) {
+                    elem.onchangeBound = true;
+                    elem.valueInput = $(elem.parentNode.parentNode).select('.number-title')[0];
+                    elem.observe('change', this.currierOnchange);
+                }
+            }.bind(this));
+        },
+        currierOnchange : function(event) {
+            var elem = Event.element(event);
+            var option = elem.options[elem.selectedIndex];
+            if (option.value && option.value != 'custom') {
+                elem.valueInput.value = option.text;
+            }
+            else {
+                elem.valueInput.value = '';
+            }
+        }
+    }
+    //]]>
+</script>
+<div class="grid">
+    <table cellspacing="0" class="data" id="tracking_numbers_table">
+        <col width="100" />
+        <col />
+        <col />
+        <col width="80" />
+        <thead>
+        <tr class="headings">
+            <th><?php echo Mage::helper('sales')->__('Carrier') ?></th>
+            <th><?php echo Mage::helper('sales')->__('Title') ?></th>
+            <th><?php echo Mage::helper('sales')->__('Number') ?> <span class="required">*</span></th>
+            <th class="last"><?php echo Mage::helper('sales')->__('Action') ?></th>
+        </tr>
+        </thead>
+        <tfoot>
+        <tr>
+            <td colspan="4" class="a-center last" style="padding:8px;"><?php echo $this->getChildHtml('add_button') ?></td>
+        </tr>
+        <tr>
+        </tr>
+        </tfoot>
+        <tbody id="track_row_container">
+        <tr id="track_row_template" class="template no-display">
+            <td>
+                <select name="tracking[__index__][carrier_code]" id="trackingC__index__" class="select carrier" style="width:110px;" disabled="disabled">
+                    <?php foreach ($this->getCarriers() as $_code=>$_name): ?>
+                        <option value="<?php echo $_code ?>"><?php echo $this->escapeHtml($_name) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
+            <td><input class="input-text number-title" type="text" name="tracking[__index__][title]" id="trackingT__index__" value="" disabled="disabled" /></td>
+            <td><input class="input-text required-entry" type="text" name="tracking[__index__][number]" id="trackingN__index__" value="" disabled="disabled" /></td>
+            <td class="last"><a href="#" onclick="trackingControl.deleteRow(event);return false"><?php echo $this->__('Delete') ?></a></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table cellspacing="0" class="data">
+        <tbody>
+        <tr>
+            <td colspan="4" class="a-center last" style="padding:8px;">
+                <div class="range">
+                    <div class="range-line date">
+                        <span class="label">Data Estimada de Entrega:</span>
+                        <input type="text" name="estimated_date" id="estimated_date" value="<?php echo $estimateDate; ?>" class="input-text no-changes"/>
+                        <img src="<?php echo Mage::getDesign()->getSkinUrl('images/grid-cal.gif') ?>" alt="" class="v-middle" id="estimated_date_trig" title="Selecione uma data"/>
+                    </div>
+                </div>
+            </td>
+            <td colspan="4" class="a-center last" style="padding:8px;">
+                <div class="range">
+                    <div class="range-line date">
+                        <span class="label">Data de Entrega na Transportadora:</span>
+                        <input type="text" name="shipped_date" id="shipped_date" value="<?php echo $currDate; ?>" class="input-text no-changes"/>
+                        <img src="<?php echo Mage::getDesign()->getSkinUrl('images/grid-cal.gif') ?>" alt="" class="v-middle" id="shipped_date_trig" title="Selecione uma data"/>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <td colspan="8" class="a-center last" style="padding:8px;">Anymarket</td>
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    //<![CDATA[
+    trackingControl.template = new Template('<tr>' + $('track_row_template').innerHTML.replace(/__index__/g, '#{index}') + '<\/tr>');
+
+    Calendar.setup({
+       inputField : "estimated_date",
+       ifFormat : "%d/%m/%Y %H:%M:%S",
+       button : "estimated_date_trig",
+       showsTime: true,
+       align : "Bl",
+       singleClick : true
+    });
+    Calendar.setup({
+        inputField : "shipped_date",
+        ifFormat : "%d/%m/%Y %H:%M:%S",
+        button : "shipped_date_trig",
+        showsTime: true,
+        align : "Bl",
+        singleClick : true
+    });
+
+    //]]>
+</script>
