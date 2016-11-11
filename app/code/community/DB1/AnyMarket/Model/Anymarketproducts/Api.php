@@ -91,24 +91,38 @@ class DB1_AnyMarket_Model_Anymarketproducts_Api extends Mage_Api_Model_Resource_
                     $TOKEN = $store['token'];
 
                     if ($TOKEN != '') {
+                        $sincMode = Mage::getStoreConfig('anymarket_section/anymarket_general_group/anymarket_operation_type_imp_field', $storeID);
+                        if( $sincMode == "1" ) {
+                            $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
+                            if($typeSincProd == "1") {
+                                Mage::helper('db1_anymarket/queue')->addQueue($storeID, $data['id'], 'IMP', 'PRODUCT');
+                            }else{
+                                $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
+                                if( $typeSincOrder == "1" ){
+                                    Mage::helper('db1_anymarket/queue')->addQueue($storeID, $data['id'], 'IMP', 'STOCK');
+                                }
+                            }
 
-                        $HOST = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
+                            $ret = "Adicionado na fila Magento.";
+                        }else{
+                            $HOST = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
 
-                        $headers = array(
-                            "Content-type: application/json",
-                            "Accept: */*",
-                            "gumgaToken: " . $TOKEN
-                        );
+                            $headers = array(
+                                "Content-type: application/json",
+                                "Accept: */*",
+                                "gumgaToken: " . $TOKEN
+                            );
 
-                        $listTransmissions = array();
-                        array_push($listTransmissions, array(
-                                "id" => $data['id'],
-                                "token" => "notoken"
-                            )
-                        );
+                            $listTransmissions = array();
+                            array_push($listTransmissions, array(
+                                    "id" => $data['id'],
+                                    "token" => "notoken"
+                                )
+                            );
 
-                        $JSON = json_encode($listTransmissions);
-                        $ret = Mage::helper('db1_anymarket/product')->getSpecificFeedProduct($storeID, json_decode($JSON), $headers, $HOST);
+                            $JSON = json_encode($listTransmissions);
+                            $ret = Mage::helper('db1_anymarket/product')->getSpecificFeedProduct($storeID, json_decode($JSON), $headers, $HOST);
+                        }
                     }
                 }
             }

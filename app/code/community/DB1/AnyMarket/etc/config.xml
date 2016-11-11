@@ -280,6 +280,11 @@
             <anymarket_type_order_sync_field>1</anymarket_type_order_sync_field>
         </anymarket_integration_order_group>
 
+        <anymarket_general_group>
+            <anymarket_operation_type_field>1</anymarket_operation_type_field>
+            <anymarket_operation_type_imp_field>1</anymarket_operation_type_imp_field>
+        </anymarket_general_group>
+
         <anymarket_attribute_group>
             <anymarket_customer_group_field>1</anymarket_customer_group_field>
             <anymarket_doc_type_field>taxvat</anymarket_doc_type_field>

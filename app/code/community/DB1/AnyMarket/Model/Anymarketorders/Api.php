@@ -90,7 +90,14 @@ class DB1_AnyMarket_Model_Anymarketorders_Api extends Mage_Api_Model_Resource_Ab
                     $TOKEN = $store['token'];
 
                     if ($TOKEN != '') {
-                        $ret = Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($data['id'], "notoken", $storeID);
+                        $sincMode = Mage::getStoreConfig('anymarket_section/anymarket_general_group/anymarket_operation_type_imp_field', $storeID);
+                        if( $sincMode == "1" ) {
+                            Mage::helper('db1_anymarket/queue')->addQueue($storeID, $data['id'], 'IMP', 'ORDER');
+                            $ret = "Adicionado a fila do Magento";
+                        }else{
+                            $ret = Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($data['id'], "notoken", $storeID);
+                        }
+
                     }
                 }
             }

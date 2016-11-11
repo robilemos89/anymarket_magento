@@ -94,18 +94,18 @@ $currDate = $currDate->format("d/m/Y H:i:s");
             <td colspan="4" class="a-center last" style="padding:8px;">
                 <div class="range">
                     <div class="range-line date">
-                        <span class="label">Data Estimada de Entrega:</span>
-                        <input type="text" name="estimated_date" id="estimated_date" value="<?php echo $estimateDate; ?>" class="input-text no-changes"/>
-                        <img src="<?php echo Mage::getDesign()->getSkinUrl('images/grid-cal.gif') ?>" alt="" class="v-middle" id="estimated_date_trig" title="Selecione uma data"/>
+                        <span class="label">Data de Entrega na Transportadora:</span>
+                        <input type="text" name="shipped_date" id="shipped_date" value="<?php echo $currDate; ?>" class="input-text no-changes"/>
+                        <img src="<?php echo Mage::getDesign()->getSkinUrl('images/grid-cal.gif') ?>" alt="" class="v-middle" id="shipped_date_trig" title="Selecione uma data"/>
                     </div>
                 </div>
             </td>
             <td colspan="4" class="a-center last" style="padding:8px;">
                 <div class="range">
                     <div class="range-line date">
-                        <span class="label">Data de Entrega na Transportadora:</span>
-                        <input type="text" name="shipped_date" id="shipped_date" value="<?php echo $currDate; ?>" class="input-text no-changes"/>
-                        <img src="<?php echo Mage::getDesign()->getSkinUrl('images/grid-cal.gif') ?>" alt="" class="v-middle" id="shipped_date_trig" title="Selecione uma data"/>
+                        <span class="label">Data Estimada de Entrega:</span>
+                        <input type="text" name="estimated_date" id="estimated_date" value="<?php echo $estimateDate; ?>" class="input-text no-changes"/>
+                        <img src="<?php echo Mage::getDesign()->getSkinUrl('images/grid-cal.gif') ?>" alt="" class="v-middle" id="estimated_date_trig" title="Selecione uma data"/>
                     </div>
                 </div>
             </td>
