@@ -133,8 +133,8 @@ class DB1_AnyMarket_Model_Observer {
             if ($shipped_date != "" && $estimated_date != ""){
 
                 $comment = 'Informações inseridas pelo Anymarket:<br>';
-                $comment .= '<b>Data Estimada de Entrega: </b>' . $estimated_date . '<br>';
                 $comment .= '<b>Data de Entrega na Transportadora: </b>' . $shipped_date . '<br>';
+                $comment .= '<b>Data Estimada de Entrega: </b>' . $estimated_date . '<br>';
 
                 $shipment->addComment($comment, "");
                 $shipment->setEmailSent(false);
