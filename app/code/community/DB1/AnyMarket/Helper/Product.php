@@ -504,8 +504,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         // SINCRONIZA AS FOTOS E SKUS
         if($product->getData('id_anymarket') != "" || $product->getData('id_anymarket') != 0) {
             $skusProd = $this->CallAPICurl("GET", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/skus", $headers, null);
-
             if ($skusProd['error'] == '0') {
+
                 foreach ($skusParam as $skuPut) {
                     $prodSimple = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $skuPut['partnerId']);
                     if ($prodSimple->getData('id_anymarket') != '') {
@@ -1319,8 +1319,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      */
     public function getStockProductAnyMarket($storeID, $IDProd){
         $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $IDProd );
-        Mage::log( $storeID, null, 'anymarket_d.log');
-        Mage::log( $IDProd, null, 'anymarket_d.log');
         if($product->getIdAnymarket() != ''){
             $HOST = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
             $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
