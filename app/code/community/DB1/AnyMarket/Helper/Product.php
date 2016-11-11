@@ -490,6 +490,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $product
      * @param $skusParam
      * @param $storeID
+     *
+     * @return Boolean
      */
     public function sendImageSkuToAnyMarket($storeID, $product, $skusParam) {
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
@@ -504,6 +506,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         if($product->getData('id_anymarket') != "" || $product->getData('id_anymarket') != 0) {
             $skusProd = $this->CallAPICurl("GET", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/skus", $headers, null);
             if ($skusProd['error'] == '0') {
+                if($product->getTypeID() == "configurable" && $product->getData('integra_images_root_anymarket') == 1 ){
+                    //obtem as imagens do produto(Config)
+                    Mage::helper('db1_anymarket/image')->sendImageToAnyMarket($storeID, $product, null);
+                }
+
                 foreach ($skusParam as $skuPut) {
                     $prodSimple = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $skuPut['partnerId']);
                     if ($prodSimple->getData('id_anymarket') != '') {
