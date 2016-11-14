@@ -490,6 +490,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @param $product
      * @param $skusParam
      * @param $storeID
+     *
+     * @return Boolean
      */
     public function sendImageSkuToAnyMarket($storeID, $product, $skusParam) {
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
@@ -504,52 +506,56 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         if($product->getData('id_anymarket') != "" || $product->getData('id_anymarket') != 0) {
             $skusProd = $this->CallAPICurl("GET", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/skus", $headers, null);
             if ($skusProd['error'] == '0') {
+                if($product->getTypeID() == "configurable" && $product->getData('integra_images_root_anymarket') == 1 ){
+                    //obtem as imagens do produto(Config)
+                    Mage::helper('db1_anymarket/image')->sendImageToAnyMarket($storeID, $product, null);
+                }
+
                 foreach ($skusParam as $skuPut) {
                     $prodSimple = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $skuPut['partnerId']);
-                    if ($prodSimple->getData('id_anymarket') != '') {
-                        $paramSku = array(
-                            "title" => $skuPut['title'],
-                            "partnerId" => $skuPut['partnerId'],
-                            "ean" => $skuPut['ean'],
-                            "amount" => $skuPut['amount'],
-                            "price" => $skuPut['price'],
-                        );
+                    $paramSku = array(
+                        "title" => $skuPut['title'],
+                        "partnerId" => $skuPut['partnerId'],
+                        "ean" => $skuPut['ean'],
+                        "amount" => $skuPut['amount'],
+                        "price" => $skuPut['price'],
+                    );
 
-                        if (isset($skuPut['variations'])) {
-                            foreach ($skuPut['variations'] as $variationPut) {
-                                Mage::helper('db1_anymarket/image')->sendImageToAnyMarket($storeID, $prodSimple, $variationPut);
-                            }
-                            $paramSku['variations'] = $skuPut['variations'];
-                        } else {
-                            Mage::helper('db1_anymarket/image')->sendImageToAnyMarket($storeID, $product, null);
+                    if (isset($skuPut['variations'])) {
+                        foreach ($skuPut['variations'] as $variationPut) {
+                            Mage::helper('db1_anymarket/image')->sendImageToAnyMarket($storeID, $prodSimple, $variationPut);
                         }
-
-                        $flagHSku = '';
-                        if (isset($skusProd['return'])) {
-                            foreach ($skusProd['return'] as $skuAM) {
-                                if ($skuAM->partnerId == $prodSimple->getSku()) {
-                                    $flagHSku = $skuAM->id;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if ($flagHSku != '') {
-                            $skuProdReturn = $this->CallAPICurl("PUT", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/skus/" . $flagHSku, $headers, $paramSku);
-
-                            if ($skuProdReturn['error'] == '0') {
-                                $skuProdReturn['return'] = Mage::helper('db1_anymarket')->__('SKU Updated') . ' (' . $skuPut['partnerId'] . ')';
-                            }
-                        } else {
-                            $skuProdReturn = $this->CallAPICurl("POST", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/skus", $headers, $paramSku);
-
-                            if ($skuProdReturn['error'] == '0') {
-                                $skuProdReturn['return'] = Mage::helper('db1_anymarket')->__('SKU Created') . ' (' . $skuPut['partnerId'] . ')';
-                            }
-                        }
-
-                        $this->saveLogsProds($storeID, "1", $skuProdReturn, $prodSimple);
+                        $paramSku['variations'] = $skuPut['variations'];
+                    } else {
+                        Mage::helper('db1_anymarket/image')->sendImageToAnyMarket($storeID, $product, null);
                     }
+
+                    $flagHSku = '';
+                    if (isset($skusProd['return'])) {
+                        foreach ($skusProd['return'] as $skuAM) {
+                            if ($skuAM->partnerId == $prodSimple->getSku()) {
+                                $flagHSku = $skuAM->id;
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($flagHSku != '') {
+                        $skuProdReturn = $this->CallAPICurl("PUT", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/skus/" . $flagHSku, $headers, $paramSku);
+
+                        if ($skuProdReturn['error'] == '0') {
+                            $skuProdReturn['return'] = Mage::helper('db1_anymarket')->__('SKU Updated') . ' (' . $skuPut['partnerId'] . ')';
+                        }
+                    } else {
+                        $skuProdReturn = $this->CallAPICurl("POST", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/skus", $headers, $paramSku);
+
+                        if ($skuProdReturn['error'] == '0') {
+                            $skuProdReturn['return'] = Mage::helper('db1_anymarket')->__('SKU Created') . ' (' . $skuPut['partnerId'] . ')';
+                        }
+                    }
+
+                    $this->saveLogsProds($storeID, "1", $skuProdReturn, $prodSimple);
+
                 }
             } else {
                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
