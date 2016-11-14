@@ -108,6 +108,7 @@ class DB1_AnyMarket_Model_Anymarketlog extends Mage_Core_Model_Abstract
                 $this->setUpdatedAt($now);
             }
 
+            if( $this->getLogDesc() == "" && $this->getLogJson() == "" ){
                 $this->_dataSaveAllowed = false;
             }
         }else {
