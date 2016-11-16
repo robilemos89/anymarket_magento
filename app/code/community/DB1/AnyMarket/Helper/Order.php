@@ -1180,21 +1180,23 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             $idAnymarketOrder = substr($OrderResp, $IDAnymarket+14, 100);
                             $idAnymarketOrder = str_replace(']"}', "", $idAnymarketOrder );
 
-                            $anymarketorders->setNmoStatusInt('Integrado');
-                            $anymarketorders->setNmoDescError('');
-                            $anymarketorders->setNmoIdSeqAnymarket( $idAnymarketOrder );
-                            $anymarketorders->setNmoIdOrder($idOrder);
-                            $anymarketorders->setNmoIdAnymarket($idOrder);
-                            $anymarketorders->save();
+                            if( is_numeric ($idAnymarketOrder) ) {
+                                $anymarketorders->setNmoStatusInt('Integrado');
+                                $anymarketorders->setNmoDescError('');
+                                $anymarketorders->setNmoIdSeqAnymarket($idAnymarketOrder);
+                                $anymarketorders->setNmoIdOrder($idOrder);
+                                $anymarketorders->setNmoIdAnymarket($idOrder);
+                                $anymarketorders->save();
 
-                            $anymarketlog->setStores(array($storeID));
-                            $anymarketlog->setLogDesc( "Pedido encontrado [".$idAnymarketOrder."] e realizado o relacionamento." );
-                            $anymarketlog->setStatus("0");
-                            $anymarketlog->save();
+                                $anymarketlog->setStores(array($storeID));
+                                $anymarketlog->setLogDesc("Pedido encontrado [" . $idAnymarketOrder . "] e realizado o relacionamento.");
+                                $anymarketlog->setStatus("0");
+                                $anymarketlog->save();
 
-                            $OrderRetry = Mage::getModel('sales/order')->loadByIncrementId( $idOrder );
-                            $this->updateOrderAnyMarket($storeID, $OrderRetry);
-                            return false;
+                                $OrderRetry = Mage::getModel('sales/order')->loadByIncrementId($idOrder);
+                                $this->updateOrderAnyMarket($storeID, $OrderRetry);
+                                return false;
+                            }
                         }
                     }
                 }else{
