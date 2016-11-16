@@ -1169,8 +1169,34 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $anymarketorders->setStatus("1");
                 $anymarketorders->setStores(array($storeID));
                 if($returnOrder['error'] == '1'){
-                    $anymarketorders->setNmoStatusInt('ERROR 02');
-                    $anymarketorders->setNmoDescError($returnOrder['return']);
+                    if( strpos($returnOrder['return'], 'existe uma venda de ECOMMERCE cadastrada com o') === false ) {
+                        $anymarketorders->setNmoStatusInt('ERROR 02');
+                        $anymarketorders->setNmoDescError($returnOrder['return']);
+                    }else{
+                        $OrderResp = json_decode($returnOrder['return']);
+
+                        $IDAnymarket = strpos($OrderResp, 'ID Anymarket');
+                        if ($IDAnymarket !== false) {
+                            $idAnymarketOrder = substr($OrderResp, $IDAnymarket+14, 100);
+                            $idAnymarketOrder = str_replace(']"}', "", $idAnymarketOrder );
+
+                            $anymarketorders->setNmoStatusInt('Integrado');
+                            $anymarketorders->setNmoDescError('');
+                            $anymarketorders->setNmoIdSeqAnymarket( $idAnymarketOrder );
+                            $anymarketorders->setNmoIdOrder($idOrder);
+                            $anymarketorders->setNmoIdAnymarket($idOrder);
+                            $anymarketorders->save();
+
+                            $anymarketlog->setStores(array($storeID));
+                            $anymarketlog->setLogDesc( "Pedido encontrado [".$idAnymarketOrder."] e realizado o relacionamento." );
+                            $anymarketlog->setStatus("0");
+                            $anymarketlog->save();
+
+                            $OrderRetry = Mage::getModel('sales/order')->loadByIncrementId( $idOrder );
+                            $this->updateOrderAnyMarket($storeID, $OrderRetry);
+                            return false;
+                        }
+                    }
                 }else{
                     $retOrderJSON = $returnOrder['return'];
                     $anymarketorders->setNmoStatusInt('Integrado');
