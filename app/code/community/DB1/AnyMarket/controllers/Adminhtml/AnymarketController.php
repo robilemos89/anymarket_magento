@@ -42,10 +42,6 @@ class DB1_Anymarket_Adminhtml_AnymarketController extends Mage_Adminhtml_Control
 		if ($ConfigDescProd == 'a:0:{}') {
 			array_push($errors, " Configuração de Descrição Inválida.");
 		}
-		$STATUSIMPORT = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_stauts_order_field', $storeID);
-		if( $STATUSIMPORT == null ){
-			array_push($errors, " Não ha nada configurado em Status do Pedido.");
-		}
 		$StatusOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_status_mg_am_field', $storeID);
 		if ($StatusOrder == 'a:0:{}') {
 			array_push($errors, " Não ha nada configurado em Status Magento-Anymarket.");

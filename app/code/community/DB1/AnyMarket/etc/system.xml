@@ -93,20 +93,39 @@
                     <show_in_store>1</show_in_store>
                     <fields>
 
+                        <anymarket_header_type_sync_field>
+                            <label>Tipo de Sincronização</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </anymarket_header_type_sync_field>
+
                         <anymarket_operation_type_field>
-                            <label>Tipo de Operação</label>
+                            <label>Enviar para o Anymarket</label>
                             <frontend_type>select</frontend_type>
                             <source_model>db1_anymarket/system_config_source_general_values</source_model>
-                            <sort_order>0</sort_order>
+                            <sort_order>1</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
                         </anymarket_operation_type_field>
 
+                        <anymarket_operation_type_imp_field>
+                            <label>Receber do Anymarket</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_general_values</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </anymarket_operation_type_imp_field>
+
                         <anymarket_header_validation_field>
                             <label>Validações</label>
                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>1</sort_order>
+                            <sort_order>3</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -116,7 +135,7 @@
                             <label>Check the configurations</label>
                             <frontend_type>Button</frontend_type>
                             <frontend_model>db1_anymarket/adminhtml_system_config_form_buttoncheckconfig</frontend_model>
-                            <sort_order>2</sort_order>
+                            <sort_order>4</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -831,17 +850,6 @@
                     <show_in_store>1</show_in_store>
                     <fields>
 
-                        <anymarket_estimate_date_field translate="label tooltip comment">
-                            <label>Dias adicionais Data Estimada de Entrega</label>
-                            <sort_order>0</sort_order>
-                            <comment>Caso não seja informado, enviará 10 dias adicionais.</comment>
-                            <tooltip>Quantidade de dias que será adicionada a data de envio para o campo Data Estimada.</tooltip>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <frontend_type>text</frontend_type>
-                        </anymarket_estimate_date_field>
-
                         <anymarket_header_order_field>
                             <label>Fluxo de Integração</label>
                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
@@ -862,19 +870,10 @@
                             <source_model>db1_anymarket/system_config_source_typesync_order_values</source_model>
                         </anymarket_type_order_sync_field>
 
-                        <anymarket_header_order_imp_field>
-                            <label>Status a serem importados do Anymarket</label>
-                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>3</sort_order>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>2</show_in_store>
-                        </anymarket_header_order_imp_field>
-
                         <anymarket_create_reg_pay_field translate="label comment">
                             <label>Create payment record when importing paid</label>
                             <comment>By checking to yes, when it is imported into an application status paid in Anymarket, a record in Invoice will be created, remember to link a status that allows billing with PAGO.</comment>
-                            <sort_order>4</sort_order>
+                            <sort_order>3</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -882,21 +881,10 @@
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                         </anymarket_create_reg_pay_field>
 
-                        <anymarket_stauts_order_field translate="label tooltip comment">
-                            <label>Status Order</label>
-                            <comment>Status of orders that must be imported.</comment>
-                            <frontend_type>multiselect</frontend_type>
-                            <source_model>db1_anymarket/system_config_source_orders_values</source_model>
-                            <sort_order>5</sort_order>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </anymarket_stauts_order_field>
-
                         <anymarket_header_am_mg_field>
                             <label>Anymarket para Magento</label>
                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>6</sort_order>
+                            <sort_order>4</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>2</show_in_store>
@@ -906,7 +894,7 @@
                             <label>Status Order (Anymarket to Magento)</label>
                             <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
                             <frontend_model>db1_anymarket/system_config_source_orders_statusammg_values</frontend_model>
-                            <sort_order>7</sort_order>
+                            <sort_order>5</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -916,7 +904,7 @@
                         <anymarket_header_mg_am_field>
                             <label>Magento para Anymarket</label>
                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>8</sort_order>
+                            <sort_order>6</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>2</show_in_store>
@@ -926,7 +914,7 @@
                             <label>Status Order (Magento to Anymarket)</label>
                             <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
                             <frontend_model>db1_anymarket/system_config_source_orders_statusmgam_values</frontend_model>
-                            <sort_order>9</sort_order>
+                            <sort_order>7</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>

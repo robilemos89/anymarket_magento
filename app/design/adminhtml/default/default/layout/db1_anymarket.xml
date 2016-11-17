@@ -9,6 +9,15 @@
         </reference>
     </catalog_product_view>
 
+    <adminhtml_sales_order_shipment_new>
+        <reference name="shipment_tracking">
+            <action method="setTemplate">
+                <template>db1/anymarket/tracking/new/tracking.phtml</template>
+                <!--template>sales/order/shipment/create/tracking.phtml</template-->
+            </action>
+        </reference>
+    </adminhtml_sales_order_shipment_new>
+
     <adminhtml_anymarket_anymarketlog_index>
         <reference name="menu">
             <action method="setActive">

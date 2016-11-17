@@ -120,9 +120,39 @@ class DB1_AnyMarket_Model_Observer {
      * @param $observer
      * @return $this
      */
+    public function saveShippingObs($observer){
+        if (Mage::registry('salesOrderShipmentSaveBeforeTriggered')) {
+            return $this;
+        }
+
+        $shipment = $observer->getEvent()->getShipment();
+        if ($shipment) {
+            $shipped_date = Mage::app()->getRequest()->getParam('shipped_date');
+            $estimated_date = Mage::app()->getRequest()->getParam('estimated_date');
+
+            if ($shipped_date != "" && $estimated_date != ""){
+
+                $comment = 'Informações inseridas pelo Anymarket:<br>';
+                $comment .= '<b>Data de Entrega na Transportadora: </b>' . $shipped_date . '<br>';
+                $comment .= '<b>Data Estimada de Entrega: </b>' . $estimated_date . '<br>';
+
+                $shipment->addComment($comment, "");
+                $shipment->setEmailSent(false);
+            }
+            Mage::register('salesOrderShipmentSaveBeforeTriggered', true);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $observer
+     * @return $this
+     */
     public function updateOrderAnyMarketObs($observer){
         $storeID = $observer->getEvent()->getOrder()->getStoreId();
         $OrderID = $observer->getEvent()->getOrder()->getIncrementId();
+
         try {
             if(Mage::registry('order_save_observer_executed_'.$OrderID )){
                 Mage::unregister( 'order_save_observer_executed_'.$OrderID );
@@ -135,10 +165,9 @@ class DB1_AnyMarket_Model_Observer {
             if( $this->asyncMode($storeID) ){
                 Mage::helper('db1_anymarket/queue')->addQueue($storeID, $OrderID, 'EXP', 'ORDER');
             }else{
-                Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($storeID, $order );
+                Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($storeID, $order);
             }
 
-            //DECREMENTA STOCK ANYMARKET
             $orderItems = $order->getItemsCollection();
             $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
             foreach ($orderItems as $item){

@@ -60,16 +60,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                 if ($item['nmq_table'] == 'ORDER') {
                     try {
                         if ($typImp == 'IMP') {
-                            $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->setStoreId($storeID);
-                            $anymarketorders->load($IdItemQueue, 'nmo_id_anymarket');
-                            //Import
-                            if ($anymarketorders->getNmoStatusInt() != "Não integrado (Magento)") {
-                                $idAnyMarket = $anymarketorders->getNmoIdSeqAnymarket();
-                                if ($idAnyMarket) {
-                                    $idReg = $anymarketorders->getId();
-                                    Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($idAnyMarket, "notoken", $storeID);
-                                }
-                            }
+                            Mage::helper('db1_anymarket/order')->getSpecificOrderFromAnyMarket($IdItemQueue, "notoken", $storeID);
                         } else {
                             $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->setStoreId($storeID);
                             $anymarketorders->load($IdItemQueue, 'nmo_id_order');
@@ -85,14 +76,33 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                         Mage::logException($e);
                     }
                 } else if ($item['nmq_table'] == 'STOCK') {
-                    $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $IdItemQueue );
+                        if ($typImp == 'EXP') {
+                            $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $IdItemQueue );
+                            if ($product) {
+                                $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                                $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
+                                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $ProdStock->getQty(), $product->getData($filter));
+                            }
+                        } else {
+                            $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
+                            $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
-                    // TRATA STOCK
-                    if ($product) {
-                        $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
-                        $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
-                        Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $ProdStock->getQty(), $product->getData($filter));
-                    }
+                            $headers = array(
+                                "Content-type: application/json",
+                                "Accept: */*",
+                                "gumgaToken: " . $TOKEN
+                            );
+
+                            $listTransmissions = array();
+                            array_push($listTransmissions, array(
+                                    "id" => $IdItemQueue,
+                                    "token" => "notoken"
+                                )
+                            );
+
+                            $JSON = json_encode($listTransmissions);
+                            Mage::helper('db1_anymarket/product')->getSpecificFeedProduct($storeID, json_decode($JSON), $headers, $HOST);
+                        }
                 } else if ($item['nmq_table'] == 'PRODUCT') {
                     // EXPORT PRODUCT
                     $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
