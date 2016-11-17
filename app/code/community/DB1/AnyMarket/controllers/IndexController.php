@@ -11,7 +11,6 @@ class DB1_AnyMarket_IndexController extends Mage_Core_Controller_Front_Action {
 			$anymarketlog->setLogJson(file_get_contents('php://input'));
 			$anymarketlog->setStatus("0");
 			$anymarketlog->save();
-			sleep(rand(5,25));
 
 			$allStores = Mage::helper('db1_anymarket')->getTokenByOi( $value->content->oi );
 			if( !empty($allStores) ) {
