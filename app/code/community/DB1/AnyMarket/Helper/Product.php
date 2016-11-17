@@ -1580,7 +1580,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             $stockItem->save();
 
                             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                            $anymarketlog->setLogDesc( "Stock Updated." );
+                            $anymarketlog->setLogDesc( "Stock Updated: ".$transmissionStock->sku->amount );
                             $anymarketlog->setLogId( $prodLoaded->getSku() );
                             $anymarketlog->setStatus("0");
                             $anymarketlog->setStores(array($storeID));
