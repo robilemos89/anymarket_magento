@@ -23,6 +23,8 @@ class DB1_AnyMarket_IndexController extends Mage_Core_Controller_Front_Action {
                             $sincMode = Mage::getStoreConfig('anymarket_section/anymarket_general_group/anymarket_operation_type_imp_field', $storeID);
                             if( $sincMode == "1" ) {
                                 Mage::helper('db1_anymarket/queue')->addQueue($storeID, $value->content->id, 'IMP', 'ORDER');
+
+                                echo "Adicionado na fila Magento.";
                             }else {
                                 if (Mage::registry('callback_order_executed_' . $value->content->id)) {
                                     Mage::unregister('callback_order_executed_' . $value->content->id);
