@@ -883,8 +883,18 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         if( $nfeID == "" ){
                             $nfeID = $chaveAcID;
                         }
+                    }else{
+                        $notaFiscal = strpos($CommentCurr, 'NrNF-e');
+                        if( $notaFiscal !== false ) {
+                            $endNF = strpos($CommentCurr, '<br/>');
+                            $nfeID = substr( $CommentCurr, $notaFiscal+6, $endNF-6);
+
+                            if( $nfeID == "" ){
+                                $nfeID = $chaveAcID;
+                            }
+                        }
                     }
-					
+
 					$dateTmp =  new DateTime(str_replace("/", "-", $item->getData('created_at') ));
 					$date = date_format($dateTmp, 'Y-m-d\TH:i:s\Z');					
                     break;
@@ -892,26 +902,24 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
         }
 
-        if( $chaveAcID == "" ) {
-            if ($Order->hasShipments()){
-                foreach ($Order->getShipmentsCollection() as $ship) {
-                    $shippment = Mage::getModel('sales/order_shipment')->loadByIncrementId( $ship->getIncrementId() );
-                    foreach ($shippment->getCommentsCollection() as $item) {
-                        $CommentCurr = $item->getComment();
+        if( $chaveAcID == "" && $Order->hasShipments() ) {
+            foreach ($Order->getShipmentsCollection() as $ship) {
+                $shippment = Mage::getModel('sales/order_shipment')->loadByIncrementId( $ship->getIncrementId() );
+                foreach ($shippment->getCommentsCollection() as $item) {
+                    $CommentCurr = $item->getComment();
 
-                        $nfeCount = strpos($CommentCurr, 'nfe:');
-                        $emissaoCount = strpos($CommentCurr, 'emiss');
-                        if( (strpos($CommentCurr, 'nfe:') !== false) && (strpos($CommentCurr, 'emiss') !== false) ) {
-                            $caracts = array("/", "-", ".");
-                            $nfeTmp = str_replace($caracts, "", $CommentCurr );
-                            $chaveAcID = substr( $nfeTmp, $nfeCount+4, 44);
-                            $nfeID = $chaveAcID;
+                    $nfeCount = strpos($CommentCurr, 'nfe:');
+                    $emissaoCount = strpos($CommentCurr, 'emiss');
+                    if( (strpos($CommentCurr, 'nfe:') !== false) && (strpos($CommentCurr, 'emiss') !== false) ) {
+                        $caracts = array("/", "-", ".");
+                        $nfeTmp = str_replace($caracts, "", $CommentCurr );
+                        $chaveAcID = substr( $nfeTmp, $nfeCount+4, 44);
+                        $nfeID = $chaveAcID;
 
-                            $date = substr( $CommentCurr, $emissaoCount+8, 19);
-                            $dateTmp = str_replace("/", "-", $date );
+                        $date = substr( $CommentCurr, $emissaoCount+8, 19);
+                        $dateTmp = str_replace("/", "-", $date );
 
-                            $date = $this->formatDateTimeZone($dateTmp);
-                        }
+                        $date = $this->formatDateTimeZone($dateTmp);
                     }
                 }
             }
@@ -1195,7 +1203,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                                 $OrderRetry = Mage::getModel('sales/order')->loadByIncrementId($idOrder);
                                 $this->updateOrderAnyMarket($storeID, $OrderRetry);
-                                return false;
+                                return $this;
                             }
                         }
                     }
