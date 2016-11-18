@@ -530,7 +530,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         foreach ($OrderJSON->payments as $payment) {
                                             $infoMetPag = $payment->method;
                                             if($payment->paymentMethodNormalized) {
-                                                array_push($infoMetPagCom, $payment->paymentMethodNormalized." - Parcelas: ".$payment->installments);
+                                                $parcelas = isset($payment->installments) ? $payment->installments : '0';
+                                                array_push($infoMetPagCom, $payment->paymentMethodNormalized." - Parcelas: ".$parcelas );
                                             }
                                         }
                                     }
