@@ -275,10 +275,12 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                     $this->getSpecificOrderFromAnyMarket($order->id, $order->token, $storeID);
 
-                    $paramFeed = array(
-                        "token" => $order->token
-                    );
-                    $this->CallAPICurl("PUT", $HOST . "/rest/api/v2/orders/feeds/" . $order->id, $headers, $paramFeed);
+                    if($order->token != 'notoken') {
+                        $paramFeed = array(
+                            "token" => $order->token
+                        );
+                        $this->CallAPICurl("PUT", $HOST . "/rest/api/v2/orders/feeds/" . $order->id, $headers, $paramFeed);
+                    }
                 }
             }
         }
@@ -607,7 +609,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         }
                     }
 
-                    if ($tokenFeed != null) {
+                    if ($tokenFeed != null && $tokenFeed != 'notoken') {
                         $paramFeed = array(
                             "token" => $tokenFeed
                         );
