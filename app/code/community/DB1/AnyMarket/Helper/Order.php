@@ -700,7 +700,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             Mage::getSingleton('core/session')->setImportOrdersVariable('false');
             $order = Mage::getModel('sales/order')->loadByIncrementId( $IDOrderMagento );
 
-            if( $order->getData('state') == $stateMage ){
+            if( ($order->getData('state') == $stateMage) && ($order->getData('status') == $statusMage) ){
                 return false;
             }
 
@@ -787,12 +787,15 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
 
             if($statusMage != Mage_Sales_Model_Order::STATE_NEW){
-                if($stateMage == Mage_Sales_Model_Order::STATE_COMPLETE){
-                    $history = $order->addStatusHistoryComment('Finalizado pelo AnyMarket.', false);
-                    $history->setIsCustomerNotified(false);
-                }
                 $order->setData('state', $stateMage);
                 $order->setStatus($statusMage, true);
+
+                if($stateMage == Mage_Sales_Model_Order::STATE_COMPLETE){
+                    $history = $order->addStatusHistoryComment('Finalizado pelo AnyMarket.', false);
+                }else{
+                    $history = $order->addStatusHistoryComment('', false);
+                }
+                $history->setIsCustomerNotified(false);
 
                 if($stateMage == Mage_Sales_Model_Order::STATE_CANCELED) {
                     foreach ($order->getAllItems() as $item) {
