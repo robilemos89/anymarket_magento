@@ -9,7 +9,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @param $OrderRowData
      * @return string
      */
-    private function getStatusAnyMarketToMageOrderConfig($storeID, $OrderRowData){
+    public function getStatusAnyMarketToMageOrderConfig($storeID, $OrderRowData){
         if($OrderRowData == null){
             $OrderRowData = "new";
         }
