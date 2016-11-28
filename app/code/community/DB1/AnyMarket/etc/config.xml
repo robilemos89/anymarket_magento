@@ -125,17 +125,6 @@
                 </observers>
             </admin_system_config_changed_section_anymarket_section>
 
-            <sales_order_save_commit_after>
-                <observers>
-                    <sales_order_save_commit_after_handler>
-                        <type>model</type>
-                        <class>db1_anymarket/observer</class>
-                        <method>updateOrderAnyMarketObs</method>
-                        <args></args>
-                    </sales_order_save_commit_after_handler>
-                </observers>
-            </sales_order_save_commit_after>
-
             <!-- CATEGORIA -->
             <catalog_category_save_commit_after>
                 <observers>
@@ -188,14 +177,14 @@
             </catalog_product_delete_after>
 
             <!-- ORDER -->
-            <sales_order_save_after>
+            <checkout_onepage_controller_success_action>
                 <observers>
                     <db1_anymarket>
                         <class>db1_anymarket/observer</class>
                         <method>updateOrderAnyMarketObs</method>
                     </db1_anymarket>
                 </observers>
-            </sales_order_save_after>
+            </checkout_onepage_controller_success_action>
 
             <!-- ESTOQUE -->
             <cataloginventory_stock_item_save_commit_after>

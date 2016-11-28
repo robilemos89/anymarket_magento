@@ -150,8 +150,10 @@ class DB1_AnyMarket_Model_Observer {
      * @return $this
      */
     public function updateOrderAnyMarketObs($observer){
-        $storeID = $observer->getEvent()->getOrder()->getStoreId();
-        $OrderID = $observer->getEvent()->getOrder()->getIncrementId();
+        $order = new Mage_Sales_Model_Order();
+        $OrderID = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+        $order->loadByIncrementId($OrderID);
+        $storeID = $order->getStoreId();
 
         try {
             if(Mage::registry('order_save_observer_executed_'.$OrderID )){

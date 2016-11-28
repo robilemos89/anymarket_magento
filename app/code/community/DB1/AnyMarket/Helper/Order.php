@@ -785,7 +785,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 }
             }
 
-            if($statusMage != Mage_Sales_Model_Order::STATE_NEW){
+            if($stateMage != Mage_Sales_Model_Order::STATE_NEW){
                 $order->setData('state', $stateMage);
                 $order->setStatus($statusMage, true);
 
