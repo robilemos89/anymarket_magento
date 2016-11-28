@@ -25,7 +25,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $OrderReturn = $StatusOrderRow['orderStatusMG'];
                         $statuses = Mage::getModel('sales/order_status')->getCollection()->joinStates()
                             ->addFieldToFilter('main_table.status',array('eq'=>$OrderReturn));
-                        //->addStatusFilter($OrderReturn);
 
                         $StateReturn = $statuses->getFirstItem()->getData('state');
                         break;
@@ -1117,9 +1116,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
 
             if( (strpos($statuAM, 'ERROR:') === false) && ($statuAM != '') ) {
+                $dateTmp =  new DateTime(str_replace("/", "-", $Order->getData('created_at') ));
                 $params = array(
                     'marketPlaceId' => $idOrder,
-                    "createdAt" => $this->formatDateTimeZone( $Order->getData('created_at') ),
+                    "createdAt" => date_format($dateTmp, 'Y-m-d\TH:i:s\Z'),
                     "status" =>  $statuAM,
                     "marketPlace" => "ECOMMERCE",
                     "marketPlaceStatus" => $statuAM,
