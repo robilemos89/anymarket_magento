@@ -785,32 +785,30 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 }
             }
 
-            if($stateMage != Mage_Sales_Model_Order::STATE_NEW){
-                $order->setData('state', $stateMage);
-                $order->setStatus($statusMage, true);
+            $order->setData('state', $stateMage);
+            $order->setStatus($statusMage, true);
 
-                if($stateMage == Mage_Sales_Model_Order::STATE_COMPLETE){
-                    $history = $order->addStatusHistoryComment('Finalizado pelo AnyMarket.', false);
-                }else{
-                    $history = $order->addStatusHistoryComment('', false);
-                }
-                $history->setIsCustomerNotified(false);
-
-                if($stateMage == Mage_Sales_Model_Order::STATE_CANCELED) {
-                    foreach ($order->getAllItems() as $item) {
-                        $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct( $item->getProductId() );
-                        if ($stockItem->getManageStock()) {
-                            $stockItem->setData('qty', $stockItem->getQty() + $item->getQtyOrdered());
-                        }
-                        $stockItem->save();
-
-                        $item->setQtyCanceled($item->getQtyOrdered());
-                        $item->save();
-                    }
-                }
-
-                $order->save();
+            if($stateMage == Mage_Sales_Model_Order::STATE_COMPLETE){
+                $history = $order->addStatusHistoryComment('Finalizado pelo AnyMarket.', false);
+            }else{
+                $history = $order->addStatusHistoryComment('', false);
             }
+            $history->setIsCustomerNotified(false);
+
+            if($stateMage == Mage_Sales_Model_Order::STATE_CANCELED) {
+                foreach ($order->getAllItems() as $item) {
+                    $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct( $item->getProductId() );
+                    if ($stockItem->getManageStock()) {
+                        $stockItem->setData('qty', $stockItem->getQty() + $item->getQtyOrdered());
+                    }
+                    $stockItem->save();
+
+                    $item->setQtyCanceled($item->getQtyOrdered());
+                    $item->save();
+                }
+            }
+
+            $order->save();
 
             $this->saveLogOrder('nmo_id_anymarket',
                                  $JSON->marketPlaceId, 
