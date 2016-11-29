@@ -240,9 +240,7 @@
                     </db1_anymarket>
                 </observers>
             </sales_order_shipment_save_before>
-
         </events>
-
     </global>
    <default>
       <queue_qty>
@@ -333,6 +331,19 @@
 <!-- CRON -->
 
     <adminhtml>
+        <events>
+            <!-- ORDER ADMIN -->
+            <sales_order_place_after>
+                <observers>
+                    <sales_order_save_commit_after_handler>
+                        <type>model</type>
+                        <class>db1_anymarket/observer</class>
+                        <method>updateOrderAnyMarketFromAdminObs</method>
+                        <args></args>
+                    </sales_order_save_commit_after_handler>
+                </observers>
+            </sales_order_place_after>
+        </events>
 
         <layout>
             <updates>

@@ -104,7 +104,18 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
         }
     }
 
-    private function deleteImageAnymarket($storeID, $HOST, $product, $headers, $imgRemove){
+    private function getMediaEntityGalleryDirect($valueId){
+        $connection = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $sql        = "SELECT * FROM `catalog_product_entity_media_gallery` WHERE `value_id`=".$valueId;
+        $rows       = $connection->fetchAll($sql);
+
+        return count($rows) > 0;
+    }
+
+    private function deleteImageAnymarket($storeID, $HOST, $product, $headers, $imgRemove, $valueId){
+        if( $valueId != null && $this->getMediaEntityGalleryDirect($valueId) ){
+            return false;
+        }
         $imgDelRet = $this->CallAPICurl("DELETE", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/images/" . $imgRemove, $headers, null);
         if ($imgDelRet['error'] == '1') {
             $anymarketlogDel = Mage::getModel('db1_anymarket/anymarketlog');
@@ -122,7 +133,7 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
             $anymarketlogDel->save();
         } else {
             $anymarketlogDel = Mage::getModel('db1_anymarket/anymarketlog');
-            $anymarketlogDel->setLogDesc('Deleted image from Anymarket ');
+            $anymarketlogDel->setLogDesc('Deleted image from Anymarket ('.$imgRemove.')');
             $anymarketlogDel->setLogJson('');
             $anymarketlogDel->setLogId($product->getSku());
             $anymarketlogDel->setStatus("1");
@@ -131,7 +142,9 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
 
 
             $anymarketCtrlImg = Mage::getModel('db1_anymarket/anymarketimage')->load($imgRemove, 'id_image');
-            $anymarketCtrlImg->delete();
+            if( $anymarketCtrlImg->getData('value_id') != "" || $anymarketCtrlImg->getData('value_id') != null ) {
+                $anymarketCtrlImg->delete();
+            }
         }
     }
 
@@ -149,8 +162,6 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
         if(!$product){
             return false;
         }
-
-        $product = Mage::getModel('catalog/product')->load( $product->getId() );
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
         $exportImage = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_export_image_field', $storeID);
@@ -179,8 +190,8 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
             if (count($imgsProdMagento) > 0) {
                 if( $processImage == 0 ) {
                     foreach ($imgsProdMagento as $imgProdMagento) {
-                        $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')->load($imgProdMagento->getData('value_id'), 'value_id');
-                        if( $loadedImagCtrl->getData() ) {
+                        $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')->load( $imgProdMagento->getData('value_id'), 'value_id');
+                        if( $loadedImagCtrl->getData('value_id') == "" || $loadedImagCtrl->getData('value_id') == null ) {
                             $urlImage = $imgProdMagento->getData('url');
                             $infoImg = getimagesize($urlImage);
                             $imgSize = filesize($imgProdMagento->getData('path'));
@@ -209,7 +220,7 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                     $height = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_height_image_field', $storeID);
                     foreach ($imgsProdMagento as $imgProdMagento) {
                         $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')->load($imgProdMagento->getData('value_id'), 'value_id');
-                        if( $loadedImagCtrl->getData() ) {
+                        if( $loadedImagCtrl->getData('value_id') == "" || $loadedImagCtrl->getData('value_id') == null ) {
                             if (((int)$with > 0) && ((int)$height > 0)) {
                                 $thumbnail12 = Mage::helper('catalog/image')->init($product, 'image', $imgProdMagento->getFile())->resize($with, $height);
                             } else {
@@ -238,7 +249,8 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                 if( $exportImages ) {
                     $imgRemove = $imgProdAnymarket->id;
                     $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')->load($imgRemove, 'id_image');
-                    if( $loadedImagCtrl->getData() ){
+
+                    if( $loadedImagCtrl->getData('value_id') != "" || $loadedImagCtrl->getData('value_id') != null ) {
                         $deleteImage = true;
                         foreach ($imgsProdMagento as $imgProdMagento) {
                             $urlImage = $imgProdMagento->getData('value_id');
@@ -248,11 +260,11 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                             }
                         }
                         if($deleteImage){
-                            $this->deleteImageAnymarket($storeID, $HOST, $product, $headers, $imgRemove);
+                            $this->deleteImageAnymarket($storeID, $HOST, $product, $headers, $imgRemove, $loadedImagCtrl->getData('value_id'));
                         }
 
                     }else{
-                        $this->deleteImageAnymarket($storeID, $HOST, $product, $headers, $imgRemove);
+                        $this->deleteImageAnymarket($storeID, $HOST, $product, $headers, $imgRemove, null);
                     }
 
                 }
@@ -273,6 +285,7 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                 $this->saveLogsProds($storeID, "0", $returnProd, $product);
             }else {
                 $defaultImage = $product->getImage();
+
                 foreach ($arrAdd as $imgAddArr) {
                     $imgAdd = $imgAddArr['URL'];
 
