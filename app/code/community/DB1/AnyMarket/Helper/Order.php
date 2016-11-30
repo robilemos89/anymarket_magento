@@ -706,21 +706,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $createRegPay = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_create_reg_pay_field', $storeID);
             $itemsarray = null;
 
-            if( $createRegPay == "1" && $StatusPedAnyMarket == 'PAID_WAITING_SHIP' ){
-                if( $order->canInvoice() ){
-                    if( $this->checkIfCanCreateInvoice($order) ) {
-                        $orderItems = $order->getAllItems();
-                        foreach ($orderItems as $_eachItem) {
-                            $opid = $_eachItem->getId();
-                            $qty = $_eachItem->getQtyOrdered();
-                            $itemsarray[$opid] = $qty;
-                        }
-                        $nfeString = "Registro de Pagamento criado por Anymarket";
-                        Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
-                    }
-                }
-            }
-
             if( isset($JSON->invoice) && $StatusPedAnyMarket == 'INVOICED' ){
                 if( $order->canInvoice() ){
                     if(isset($JSON->invoice->accessKey) ) {
@@ -809,6 +794,22 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
 
             $order->save();
+
+            if( $createRegPay == "1" && $StatusPedAnyMarket == 'PAID_WAITING_SHIP' ){
+                if( $order->canInvoice() ){
+                    if( $this->checkIfCanCreateInvoice($order) ) {
+                        $orderItems = $order->getAllItems();
+                        foreach ($orderItems as $_eachItem) {
+                            $opid = $_eachItem->getId();
+                            $qty = $_eachItem->getQtyOrdered();
+                            $itemsarray[$opid] = $qty;
+                        }
+                        Mage::log($itemsarray, null, 'mylogfile.log');
+                        $nfeString = "Registro de Pagamento criado por Anymarket";
+                        Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
+                    }
+                }
+            }
 
             $this->saveLogOrder('nmo_id_anymarket',
                                  $JSON->marketPlaceId, 
