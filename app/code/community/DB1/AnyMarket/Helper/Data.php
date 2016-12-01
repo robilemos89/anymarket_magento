@@ -278,11 +278,20 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
         $temp_array = array();
         $i = 0;
         $key_array = array();
+        $var_array = array();
 
         foreach($array as $val) {
-            if (!in_array($val[$key], $key_array)) {
-                $key_array[$i] = $val[$key];
-                array_push($temp_array, $val);
+            if( isset($val['variation']) ){
+                if (!in_array($val[$key], $key_array) || !in_array($val['variation'], $var_array) ) {
+                    $key_array[$i] = $val[$key];
+                    $var_array[$i] = $val['variation'];
+                    array_push($temp_array, $val);
+                }
+            }else {
+                if (!in_array($val[$key], $key_array)) {
+                    $key_array[$i] = $val[$key];
+                    array_push($temp_array, $val);
+                }
             }
             $i++;
         }
