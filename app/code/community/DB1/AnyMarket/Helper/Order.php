@@ -25,7 +25,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $OrderReturn = $StatusOrderRow['orderStatusMG'];
                         $statuses = Mage::getModel('sales/order_status')->getCollection()->joinStates()
                             ->addFieldToFilter('main_table.status',array('eq'=>$OrderReturn));
-                        //->addStatusFilter($OrderReturn);
 
                         $StateReturn = $statuses->getFirstItem()->getData('state');
                         break;
@@ -771,31 +770,45 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 }
             }
 
-            if($statusMage != Mage_Sales_Model_Order::STATE_NEW){
-                $order->setData('state', $stateMage);
-                $order->setStatus($statusMage, true);
+            $order->setData('state', $stateMage);
+            $order->setStatus($statusMage, true);
 
-                if($stateMage == Mage_Sales_Model_Order::STATE_COMPLETE){
-                    $history = $order->addStatusHistoryComment('Finalizado pelo AnyMarket.', false);
-                }else{
-                    $history = $order->addStatusHistoryComment('', false);
+            if($stateMage == Mage_Sales_Model_Order::STATE_COMPLETE){
+                $history = $order->addStatusHistoryComment('Finalizado pelo AnyMarket.', false);
+            }else{
+                $history = $order->addStatusHistoryComment('', false);
+            }
+            $history->setIsCustomerNotified(false);
+
+            if($stateMage == Mage_Sales_Model_Order::STATE_CANCELED) {
+                foreach ($order->getAllItems() as $item) {
+                    $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct( $item->getProductId() );
+                    if ($stockItem->getManageStock()) {
+                        $stockItem->setData('qty', $stockItem->getQty() + $item->getQtyOrdered());
+                    }
+                    $stockItem->save();
+
+                    $item->setQtyCanceled($item->getQtyOrdered());
+                    $item->save();
                 }
-                $history->setIsCustomerNotified(false);
+            }
 
-                if($stateMage == Mage_Sales_Model_Order::STATE_CANCELED) {
-                    foreach ($order->getAllItems() as $item) {
-                        $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct( $item->getProductId() );
-                        if ($stockItem->getManageStock()) {
-                            $stockItem->setData('qty', $stockItem->getQty() + $item->getQtyOrdered());
+            $order->save();
+
+            if( $createRegPay == "1" && $StatusPedAnyMarket == 'PAID_WAITING_SHIP' ){
+                if( $order->canInvoice() ){
+                    if( $this->checkIfCanCreateInvoice($order) ) {
+                        $orderItems = $order->getAllItems();
+                        foreach ($orderItems as $_eachItem) {
+                            $opid = $_eachItem->getId();
+                            $qty = $_eachItem->getQtyOrdered();
+                            $itemsarray[$opid] = $qty;
                         }
-                        $stockItem->save();
-
-                        $item->setQtyCanceled($item->getQtyOrdered());
-                        $item->save();
+                        Mage::log($itemsarray, null, 'mylogfile.log');
+                        $nfeString = "Registro de Pagamento criado por Anymarket";
+                        Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
                     }
                 }
-
-                $order->save();
             }
 
             if( $createRegPay == "1" && $StatusPedAnyMarket == 'PAID_WAITING_SHIP' ){

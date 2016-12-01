@@ -104,9 +104,48 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
         }
     }
 
-    public function processImageToAdd($storeID, $imgProdMagentoURL){
+    private function getMediaEntityGalleryDirect($valueId){
+        $connection = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $sql        = "SELECT * FROM `catalog_product_entity_media_gallery` WHERE `value_id`=".$valueId;
+        $rows       = $connection->fetchAll($sql);
 
-        return $imgProdMagentoURL;
+        return count($rows) > 0;
+    }
+
+    private function deleteImageAnymarket($storeID, $HOST, $product, $headers, $imgRemove, $valueId){
+        if( $valueId != null && $this->getMediaEntityGalleryDirect($valueId) ){
+            return false;
+        }
+        $imgDelRet = $this->CallAPICurl("DELETE", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/images/" . $imgRemove, $headers, null);
+        if ($imgDelRet['error'] == '1') {
+            $anymarketlogDel = Mage::getModel('db1_anymarket/anymarketlog');
+
+            if (is_string($imgDelRet['return'])) {
+                $anymarketlogDel->setLogDesc('Error on delete image in Anymarket (' . $imgRemove . ') - ' . $imgDelRet['return']);
+            } else {
+                $anymarketlogDel->setLogDesc('Error on delete image in Anymarket (' . $imgRemove . ') - ' . json_encode($imgDelRet['return']));
+            }
+
+            $anymarketlogDel->setLogJson('');
+            $anymarketlogDel->setLogId($product->getSku());
+            $anymarketlogDel->setStatus("1");
+            $anymarketlogDel->setStores(array($storeID));
+            $anymarketlogDel->save();
+        } else {
+            $anymarketlogDel = Mage::getModel('db1_anymarket/anymarketlog');
+            $anymarketlogDel->setLogDesc('Deleted image from Anymarket ('.$imgRemove.')');
+            $anymarketlogDel->setLogJson('');
+            $anymarketlogDel->setLogId($product->getSku());
+            $anymarketlogDel->setStatus("1");
+            $anymarketlogDel->setStores(array($storeID));
+            $anymarketlogDel->save();
+
+
+            $anymarketCtrlImg = Mage::getModel('db1_anymarket/anymarketimage')->load($imgRemove, 'id_image');
+            if( $anymarketCtrlImg->getData('value_id') != "" || $anymarketCtrlImg->getData('value_id') != null ) {
+                $anymarketCtrlImg->delete();
+            }
+        }
     }
 
     /**
@@ -145,54 +184,61 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
             $imgsProdMagento = $product->getMediaGalleryImages();
 
             if (count($imgsProdMagento) <= 0) {
-                $productIMG = Mage::getModel('catalog/product')->load( $product->getId() );
+                $productIMG = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $product->getId() );
                 $imgsProdMagento = $productIMG->getMediaGalleryImages();
             }
 
             if (count($imgsProdMagento) > 0) {
                 if( $processImage == 0 ) {
                     foreach ($imgsProdMagento as $imgProdMagento) {
-                        $urlImage = $imgProdMagento->getData('url');
-                        $infoImg = getimagesize($urlImage);
-                        $imgSize = filesize($imgProdMagento->getData('path'));
-                        if (($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000)) {
-                            if ($exportImage == 0) {
-                                array_push($arrProd, 'Image_c (' . $urlImage . ' - Sku: ' . $product->getSku() . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize . ')');
+                        $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')->load( $imgProdMagento->getData('value_id'), 'value_id');
+                        if( $loadedImagCtrl->getData('value_id') == "" || $loadedImagCtrl->getData('value_id') == null ) {
+                            $urlImage = $imgProdMagento->getData('url');
+                            $infoImg = getimagesize($urlImage);
+                            $imgSize = filesize($imgProdMagento->getData('path'));
+                            if (($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000)) {
+                                if ($exportImage == 0) {
+                                    array_push($arrProd, 'Image_c (' . $urlImage . ' - Sku: ' . $product->getSku() . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize . ')');
+                                } else {
+                                    $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                                    $anymarketlog->setLogDesc('Error on export image - ' . $urlImage);
+                                    $anymarketlog->setLogId($product->getSku());
+                                    $anymarketlog->setStatus("1");
+                                    $anymarketlog->setStores(array($storeID));
+                                    $anymarketlog->save();
+                                }
                             } else {
-                                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                                $anymarketlog->setLogDesc('Error on export image - ' . $urlImage);
-                                $anymarketlog->setLogId($product->getSku());
-                                $anymarketlog->setStatus("1");
-                                $anymarketlog->setStores(array($storeID));
-                                $anymarketlog->save();
+                                $imgProdMagentoURL = $imgProdMagento->getData('url');
+                                if ($transformToHttp != 0) {
+                                    $imgProdMagentoURL = str_replace("https", "http", $imgProdMagentoURL);
+                                }
+                                array_push($arrAdd, array('URL' => $imgProdMagentoURL, 'ID' =>$imgProdMagento->getData('value_id') ));
                             }
-                        } else {
-                            $imgProdMagentoURL = $imgProdMagento->getData('url');
-                            if ($transformToHttp != 0) {
-                                $imgProdMagentoURL = str_replace("https", "http", $imgProdMagentoURL);
-                            }
-                            array_push($arrAdd, $imgProdMagentoURL);
                         }
                     }
                 }else {
                     $with = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_width_image_field', $storeID);
                     $height = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_height_image_field', $storeID);
                     foreach ($imgsProdMagento as $imgProdMagento) {
-                        if( ((int)$with > 0) && ((int)$height > 0) ){
-                            $thumbnail12 = Mage::helper('catalog/image')->init($product, 'image', $imgProdMagento->getFile())->resize($with, $height);
-                        }else{
-                            $thumbnail12 = Mage::helper('catalog/image')->init($product, 'image', $imgProdMagento->getFile());
-                        }
+                        $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')->load($imgProdMagento->getData('value_id'), 'value_id');
+                        if( $loadedImagCtrl->getData('value_id') == "" || $loadedImagCtrl->getData('value_id') == null ) {
+                            if (((int)$with > 0) && ((int)$height > 0)) {
+                                $thumbnail12 = Mage::helper('catalog/image')->init($product, 'image', $imgProdMagento->getFile())->resize($with, $height);
+                            } else {
+                                $thumbnail12 = Mage::helper('catalog/image')->init($product, 'image', $imgProdMagento->getFile());
+                            }
 
-                        $imgProdMagentoURL = str_replace('/webApps/migration/productapi/new/', '/', $thumbnail12);
-                        if ($transformToHttp != 0) {
-                            $imgProdMagentoURL = str_replace("https", "http", $imgProdMagentoURL);
+                            $imgProdMagentoURL = str_replace('/webApps/migration/productapi/new/', '/', $thumbnail12);
+                            if ($transformToHttp != 0) {
+                                $imgProdMagentoURL = str_replace("https", "http", $imgProdMagentoURL);
+                            }
+                            array_push($arrAdd, array('URL' => $imgProdMagentoURL, 'ID' =>$imgProdMagento->getData('value_id') ));
                         }
-                        array_push($arrAdd, $imgProdMagentoURL);
                     }
                 }
             }
 
+            //REMOVE IMAGE
             foreach ($imgsProdAnymarket as $imgProdAnymarket) {
                 $exportImages = true;
                 if ($variation) {
@@ -203,30 +249,25 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
 
                 if( $exportImages ) {
                     $imgRemove = $imgProdAnymarket->id;
-                    $imgDelRet = $this->CallAPICurl("DELETE", $HOST . "/v2/products/" . $product->getData('id_anymarket') . "/images/" . $imgRemove, $headers, null);
-                    if ($imgDelRet['error'] == '1') {
-                        $anymarketlogDel = Mage::getModel('db1_anymarket/anymarketlog');
+                    $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')->load($imgRemove, 'id_image');
 
-                        if (is_string($imgDelRet['return'])) {
-                            $anymarketlogDel->setLogDesc('Error on delete image in Anymarket (' . $imgRemove . ') - ' . $imgDelRet['return']);
-                        } else {
-                            $anymarketlogDel->setLogDesc('Error on delete image in Anymarket (' . $imgRemove . ') - ' . json_encode($imgDelRet['return']));
+                    if( $loadedImagCtrl->getData('value_id') != "" || $loadedImagCtrl->getData('value_id') != null ) {
+                        $deleteImage = true;
+                        foreach ($imgsProdMagento as $imgProdMagento) {
+                            $urlImage = $imgProdMagento->getData('value_id');
+                            if( $urlImage == $loadedImagCtrl->getData('value_id') ){
+                                $deleteImage = false;
+                                break;
+                            }
+                        }
+                        if($deleteImage){
+                            $this->deleteImageAnymarket($storeID, $HOST, $product, $headers, $imgRemove, $loadedImagCtrl->getData('value_id'));
                         }
 
-                        $anymarketlogDel->setLogJson('');
-                        $anymarketlogDel->setLogId($product->getSku());
-                        $anymarketlogDel->setStatus("1");
-                        $anymarketlogDel->setStores(array($storeID));
-                        $anymarketlogDel->save();
-                    } else {
-                        $anymarketlogDel = Mage::getModel('db1_anymarket/anymarketlog');
-                        $anymarketlogDel->setLogDesc('Deleted image from Anymarket ');
-                        $anymarketlogDel->setLogJson('');
-                        $anymarketlogDel->setLogId($product->getSku());
-                        $anymarketlogDel->setStatus("1");
-                        $anymarketlogDel->setStores(array($storeID));
-                        $anymarketlogDel->save();
+                    }else{
+                        $this->deleteImageAnymarket($storeID, $HOST, $product, $headers, $imgRemove, null);
                     }
+
                 }
 
             }
@@ -245,7 +286,10 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                 $this->saveLogsProds($storeID, "0", $returnProd, $product);
             }else {
                 $defaultImage = $product->getImage();
-                foreach ($arrAdd as $imgAdd) {
+
+                foreach ($arrAdd as $imgAddArr) {
+                    $imgAdd = $imgAddArr['URL'];
+
                     $isMain =  strpos($imgAdd, $defaultImage) === false ? false : true;
                     if ($variation) {
                         $JSONAdd = array(
@@ -277,6 +321,12 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                         $anymarketlog->setStatus("1");
                         $anymarketlog->setStores(array($storeID));
                         $anymarketlog->save();
+
+                        $retJson = $imgPostRet['return'];
+                        $anymarketImage = Mage::getModel('db1_anymarket/anymarketimage');
+                        $anymarketImage->setValueId( $imgAddArr['ID'] );
+                        $anymarketImage->setIdImage( $retJson->id );
+                        $anymarketImage->save();
                     }
                 }
             }

@@ -147,20 +147,43 @@ class DB1_AnyMarket_Model_Observer {
 
     /**
      * @param $observer
-     * @return $this
      */
     public function updateOrderAnyMarketObs($observer){
+        $order = new Mage_Sales_Model_Order();
+        $OrderID = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+        $order->loadByIncrementId($OrderID);
+        $storeID = $order->getStoreId();
+
+        $this->prepareOrderForProc($storeID, $order, $OrderID);
+    }
+
+    /**
+     * @param $observer
+     */
+    public function updateOrderAnyMarketFromAdminObs($observer){
         $storeID = $observer->getEvent()->getOrder()->getStoreId();
         $OrderID = $observer->getEvent()->getOrder()->getIncrementId();
 
+        $order = new Mage_Sales_Model_Order();
+        $order->loadByIncrementId($OrderID);
+
+        $this->prepareOrderForProc($storeID, $order, $OrderID);
+    }
+
+    /**
+     * @param $storeID
+     * @param $order
+     * @param $OrderID
+     *
+     * @return $this
+     */
+    private function prepareOrderForProc($storeID, $order, $OrderID){
         try {
             if(Mage::registry('order_save_observer_executed_'.$OrderID )){
                 Mage::unregister( 'order_save_observer_executed_'.$OrderID );
                 return $this;
             }
-
             Mage::register('order_save_observer_executed_'.$OrderID, true);
-            $order = $observer->getEvent()->getOrder();
 
             if( $this->asyncMode($storeID) ){
                 Mage::helper('db1_anymarket/queue')->addQueue($storeID, $OrderID, 'EXP', 'ORDER');
@@ -181,13 +204,14 @@ class DB1_AnyMarket_Model_Observer {
                     Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product_id, $stock->getQty(), $_product->getData($filter));
                 }
             }
+
             Mage::unregister( 'order_save_observer_executed_'.$OrderID );
         } catch (Exception $e) {
             Mage::unregister( 'order_save_observer_executed_'.$OrderID );
             Mage::logException($e);
         }
-
     }
+
 
     /**
      * @param $observer
