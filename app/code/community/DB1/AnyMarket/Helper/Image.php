@@ -124,7 +124,6 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
             return false;
         }
 
-        $product = Mage::getModel('catalog/product')->load( $product->getId() );
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
         $exportImage = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_export_image_field', $storeID);
