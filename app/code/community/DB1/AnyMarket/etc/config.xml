@@ -179,10 +179,10 @@
             <!-- ORDER -->
             <checkout_onepage_controller_success_action>
                 <observers>
-                    <db1_anymarket>
+                    <sales_order_save_commit_after_handler>
                         <class>db1_anymarket/observer</class>
                         <method>updateOrderAnyMarketObs</method>
-                    </db1_anymarket>
+                    </sales_order_save_commit_after_handler>
                 </observers>
             </checkout_onepage_controller_success_action>
 
