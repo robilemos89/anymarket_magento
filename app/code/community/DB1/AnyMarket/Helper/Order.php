@@ -1014,78 +1014,87 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     public function updateOrderAnymarket($storeID, $Order){
         $idOrder = $Order->getIncrementId();
         $anymarketorderupdt = Mage::getModel('db1_anymarket/anymarketorders')->load($idOrder, 'nmo_id_order');
-        if( ($anymarketorderupdt->getData('nmo_status_int') == 'ERROR 02') ||
-            ($anymarketorderupdt->getData('nmo_status_int') == 'Integrado')){
-            $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
-            $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
-            $status = $Order->getStatus();
-            $statuAM = $this->getStatusMageToAnyMarketOrderConfig($storeID, $status);
-            if (strpos($statuAM, 'ERROR:') === false) {
-
-                $headers = array(
-                    "Content-type: application/json",
-                    "Accept: */*",
-                    "gumgaToken: ".$TOKEN
-                );
-
-                $params = array(
-                    "status" => $statuAM
-                );
-
-                $invoiceData = $this->getInvoiceOrder($Order);
-                $trackingData = $this->getTrackingOrder($Order);
-
-                if ($invoiceData['number'] != '') {
-                    $params["invoice"] = $invoiceData;
-                }
-
-                if ($trackingData['number'] != '') {
-                    $params["tracking"] = $trackingData;
-                }
-
-                if( ($statuAM == "CONCLUDED" || $statuAM == "CANCELED" || $statuAM == "PAID_WAITING_SHIP" || $statuAM == "INVOICED" || $statuAM == "PAID_WAITING_DELIVERY" ) ||
-                    (isset($params["tracking"]) || isset($params["invoice"])) ){
-                    $IDOrderAnyMarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
-
-                    $returnOrder = $this->CallAPICurl("PUT", $HOST."/v2/orders/".$IDOrderAnyMarket, $headers, $params);
-
-                    if($returnOrder['error'] == '1'){
-                        $anymarketorderupdt->setStatus("0");
-                        $anymarketorderupdt->setNmoStatusInt('ERROR 02');
-                        $anymarketorderupdt->setNmoDescError($returnOrder['return']);
-                        $anymarketorderupdt->setStores(array($storeID));
-                        $anymarketorderupdt->save();
-                    }
-
-                    $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                    $anymarketlog->setLogDesc( json_encode($returnOrder['return']) );
-                    $anymarketlog->setLogId( $idOrder );
-                    $anymarketlog->setLogJson( json_encode($returnOrder['json']) );
-                    $anymarketlog->setStores(array($storeID));
-                    $anymarketlog->setStatus("0");
-                    $anymarketlog->save();
-                }else{
-                    $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                    $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('There was some error getting data Invoice or Tracking.') );
-                    $anymarketlog->setLogId( $idOrder );
-                    $anymarketlog->setLogJson('');
-                    $anymarketlog->setStores(array($storeID));
-                    $anymarketlog->setStatus("0");
-                    $anymarketlog->save();
-                }
-            }else{
-                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                $anymarketlog->setStatus("0");
-                $anymarketlog->setLogDesc( $statuAM );
-                $anymarketlog->setLogId( $idOrder );
-                $anymarketlog->setStores(array($storeID));
-                $anymarketlog->save();
-            }
-            return true;
-        }else{
+        if($anymarketorderupdt->getData('nmo_id_seq_anymarket') == null ||
+           $anymarketorderupdt->getData('nmo_id_seq_anymarket') == ""){
             return false;
         }
+
+        if( ($anymarketorderupdt->getData('nmo_status_int') != 'ERROR 02') &&
+            ($anymarketorderupdt->getData('nmo_status_int') != 'Integrado')){
+            return false;
+        }
+
+        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+        $anymarketlog->setLogDesc( '1111' );
+        $anymarketlog->save();
+        $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
+        $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
+
+        $status = $Order->getStatus();
+        $statuAM = $this->getStatusMageToAnyMarketOrderConfig($storeID, $status);
+        if (strpos($statuAM, 'ERROR:') === false) {
+
+            $headers = array(
+                "Content-type: application/json",
+                "Accept: */*",
+                "gumgaToken: ".$TOKEN
+            );
+
+            $params = array(
+                "status" => $statuAM
+            );
+
+            $invoiceData = $this->getInvoiceOrder($Order);
+            $trackingData = $this->getTrackingOrder($Order);
+
+            if ($invoiceData['number'] != '') {
+                $params["invoice"] = $invoiceData;
+            }
+
+            if ($trackingData['number'] != '') {
+                $params["tracking"] = $trackingData;
+            }
+
+            if( ($statuAM == "CONCLUDED" || $statuAM == "CANCELED" || $statuAM == "PAID_WAITING_SHIP" || $statuAM == "INVOICED" || $statuAM == "PAID_WAITING_DELIVERY" ) ||
+                (isset($params["tracking"]) || isset($params["invoice"])) ){
+                $IDOrderAnyMarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
+
+                $returnOrder = $this->CallAPICurl("PUT", $HOST."/v2/orders/".$IDOrderAnyMarket, $headers, $params);
+
+                if($returnOrder['error'] == '1'){
+                    $anymarketorderupdt->setStatus("0");
+                    $anymarketorderupdt->setNmoStatusInt('ERROR 02');
+                    $anymarketorderupdt->setNmoDescError($returnOrder['return']);
+                    $anymarketorderupdt->setStores(array($storeID));
+                    $anymarketorderupdt->save();
+                }
+
+                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                $anymarketlog->setLogDesc( json_encode($returnOrder['return']) );
+                $anymarketlog->setLogId( $idOrder );
+                $anymarketlog->setLogJson( json_encode($returnOrder['json']) );
+                $anymarketlog->setStores(array($storeID));
+                $anymarketlog->setStatus("0");
+                $anymarketlog->save();
+            }else{
+                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('There was some error getting data Invoice or Tracking.') );
+                $anymarketlog->setLogId( $idOrder );
+                $anymarketlog->setLogJson('');
+                $anymarketlog->setStores(array($storeID));
+                $anymarketlog->setStatus("0");
+                $anymarketlog->save();
+            }
+        }else{
+            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+            $anymarketlog->setStatus("0");
+            $anymarketlog->setLogDesc( $statuAM );
+            $anymarketlog->setLogId( $idOrder );
+            $anymarketlog->setStores(array($storeID));
+            $anymarketlog->save();
+        }
+        return true;
     }
 
     /**
