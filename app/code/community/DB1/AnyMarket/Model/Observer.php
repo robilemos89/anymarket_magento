@@ -148,36 +148,58 @@ class DB1_AnyMarket_Model_Observer {
     /**
      * @param $observer
      */
-    public function updateOrderAnyMarketObs($observer){
+    public function sendOrderAnyMarketObs($observer){
         $order = new Mage_Sales_Model_Order();
         $OrderID = Mage::getSingleton('checkout/session')->getLastRealOrderId();
         $order->loadByIncrementId($OrderID);
         $storeID = $order->getStoreId();
 
-        $this->prepareOrderForProc($storeID, $order, $OrderID);
+        $this->prepareOrderForProc($storeID, "INSERT", $order, $OrderID);
     }
 
     /**
      * @param $observer
+     *
+     * @return $this
      */
-    public function updateOrderAnyMarketFromAdminObs($observer){
-        $storeID = $observer->getEvent()->getOrder()->getStoreId();
-        $OrderID = $observer->getEvent()->getOrder()->getIncrementId();
+    public function updateOrderAnyMarketObs($observer){
+        if( $observer->getEvent()->getOrder() ) {
+            $storeID = $observer->getEvent()->getOrder()->getStoreId();
+            $OrderID = $observer->getEvent()->getOrder()->getIncrementId();
 
-        $order = new Mage_Sales_Model_Order();
-        $order->loadByIncrementId($OrderID);
+            $order = new Mage_Sales_Model_Order();
+            $order->loadByIncrementId($OrderID);
 
-        $this->prepareOrderForProc($storeID, $order, $OrderID);
+            $this->prepareOrderForProc($storeID, "UPDATE", $order, $OrderID);
+        }
+    }
+
+    /**
+     * @param $observer
+     *
+     * @return $this
+     */
+    public function updateOrInsertOrderAnyMarketObs($observer){
+        if( $observer->getEvent()->getOrder() ) {
+            $storeID = $observer->getEvent()->getOrder()->getStoreId();
+            $OrderID = $observer->getEvent()->getOrder()->getIncrementId();
+
+            $order = new Mage_Sales_Model_Order();
+            $order->loadByIncrementId($OrderID);
+
+            $this->prepareOrderForProc($storeID, "BOTH", $order, $OrderID);
+        }
     }
 
     /**
      * @param $storeID
      * @param $order
+     * @param $typeProc
      * @param $OrderID
      *
      * @return $this
      */
-    private function prepareOrderForProc($storeID, $order, $OrderID){
+    private function prepareOrderForProc($storeID, $typeProc, $order, $OrderID){
         try {
             if(Mage::registry('order_save_observer_executed_'.$OrderID )){
                 Mage::unregister( 'order_save_observer_executed_'.$OrderID );
@@ -188,7 +210,13 @@ class DB1_AnyMarket_Model_Observer {
             if( $this->asyncMode($storeID) ){
                 Mage::helper('db1_anymarket/queue')->addQueue($storeID, $OrderID, 'EXP', 'ORDER');
             }else{
-                Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($storeID, $order);
+                if( $typeProc == "INSERT" ){
+                    Mage::helper('db1_anymarket/order')->sendOrderToAnyMarket($storeID, $order);
+                }else if( $typeProc == "UPDATE" ){
+                    Mage::helper('db1_anymarket/order')->updateOrderAnymarket($storeID, $order);
+                }else{
+                    Mage::helper('db1_anymarket/order')->updateOrCreateOrderAnyMarket($storeID, $order);
+                }
             }
 
             $orderItems = $order->getItemsCollection();
@@ -229,6 +257,8 @@ class DB1_AnyMarket_Model_Observer {
 
     /**
      * @param $observer
+     *
+     * @return $this
      */
     public function catalogInventorySave($observer){
         $ImportOrderSession = Mage::getSingleton('core/session')->getImportOrdersVariable();

@@ -68,7 +68,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                             if ($anymarketorders->getNmoStatusInt() != "Não integrado (AnyMarket)") {
                                 $idOrderToLoad = ($anymarketorders->getNmoIdOrder() == null) ? $IdItemQueue : $anymarketorders->getNmoIdOrder();
                                 $Order = Mage::getModel('sales/order')->loadByIncrementId( $idOrderToLoad );
-                                Mage::helper('db1_anymarket/order')->updateOrderAnyMarket($storeID, $Order);
+                                Mage::helper('db1_anymarket/order')->updateOrCreateOrderAnyMarket($storeID, $Order);
                             }
                         }
 
