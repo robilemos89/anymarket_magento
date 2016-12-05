@@ -1872,7 +1872,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $product->setData($warranty_text, $this->procAttrConfig($warranty_text, $ProdsJSON->warranty, 0));
                         $product->setData('id_anymarket', $sku->idProduct);
                         $product->setData('categoria_anymarket', $ProdsJSON->category);
-                        $product->setData('name', $ProdsJSON->title);
+                        $product->setData('name', $sku->title);
                         $product->setStatus(1);
                         $product->save();
 

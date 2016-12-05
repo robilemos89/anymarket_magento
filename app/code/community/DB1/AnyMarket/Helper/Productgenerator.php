@@ -62,7 +62,8 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
         ),
         'images' => array(),
         'stock_item' => array(
-            'use_config_manage_stock' => '0',
+            'use_config_manage_stock' => '1',
+            'inventory_manage_stock' => '1',
             'manage_stock' => '1',
             'min_sale_qty' => '1',
             'max_sale_qty' => '',
@@ -237,6 +238,17 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
         foreach ($dataProdConfig as $key => $value) {
             $confProduct->setData($key, $value);
         }
+
+        $stockConfig =  array(
+            'use_config_manage_stock' => '1',
+            'inventory_manage_stock' => '1',
+            'manage_stock' => '1',
+            'min_sale_qty' => '1',
+            'max_sale_qty' => '',
+            'is_in_stock' => '1',
+        );
+        $confProduct->setStockData( $stockConfig );
+
         $confProduct->save();
         $sku = $dataProdConfig['sku'];
         foreach ($dataProdConfig['images'] as $image) {
