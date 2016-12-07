@@ -479,6 +479,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                                     'region' => (isset($OrderJSON->shipping->state)) ? $OrderJSON->shipping->state : 'Não especificado',
                                                     'postcode' => (isset($OrderJSON->shipping->zipCode)) ? $OrderJSON->shipping->zipCode : 'Não especificado',
                                                     'telephone' => $OrderJSON->buyer->phone,
+                                                    'fax' => (isset($OrderJSON->buyer->cellPhone)) ? $OrderJSON->buyer->cellPhone : '',
                                                 ),
                                             ),
                                         );
