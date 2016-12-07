@@ -850,6 +850,26 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         }
     }
 
+    public function procInvoiceModelsToAnymarket($CommentCurr){
+        $nfeCount = strpos($CommentCurr, 'nfe:');
+        $emissaoCount = strpos($CommentCurr, 'emiss');
+        if( (strpos($CommentCurr, 'nfe:') !== false) && (strpos($CommentCurr, 'emiss') !== false) ) {
+            $caracts = array("/", "-", ".");
+            $nfeTmp = str_replace($caracts, "", $CommentCurr );
+            $chaveAcID = substr( $nfeTmp, $nfeCount+4, 44);
+
+            $date = substr( $CommentCurr, $emissaoCount+8, 19);
+            $dateTmp = str_replace("/", "-", $date );
+
+            $date = $this->formatDateTimeZone($dateTmp);
+            return array("key" => $chaveAcID, "date" => $date);
+        }else{
+            return null;
+        }
+
+    }
+
+
     /**
      * get invoice order
      *
@@ -865,19 +885,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $invoice = Mage::getModel('sales/order_invoice')->loadByIncrementId( $inv->getIncrementId() );
                 foreach ($invoice->getCommentsCollection() as $item) {
                     $CommentCurr = $item->getComment();
-
-                    $nfeCount = strpos($CommentCurr, 'nfe:');
-                    $emissaoCount = strpos($CommentCurr, 'emiss');
-                    if( (strpos($CommentCurr, 'nfe:') !== false) && (strpos($CommentCurr, 'emiss') !== false) ) {
-                        $caracts = array("/", "-", ".");
-                        $nfeTmp = str_replace($caracts, "", $CommentCurr );
-                        $chaveAcID = substr( $nfeTmp, $nfeCount+4, 44);
-                        $nfeID = $chaveAcID;
-
-                        $date = substr( $CommentCurr, $emissaoCount+8, 19);
-                        $dateTmp = str_replace("/", "-", $date );
-
-                        $date = $this->formatDateTimeZone($dateTmp);
+                    $invData = $this->procInvoiceModelsToAnymarket($CommentCurr);
+                    if( $invData ){
+                        $nfeID = $invData["key"];
+                        $chaveAcID = $invData["key"];
+                        $date = $invData["date"];
                     }
                 }
             }
@@ -887,35 +899,42 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             foreach ($Order->getStatusHistoryCollection() as $item) {
                 $CommentCurr = $item->getComment();
 
-                $CommentCurr = str_replace(array(" ", "<b>", "</b>"), "", $CommentCurr );
-                $CommentCurr = str_replace(array("<br>"), "<br/>", $CommentCurr );
-                $chaveAcesso = strpos($CommentCurr, 'ChavedeAcesso:');
-                if( (strpos($CommentCurr, 'ChavedeAcesso:') !== false) ) {
-                    $chaveAcID = substr( $CommentCurr, $chaveAcesso+14, 44);
+                $invData = $this->procInvoiceModelsToAnymarket($CommentCurr);
+                if( $invData ){
+                    $nfeID = $invData["key"];
+                    $chaveAcID = $invData["key"];
+                    $date = $invData["date"];
+                }else {
+                    $CommentCurr = str_replace(array(" ", "<b>", "</b>"), "", $CommentCurr);
+                    $CommentCurr = str_replace(array("<br>"), "<br/>", $CommentCurr);
+                    $chaveAcesso = strpos($CommentCurr, 'ChavedeAcesso:');
+                    if ((strpos($CommentCurr, 'ChavedeAcesso:') !== false)) {
+                        $chaveAcID = substr($CommentCurr, $chaveAcesso + 14, 44);
 
-                    $notaFiscal = strpos($CommentCurr, 'Notafiscal:');
-                    if( (strpos($CommentCurr, 'Notafiscal:') !== false) ) {
-                        $endNF = strpos($CommentCurr, '<br/>');
-                        $nfeID = substr( $CommentCurr, $notaFiscal+11, $endNF-11);
-
-                        if( $nfeID == "" ){
-                            $nfeID = $chaveAcID;
-                        }
-                    }else{
-                        $notaFiscal = strpos($CommentCurr, 'NrNF-e');
-                        if( $notaFiscal !== false ) {
+                        $notaFiscal = strpos($CommentCurr, 'Notafiscal:');
+                        if ((strpos($CommentCurr, 'Notafiscal:') !== false)) {
                             $endNF = strpos($CommentCurr, '<br/>');
-                            $nfeID = substr( $CommentCurr, $notaFiscal+6, $endNF-6);
+                            $nfeID = substr($CommentCurr, $notaFiscal + 11, $endNF - 11);
 
-                            if( $nfeID == "" ){
+                            if ($nfeID == "") {
                                 $nfeID = $chaveAcID;
                             }
-                        }
-                    }
+                        } else {
+                            $notaFiscal = strpos($CommentCurr, 'NrNF-e');
+                            if ($notaFiscal !== false) {
+                                $endNF = strpos($CommentCurr, '<br/>');
+                                $nfeID = substr($CommentCurr, $notaFiscal + 6, $endNF - 6);
 
-					$dateTmp =  new DateTime(str_replace("/", "-", $item->getData('created_at') ));
-					$date = date_format($dateTmp, 'Y-m-d\TH:i:s\Z');					
-                    break;
+                                if ($nfeID == "") {
+                                    $nfeID = $chaveAcID;
+                                }
+                            }
+                        }
+
+                        $dateTmp = new DateTime(str_replace("/", "-", $item->getData('created_at')));
+                        $date = date_format($dateTmp, 'Y-m-d\TH:i:s\Z');
+                        break;
+                    }
                 }
             }
         }
@@ -925,19 +944,11 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $shippment = Mage::getModel('sales/order_shipment')->loadByIncrementId( $ship->getIncrementId() );
                 foreach ($shippment->getCommentsCollection() as $item) {
                     $CommentCurr = $item->getComment();
-
-                    $nfeCount = strpos($CommentCurr, 'nfe:');
-                    $emissaoCount = strpos($CommentCurr, 'emiss');
-                    if( (strpos($CommentCurr, 'nfe:') !== false) && (strpos($CommentCurr, 'emiss') !== false) ) {
-                        $caracts = array("/", "-", ".");
-                        $nfeTmp = str_replace($caracts, "", $CommentCurr );
-                        $chaveAcID = substr( $nfeTmp, $nfeCount+4, 44);
-                        $nfeID = $chaveAcID;
-
-                        $date = substr( $CommentCurr, $emissaoCount+8, 19);
-                        $dateTmp = str_replace("/", "-", $date );
-
-                        $date = $this->formatDateTimeZone($dateTmp);
+                    $invData = $this->procInvoiceModelsToAnymarket($CommentCurr);
+                    if( $invData ){
+                        $nfeID = $invData["key"];
+                        $chaveAcID = $invData["key"];
+                        $date = $invData["date"];
                     }
                 }
             }
