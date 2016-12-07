@@ -165,27 +165,25 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             3 => " "
         );
 
-        if( isset($OrderJSON->shipping) ) {
-            if (isset($OrderJSON->shipping->address)) {
-                $OrderJSON = json_decode(json_encode($OrderJSON), true);
+        if ( isset($OrderJSON->shipping) && isset($OrderJSON->shipping->address) ) {
+            $OrderJSON = json_decode(json_encode($OrderJSON), true);
 
-                $street1 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add1_field', $storeID);
-                $street2 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add2_field', $storeID);
-                $street3 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add3_field', $storeID);
-                $street4 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add4_field', $storeID);
+            $street1 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add1_field', $storeID);
+            $street2 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add2_field', $storeID);
+            $street3 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add3_field', $storeID);
+            $street4 = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_add4_field', $storeID);
 
-                $street1 = (isset($OrderJSON['shipping'][$street1])) ? $OrderJSON['shipping'][$street1] : $OrderJSON['shipping']['address'];
-                $street2 = (isset($OrderJSON['shipping'][$street2])) ? $OrderJSON['shipping'][$street2] : '';
-                $street3 = (isset($OrderJSON['shipping'][$street3])) ? $OrderJSON['shipping'][$street3] : '';
-                $street4 = (isset($OrderJSON['shipping'][$street4])) ? $OrderJSON['shipping'][$street4] : '';
+            $street1 = (isset($OrderJSON['shipping'][$street1])) ? $OrderJSON['shipping'][$street1] : $OrderJSON['shipping']['address'];
+            $street2 = (isset($OrderJSON['shipping'][$street2])) ? $OrderJSON['shipping'][$street2] : '';
+            $street3 = (isset($OrderJSON['shipping'][$street3])) ? $OrderJSON['shipping'][$street3] : '';
+            $street4 = (isset($OrderJSON['shipping'][$street4])) ? $OrderJSON['shipping'][$street4] : '';
 
-                $retArrStreet = array(
-                    0 => $street1,
-                    1 => $street2,
-                    2 => $street3,
-                    3 => $street4
-                );
-            }
+            $retArrStreet = array(
+                0 => $street1,
+                1 => $street2,
+                2 => $street3,
+                3 => $street4
+            );
         }
 
         return $retArrStreet;
@@ -441,7 +439,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         $lastName = $lastNameImp == '' ? 'Lastname' : $lastNameImp;
                                     }
 
-                                    $addressFullData = $this->getCompleteAddressOrder($storeID, $OrderJSON);
                                     $regionCollection = Mage::getModel('directory/region')->getCollection();
                                     $regionName = (isset($OrderJSON->shipping->state)) ? $OrderJSON->shipping->state : 'Não especificado';
                                     $regionID = 0;
@@ -620,10 +617,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }else{
                 $statsConfig = $this->getStatusAnyMarketToMageOrderConfig($storeID, $OrderJSON->status);
                 $statusMage = $statsConfig["status"];
-                if (strpos($statusMage, 'ERROR:') === false) {
-                    if ($anymarketordersSpec->getData('nmo_id_order') != null) {
-                        $this->changeStatusOrder($storeID, $OrderJSON, $anymarketordersSpec->getData('nmo_id_order'));
-                    }
+                if ( strpos($statusMage, 'ERROR:') === false && $anymarketordersSpec->getData('nmo_id_order') != null) {
+                    $this->changeStatusOrder($storeID, $OrderJSON, $anymarketordersSpec->getData('nmo_id_order'));
                 }
             }
         }else{
@@ -680,6 +675,27 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         return $continueOrder;
     }
 
+    private function checkIfCanInvoice($JSON, $StatusPedAnyMarket, $order){
+        if( !isset($JSON->invoice) || $StatusPedAnyMarket != 'INVOICED' ){
+            return false;
+        }
+        if( !$order->canInvoice() || !isset($JSON->invoice->accessKey) ) {
+            return false;
+        }
+        return true;
+    }
+
+    private function checkIfCanShip($JSON, $StatusPedAnyMarket, $order){
+        if( !isset($JSON->tracking) || !isset($JSON->tracking->number) || $StatusPedAnyMarket != 'PAID_WAITING_DELIVERY' ){
+            return false;
+        }
+        if( !$order->canShip() || $order->hasShipments() ){
+            return false;
+        }
+        return true;
+    }
+
+
     /**
      * change status order
      *
@@ -707,67 +723,59 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $createRegPay = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_create_reg_pay_field', $storeID);
             $itemsarray = null;
 
-            if( isset($JSON->invoice) && $StatusPedAnyMarket == 'INVOICED' ){
-                if( $order->canInvoice() ){
-                    if(isset($JSON->invoice->accessKey) ) {
-                        $nfe = $JSON->invoice->accessKey;
-                        $dateNfe = $JSON->invoice->date;
+            if( $this->checkIfCanInvoice($JSON, $StatusPedAnyMarket, $order) ) {
+                $nfe = $JSON->invoice->accessKey;
+                $dateNfe = $JSON->invoice->date;
 
-                        $DateTime = strtotime($dateNfe);
-                        $fixedDate = date('d/m/Y H:i:s', $DateTime);
+                $DateTime = strtotime($dateNfe);
+                $fixedDate = date('d/m/Y H:i:s', $DateTime);
 
-                        if($itemsarray == null) {
-                            $orderItems = $order->getAllItems();
-                            foreach ($orderItems as $_eachItem) {
-                                $opid = $_eachItem->getId();
-                                $qty = $_eachItem->getQtyOrdered();
-                                $itemsarray[$opid] = $qty;
-                            }
+                if($itemsarray == null) {
+                    $orderItems = $order->getAllItems();
+                    foreach ($orderItems as $_eachItem) {
+                        $opid = $_eachItem->getId();
+                        $qty = $_eachItem->getQtyOrdered();
+                        $itemsarray[$opid] = $qty;
+                    }
+                }
+
+                if (!$order->hasInvoices()) {
+                    $nfeString = 'nfe:' . $nfe . ', emissao:' . $fixedDate;
+                    Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
+                }else{
+                    $firstInvoiceID = $order->getInvoiceCollection()->getFirstItem()->getIncrementId();
+                    $invoice = Mage::getModel('sales/order_invoice')->loadByIncrementId( $firstInvoiceID );
+                    $addComment = true;
+                    foreach ($invoice->getCommentsCollection() as $item) {
+                        $CommentCurr = $item->getComment();
+                        if ((strpos($CommentCurr, 'Adicionado por Anymarket - nfe:') !== false)) {
+                            $addComment = false;
+                            break;
                         }
+                    }
 
-                        if (!$order->hasInvoices()) {
-                            $nfeString = 'nfe:' . $nfe . ', emissao:' . $fixedDate;
-                            Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
-                        }else{
-                            $firstInvoiceID = $order->getInvoiceCollection()->getFirstItem()->getIncrementId();
-                            $invoice = Mage::getModel('sales/order_invoice')->loadByIncrementId( $firstInvoiceID );
-                            $addComment = true;
-                            foreach ($invoice->getCommentsCollection() as $item) {
-                                $CommentCurr = $item->getComment();
-                                if ((strpos($CommentCurr, 'Adicionado por Anymarket - nfe:') !== false)) {
-                                    $addComment = false;
-                                    break;
-                                }
-                            }
+                    if( $addComment ){
+                        $nfeString = 'Adicionado por Anymarket - nfe:' . $nfe . ', emissao:' . $fixedDate;
 
-                            if( $addComment ){
-                                $nfeString = 'Adicionado por Anymarket - nfe:' . $nfe . ', emissao:' . $fixedDate;
-
-                                $invoice->addComment($nfeString, "");
-                                $invoice->setEmailSent(false);
-                                $invoice->save();
-                            }
-                        }
+                        $invoice->addComment($nfeString, "");
+                        $invoice->setEmailSent(false);
+                        $invoice->save();
                     }
                 }
             }
 
-            if( isset($JSON->tracking) && $StatusPedAnyMarket == 'PAID_WAITING_DELIVERY' ){
-                if( $order->canShip() && !$order->hasShipments() ){
-                    if(isset($JSON->tracking->number)) {
-                        $TrNumber = $JSON->tracking->number;
-                        $TrCarrier = strtolower($JSON->tracking->carrier);
+            if( $this->checkIfCanShip($JSON, $StatusPedAnyMarket, $order) ){
+                $TrNumber = $JSON->tracking->number;
+                $TrCarrier = strtolower($JSON->tracking->carrier);
 
-                        $shipmentId = Mage::getModel('sales/order_shipment_api')->create($order->getIncrementId(), $itemsarray, 'Create by AnyMarket', false, 1);
+                $shipmentId = Mage::getModel('sales/order_shipment_api')->create($order->getIncrementId(), $itemsarray, 'Create by AnyMarket', false, 1);
 
-                        $TracCodeArr = Mage::getModel('sales/order_shipment_api')->getCarriers($order->getIncrementId());
-                        if (isset($TracCodeArr[$TrCarrier])) {
-                            Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId, $TrCarrier, $TrCarrier, $TrNumber);
-                        } else {
-                            $arrVar = array_keys($TracCodeArr);
-                            Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId, array_shift($arrVar), 'Não Econtrado(' . $TrCarrier . ')', $TrNumber);
-                        }
-                    }
+                $TracCodeArr = Mage::getModel('sales/order_shipment_api')->getCarriers($order->getIncrementId());
+                if (isset($TracCodeArr[$TrCarrier])) {
+                    Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId, $TrCarrier, $TrCarrier, $TrNumber);
+                } else {
+                    $arrVar = array_keys($TracCodeArr);
+                    Mage::getModel('sales/order_shipment_api')->addTrack($shipmentId, array_shift($arrVar), 'Não Econtrado(' . $TrCarrier . ')', $TrNumber);
                 }
             }
 
@@ -795,35 +803,28 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
 
             $order->save();
-
-            if( $createRegPay == "1" && $StatusPedAnyMarket == 'PAID_WAITING_SHIP' ){
-                if( $order->canInvoice() ){
-                    if( $this->checkIfCanCreateInvoice($order) ) {
-                        $orderItems = $order->getAllItems();
-                        foreach ($orderItems as $_eachItem) {
-                            $opid = $_eachItem->getId();
-                            $qty = $_eachItem->getQtyOrdered();
-                            $itemsarray[$opid] = $qty;
-                        }
-                        $nfeString = "Registro de Pagamento criado por Anymarket";
-                        Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
-                    }
+            if( $createRegPay == "1" && $StatusPedAnyMarket == 'PAID_WAITING_SHIP' &&
+                $this->checkIfCanCreateInvoice($order) && $order->canInvoice() ) {
+                $orderItems = $order->getAllItems();
+                foreach ($orderItems as $_eachItem) {
+                    $opid = $_eachItem->getId();
+                    $qty = $_eachItem->getQtyOrdered();
+                    $itemsarray[$opid] = $qty;
                 }
+                $nfeString = "Registro de Pagamento criado por Anymarket";
+                Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
             }
 
-            if( $createRegPay == "1" && $StatusPedAnyMarket == 'PAID_WAITING_SHIP' ){
-                if( $order->canInvoice() ){
-                    if( $this->checkIfCanCreateInvoice($order) ) {
-                        $orderItems = $order->getAllItems();
-                        foreach ($orderItems as $_eachItem) {
-                            $opid = $_eachItem->getId();
-                            $qty = $_eachItem->getQtyOrdered();
-                            $itemsarray[$opid] = $qty;
-                        }
-                        $nfeString = "Registro de Pagamento criado por Anymarket";
-                        Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
+            if( $createRegPay == "1" && $StatusPedAnyMarket == 'PAID_WAITING_SHIP' &&
+                $order->canInvoice() && $this->checkIfCanCreateInvoice($order) ){
+                    $orderItems = $order->getAllItems();
+                    foreach ($orderItems as $_eachItem) {
+                        $opid = $_eachItem->getId();
+                        $qty = $_eachItem->getQtyOrdered();
+                        $itemsarray[$opid] = $qty;
                     }
-                }
+                    $nfeString = "Registro de Pagamento criado por Anymarket";
+                    Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
             }
 
             $this->saveLogOrder('nmo_id_anymarket',
@@ -954,9 +955,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 }
             }
         }
-
-        $retArr = array("number" => $nfeID, "date" => $date, "accessKey" => $chaveAcID);
-        return $retArr;
+        return array("number" => $nfeID, "date" => $date, "accessKey" => $chaveAcID);
     }
 
     /**
@@ -987,15 +986,12 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
         }
 
-        $retArray = array("number" => $TrackNum,
+        return array("number" => $TrackNum,
                      "carrier" => $TrackTitle,
                      "date" => $dateTrack,
                      "shippedDate" => $datesRes[1],
                      "url" => "",
                      "estimateDate" => $datesRes[0]);
-
-
-        return $retArray;
     }
 
     /**
@@ -1146,10 +1142,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $docData = $customer->getData( $docField );
             }
 
-            if( $docData == "" ){
-                if($Order->getCustomerTaxvat()){
-                    $docData = $Order->getCustomerTaxvat();
-                }
+            if( $docData == "" && $Order->getCustomerTaxvat()){
+                $docData = $Order->getCustomerTaxvat();
             }
 
             $statusOrder = $Order->getStatus();
@@ -1307,8 +1301,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
         $startRec = 0;
         $countRec = 1;
-        $arrOrderCod = null;
-
         $contPed = 0;
         while ($startRec <= $countRec) {
             $returnOrder = $this->CallAPICurl("GET", $HOST."/v2/orders/?offset=".$startRec."&limit=30", $headers, null);
