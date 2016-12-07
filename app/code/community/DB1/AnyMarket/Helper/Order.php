@@ -804,7 +804,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                             $qty = $_eachItem->getQtyOrdered();
                             $itemsarray[$opid] = $qty;
                         }
-                        Mage::log($itemsarray, null, 'mylogfile.log');
                         $nfeString = "Registro de Pagamento criado por Anymarket";
                         Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
                     }
@@ -1025,9 +1024,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             return false;
         }
 
-        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-        $anymarketlog->setLogDesc( '1111' );
-        $anymarketlog->save();
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
