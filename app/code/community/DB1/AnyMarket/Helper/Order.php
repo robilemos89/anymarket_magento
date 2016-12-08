@@ -308,7 +308,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $IDOrderAnyMarket = $OrderJSON->marketPlaceId;
             $anymarketordersSpec = Mage::getModel('db1_anymarket/anymarketorders');
             $anymarketordersSpec->load($idSeqAnyMarket, 'nmo_id_seq_anymarket');
-
+            $OrderIDMage = '';
 
             if( ($anymarketordersSpec->getData('nmo_id_anymarket') == null) ||
                 ($anymarketordersSpec->getData('nmo_status_int') == "Não integrado (AnyMarket)") ||
@@ -401,7 +401,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     $groupCustomer = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_customer_group_field', $storeID);
 
                                     $email = $OrderJSON->buyer->email;
-
                                     $customer = Mage::getModel('customer/customer')
                                         ->getCollection()
                                         ->addFieldToFilter($AttrToDoc, $document)->load()->getFirstItem();
@@ -537,7 +536,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         }
                                     }
 
-                                    //REFACTOR
                                     $OrderIDMage = $this->create_order($storeID, $anymarketordersSpec, $_products, $customer, $IDOrderAnyMarket, $idSeqAnyMarket, $infoMetPag, $AddressShipBill, $AddressShipBill, $OrderJSON->freight, implode(",", $shippingDesc) );
                                     $OrderCheck = Mage::getModel('sales/order')->loadByIncrementId($OrderIDMage);
 
@@ -570,19 +568,19 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         $OrderCheck->setEmailSent(false);
                                         $OrderCheck->save();
 
-
                                         $this->changeStatusOrder($storeID, $OrderJSON, $OrderIDMage);
                                     }
                                 } catch (Exception $e) {
+                                    $orderCheckExcpt = Mage::getModel('sales/order')->loadByIncrementId($OrderIDMage);
+                                    $statusExpt = $orderCheckExcpt->getId() ? 'Integrado' : 'ERROR 01';
                                     $this->saveLogOrder('nmo_id_seq_anymarket',
                                         $idSeqAnyMarket,
-                                        'ERROR 01',
+                                        $statusExpt,
                                         'System: ' . $e->getMessage(),
                                         $idSeqAnyMarket,
                                         $IDOrderAnyMarket,
-                                        '',
+                                        $OrderIDMage,
                                         $storeID);
-
                                 }
                             } else {
                                 $this->saveLogOrder('nmo_id_seq_anymarket',
@@ -792,23 +790,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     $item->save();
                 }
             }
-
             $order->save();
-
-            if( $createRegPay == "1" && $StatusPedAnyMarket == 'PAID_WAITING_SHIP' ){
-                if( $order->canInvoice() ){
-                    if( $this->checkIfCanCreateInvoice($order) ) {
-                        $orderItems = $order->getAllItems();
-                        foreach ($orderItems as $_eachItem) {
-                            $opid = $_eachItem->getId();
-                            $qty = $_eachItem->getQtyOrdered();
-                            $itemsarray[$opid] = $qty;
-                        }
-                        $nfeString = "Registro de Pagamento criado por Anymarket";
-                        Mage::getModel('sales/order_invoice_api')->create($order->getIncrementId(), $itemsarray, $nfeString, 0, 0);
-                    }
-                }
-            }
 
             if( $createRegPay == "1" && $StatusPedAnyMarket == 'PAID_WAITING_SHIP' ){
                 if( $order->canInvoice() ){
