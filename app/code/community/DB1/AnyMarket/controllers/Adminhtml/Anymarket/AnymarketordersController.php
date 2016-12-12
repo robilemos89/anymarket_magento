@@ -95,14 +95,14 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketordersController extends DB1_An
                 }
 
                 if($anymarketorders->getData('nmo_status_int') == 'ERROR 01'){
-                    Mage::helper('db1_anymarket/queue')->addQueue($storeID, $anymarketorders->getNmoIdAnymarket(), 'IMP', 'ORDER');
+                    Mage::helper('db1_anymarket/queue')->addQueue($storeID, $anymarketorders->getNmoIdSeqAnymarket(), 'IMP', 'ORDER');
                 }else if($anymarketorders->getData('nmo_status_int') == 'ERROR 02'){
                     Mage::helper('db1_anymarket/queue')->addQueue($storeID, $anymarketorders->getNmoIdOrder(), 'EXP', 'ORDER');
                 }else{
                     $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', Mage::app()->getStore()->getId());
                     if($ConfigOrder == 1){ //IMPORT
                         if($anymarketorders->getNmoIdAnymarket() != ''){
-                            Mage::helper('db1_anymarket/queue')->addQueue($storeID, $anymarketorders->getNmoIdAnymarket(), 'IMP', 'ORDER');
+                            Mage::helper('db1_anymarket/queue')->addQueue($storeID, $anymarketorders->getNmoIdSeqAnymarket(), 'IMP', 'ORDER');
                         }
                     }else{ //EXPORT
                         if($anymarketorders->getNmoIdOrder()){
