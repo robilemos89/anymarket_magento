@@ -341,8 +341,13 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      * @return Mage_Catalog_Model_Product
      */
     private function update_configurable_product($storeID, $idProd, $dataProdConfig, $simpleProducts){
+        $productsIDs = array();
+        foreach ($simpleProducts as $prodVal) {
+            array_push($productsIDs, $prodVal['Id']);
+        }
+
         $productGenerator = Mage::helper('db1_anymarket/productgenerator');
-        $product = $productGenerator->updateConfigurableProduct($storeID, $idProd, $dataProdConfig, $simpleProducts);
+        $product = $productGenerator->updateConfigurableProduct($storeID, $idProd, $dataProdConfig, $productsIDs);
 
         $returnProd['return'] = Mage::helper('db1_anymarket')->__('Configurable product Updated').' ('.$product->getSku().')';
         $returnProd['error'] = '0';
@@ -351,7 +356,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
         return $product;
     }
-
     /**
      * create simple prod in magento
      *
