@@ -207,7 +207,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
 
         $configurableProductsData = array();
         $configurableAttributesData = $this->getConfigurableAttributes($AttributeIds);
-        //$configurableAttributesData = $confProduct->getTypeInstance()->getConfigurableAttributesAsArray($confProduct);
+        $simpleProductIds = array();
         foreach ($simpleProducts as $simpleProduct) {
             $sProd = Mage::getModel('catalog/product')->load( $simpleProduct['Id'] );
 
@@ -222,6 +222,8 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
 
             $configurableProductsData[ $sProd->getId() ] = $simpleProductsData;
             $configurableAttributesData[0]['values'][] = $simpleProductsData;
+
+            array_push($simpleProductIds, $simpleProduct['Id']);
         }
         $confProduct->setCanSaveConfigurableAttributes(true);
 
@@ -255,7 +257,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
             $this->importImages($confProduct, $image, $sku);
         }
 
-        return $confProduct;
+        return $this->updateConfigurableProduct($storeID, $confProduct->getId(), $dataProdConfig, $simpleProductIds);
     }
 
     /**
@@ -328,46 +330,6 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
 
         $confProduct->save();
 
-    }
-
-
-    /**
-     * update configurable product in MG - DEPRECATED
-     *
-     * @param $storeID
-     * @param $idProd
-     * @param array $dataProdConfig
-     * @param array $simpleProducts
-     * @return Mage_Catalog_Model_Product
-     */
-    public function updateConfigurableProduct2($storeID, $idProd, $dataProdConfig = array() , $simpleProducts = array()){
-        $confProduct = Mage::getModel('catalog/product')->load( $idProd );
-        $simplesToAddConfig = array();
-        foreach ($simpleProducts as $simpleProduct) {
-            array_push( $simplesToAddConfig, $simpleProduct['Id'] );
-        }
-
-        $childProducts = Mage::getModel('catalog/product_type_configurable')
-            ->getUsedProducts(null, $confProduct);
-
-        foreach($childProducts as $child) {
-            array_push( $simplesToAddConfig, $child->getId() );
-        }
-
-        $simplesToAddConfig = array_unique($simplesToAddConfig);
-
-        Mage::getResourceSingleton('catalog/product_type_configurable')
-            ->saveProducts($confProduct, $simplesToAddConfig);
-
-        Mage::app()->setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);
-        $confProduct = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $idProd );
-        foreach ($dataProdConfig as $key => $value) {
-            $confProduct->setData($key, $value);
-        }
-
-        $confProduct->save();
-
-        return $confProduct;
     }
 
 }
