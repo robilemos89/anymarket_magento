@@ -1034,8 +1034,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $params["tracking"] = $trackingData;
             }
 
-            if( ($statuAM == "CONCLUDED" || $statuAM == "CANCELED" || $statuAM == "PAID_WAITING_SHIP" || $statuAM == "INVOICED" || $statuAM == "PAID_WAITING_DELIVERY" ) ||
-                (isset($params["tracking"]) || isset($params["invoice"])) ){
+            if( ($statuAM != "PENDING" ) || (isset($params["tracking"]) || isset($params["invoice"])) ){
                 $IDOrderAnyMarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
 
                 $returnOrder = $this->CallAPICurl("PUT", $HOST."/v2/orders/".$IDOrderAnyMarket, $headers, $params);
