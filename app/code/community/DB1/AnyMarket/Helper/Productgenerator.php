@@ -264,17 +264,89 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
      * @param $storeID
      * @param $idProd
      * @param array $dataProdConfig
+     * @param array $simpleProductIds
+     * @return Mage_Catalog_Model_Product
+     */
+    public function updateConfigurableProduct($storeID, $idProd, $dataProdConfig = array() , $simpleProductIds = array()){
+        $mainProduct = Mage::getModel('catalog/product')->load( $idProd );
+
+        $childProducts = Mage::getModel('catalog/product_type_configurable')
+            ->getUsedProducts(null, $mainProduct);
+
+        foreach($childProducts as $child) {
+            array_push( $simpleProductIds, $child->getId() );
+        }
+
+        $mainProduct->setConfigurableProductsData(array_flip($simpleProductIds));
+        $productType = $mainProduct->getTypeInstance(true);
+        $productType->setProduct($mainProduct);
+        $attributesData = $productType->getConfigurableAttributesAsArray();
+        if (empty($attributesData)) {
+            // Auto generation if configurable product has no attribute
+            $attributeIds = array();
+            foreach ($productType->getSetAttributes() as $attribute) {
+                if ($productType->canUseAttribute($attribute)) {
+                    $attributeIds[] = $attribute->getAttributeId();
+                }
+            }
+            $productType->setUsedProductAttributeIds($attributeIds);
+            $attributesData = $productType->getConfigurableAttributesAsArray();
+        }
+        if (!empty($configurableAttributes)){
+            foreach ($attributesData as $idx => $val) {
+                if (!in_array($val['attribute_id'], $configurableAttributes)) {
+                    unset($attributesData[$idx]);
+                }
+            }
+        }
+        $products = Mage::getModel('catalog/product')->getCollection()
+            ->addIdFilter($simpleProductIds);
+        if (count($products)) {
+            foreach ($attributesData as &$attribute) {
+                $attribute['label'] = $attribute['frontend_label'];
+                $attributeCode = $attribute['attribute_code'];
+                foreach ($products as $product) {
+                    $product->load($product->getId());
+                    $optionId = $product->getData($attributeCode);
+
+                    $attribute['values'][$optionId] = array(
+                        'value_index' => $optionId,
+                        'is_percent' => 0,
+                        'pricing_value' => $product->getPrice(),
+                    );
+                }
+            }
+            $mainProduct->setConfigurableAttributesData($attributesData);
+            $mainProduct->save();
+        }
+
+        Mage::app()->setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);
+        $confProduct = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $idProd );
+        foreach ($dataProdConfig as $key => $value) {
+            $confProduct->setData($key, $value);
+        }
+
+        $confProduct->save();
+
+    }
+
+
+    /**
+     * update configurable product in MG - DEPRECATED
+     *
+     * @param $storeID
+     * @param $idProd
+     * @param array $dataProdConfig
      * @param array $simpleProducts
      * @return Mage_Catalog_Model_Product
      */
-    public function updateConfigurableProduct($storeID, $idProd, $dataProdConfig = array() , $simpleProducts = array()){
+    public function updateConfigurableProduct2($storeID, $idProd, $dataProdConfig = array() , $simpleProducts = array()){
         $confProduct = Mage::getModel('catalog/product')->load( $idProd );
         $simplesToAddConfig = array();
         foreach ($simpleProducts as $simpleProduct) {
             array_push( $simplesToAddConfig, $simpleProduct['Id'] );
         }
 
-        //ADICIONA OS JA EXISTENTES NO PRODUTO
         $childProducts = Mage::getModel('catalog/product_type_configurable')
             ->getUsedProducts(null, $confProduct);
 
