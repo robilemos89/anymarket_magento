@@ -878,7 +878,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     $notaFiscal = strpos($CommentCurr, 'Notafiscal:');
                     if( (strpos($CommentCurr, 'Notafiscal:') !== false) ) {
                         $endNF = strpos($CommentCurr, '<br/>');
-                        $nfeID = substr( $CommentCurr, $notaFiscal+11, $endNF-11);
+                        $numDigNfe = $endNF-($notaFiscal+11);
+                        $nfeID = substr( $CommentCurr, $notaFiscal+11, $numDigNfe);
 
                         if( $nfeID == "" ){
                             $nfeID = $chaveAcID;
@@ -887,7 +888,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $notaFiscal = strpos($CommentCurr, 'NrNF-e');
                         if( $notaFiscal !== false ) {
                             $endNF = strpos($CommentCurr, '<br/>');
-                            $nfeID = substr( $CommentCurr, $notaFiscal+6, $endNF-6);
+                            $numDigNfe = $endNF-($notaFiscal+6);
+                            $nfeID = substr( $CommentCurr, $notaFiscal+6, $numDigNfe);
 
                             if( $nfeID == "" ){
                                 $nfeID = $chaveAcID;
