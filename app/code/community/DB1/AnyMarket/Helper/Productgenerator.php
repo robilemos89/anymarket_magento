@@ -330,6 +330,7 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
 
         $confProduct->save();
 
+        return $confProduct;
     }
 
 }
