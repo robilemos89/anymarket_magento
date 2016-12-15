@@ -977,13 +977,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      */
     public function updateOrCreateOrderAnyMarket($storeID, $Order){
         $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
-        if($ConfigOrder == 0){
-            $canUpdateOrder = $this->updateOrderAnymarket($storeID, $Order);
-            if( !$canUpdateOrder ){
-                $this->sendOrderToAnyMarket($storeID, $Order);
-            }
+        $canUpdateOrder = $this->updateOrderAnymarket($storeID, $Order);
+        if( !$canUpdateOrder && $ConfigOrder == 0 ){
+            $this->sendOrderToAnyMarket($storeID, $Order);
         }
-
     }
 
     /**
