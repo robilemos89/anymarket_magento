@@ -927,8 +927,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
         }
 
-        $retArr = array("number" => $nfeID, "date" => $date, "accessKey" => $chaveAcID);
-        return $retArr;
+        return array("number" => $nfeID, "date" => $date, "accessKey" => $chaveAcID);
     }
 
     /**
@@ -959,15 +958,13 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
         }
 
-        $retArray = array("number" => $TrackNum,
+        return array("number" => $TrackNum,
                      "carrier" => $TrackTitle,
                      "date" => $dateTrack,
                      "shippedDate" => $datesRes[1],
                      "url" => "",
                      "estimateDate" => $datesRes[0]);
 
-
-        return $retArray;
     }
 
     /**
