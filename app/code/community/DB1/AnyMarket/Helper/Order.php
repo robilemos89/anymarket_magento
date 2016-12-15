@@ -884,6 +884,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $nfeID = $invData["key"];
                         $chaveAcID = $invData["key"];
                         $date = $invData["date"];
+                        break;
                     }
                 }
             }
