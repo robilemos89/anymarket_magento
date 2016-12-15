@@ -357,12 +357,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                                 array_push($_products, $arrayTMP);
                             } else {
-                                if ($anymarketordersSpec->getData('nmo_id_anymarket') == null) {
-                                    $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders');
-                                } else {
-                                    $anymarketorders = $anymarketordersSpec;
-                                }
-
                                 $this->saveLogOrder('nmo_id_seq_anymarket',
                                     $idSeqAnyMarket,
                                     'ERROR 01',
@@ -942,6 +936,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         $TrackCreate = '';
         $dateTrack = '';
         $datesRes = array("", "");
+        $retArray = array();
 
         $shipmentCollection = Mage::getResourceModel('sales/order_shipment_collection')
                                                     ->setOrderFilter($Order)
@@ -958,12 +953,18 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
         }
 
-        return array("number" => $TrackNum,
+        $retArray = array("number" => $TrackNum,
                      "carrier" => $TrackTitle,
                      "date" => $dateTrack,
                      "shippedDate" => $datesRes[1],
                      "url" => "",
                      "estimateDate" => $datesRes[0]);
+
+        foreach ($Order->getStatusHistoryCollection() as $item) {
+
+        }
+
+        return $retArray;
 
     }
 
@@ -1012,6 +1013,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         $statuAM = $this->getStatusMageToAnyMarketOrderConfig($storeID, $status);
         if (strpos($statuAM, 'ERROR:') === false) {
 
+            if($statuAM == "PENDING" ){
+                return false;
+            }
+
             $headers = array(
                 "Content-type: application/json",
                 "Accept: */*",
@@ -1033,11 +1038,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $params["tracking"] = $trackingData;
             }
 
-            if( ($statuAM != "PENDING" ) || (isset($params["tracking"]) || isset($params["invoice"])) ){
+            if( isset($params["tracking"]) || isset($params["invoice"]) ){
                 $IDOrderAnyMarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
 
                 $returnOrder = $this->CallAPICurl("PUT", $HOST."/v2/orders/".$IDOrderAnyMarket, $headers, $params);
-
                 if($returnOrder['error'] == '1'){
                     $anymarketorderupdt->setStatus("0");
                     $anymarketorderupdt->setNmoStatusInt('ERROR 02');
