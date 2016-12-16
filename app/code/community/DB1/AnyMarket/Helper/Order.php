@@ -902,19 +902,21 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     if ((strpos($CommentCurr, 'ChavedeAcesso:') !== false)) {
                         $chaveAcID = substr($CommentCurr, $chaveAcesso + 14, 44);
 
-                        $notaFiscal = strpos($CommentCurr, 'Notafiscal:');
-                        if ((strpos($CommentCurr, 'Notafiscal:') !== false)) {
-                            $endNF = strpos($CommentCurr, '<br/>');
-                            $nfeID = substr($CommentCurr, $notaFiscal + 11, $endNF - 11);
+                    $notaFiscal = strpos($CommentCurr, 'Notafiscal:');
+                    if( (strpos($CommentCurr, 'Notafiscal:') !== false) ) {
+                        $endNF = strpos($CommentCurr, '<br/>');
+                        $numDigNfe = $endNF-($notaFiscal+11);
+                        $nfeID = substr( $CommentCurr, $notaFiscal+11, $numDigNfe);
 
-                            if ($nfeID == "") {
-                                $nfeID = $chaveAcID;
-                            }
-                        } else {
-                            $notaFiscal = strpos($CommentCurr, 'NrNF-e');
-                            if ($notaFiscal !== false) {
-                                $endNF = strpos($CommentCurr, '<br/>');
-                                $nfeID = substr($CommentCurr, $notaFiscal + 6, $endNF - 6);
+                        if( $nfeID == "" ){
+                            $nfeID = $chaveAcID;
+                        }
+                    }else{
+                        $notaFiscal = strpos($CommentCurr, 'NrNF-e');
+                        if( $notaFiscal !== false ) {
+                            $endNF = strpos($CommentCurr, '<br/>');
+                            $numDigNfe = $endNF-($notaFiscal+6);
+                            $nfeID = substr( $CommentCurr, $notaFiscal+6, $numDigNfe);
 
                                 if ($nfeID == "") {
                                     $nfeID = $chaveAcID;
@@ -990,13 +992,10 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      */
     public function updateOrCreateOrderAnyMarket($storeID, $Order){
         $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
-        if($ConfigOrder == 0){
-            $canUpdateOrder = $this->updateOrderAnymarket($storeID, $Order);
-            if( !$canUpdateOrder ){
-                $this->sendOrderToAnyMarket($storeID, $Order);
-            }
+        $canUpdateOrder = $this->updateOrderAnymarket($storeID, $Order);
+        if( !$canUpdateOrder && $ConfigOrder == 0 ){
+            $this->sendOrderToAnyMarket($storeID, $Order);
         }
-
     }
 
     /**
@@ -1049,8 +1048,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $params["tracking"] = $trackingData;
             }
 
-            if( ($statuAM == "CONCLUDED" || $statuAM == "CANCELED" || $statuAM == "PAID_WAITING_SHIP" || $statuAM == "INVOICED" || $statuAM == "PAID_WAITING_DELIVERY" ) ||
-                (isset($params["tracking"]) || isset($params["invoice"])) ){
+            if( ($statuAM != "PENDING" ) || (isset($params["tracking"]) || isset($params["invoice"])) ){
                 $IDOrderAnyMarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
 
                 $returnOrder = $this->CallAPICurl("PUT", $HOST."/v2/orders/".$IDOrderAnyMarket, $headers, $params);
