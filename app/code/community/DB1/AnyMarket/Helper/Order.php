@@ -881,6 +881,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $nfeID = $invData["key"];
                         $chaveAcID = $invData["key"];
                         $date = $invData["date"];
+                        break;
                     }
                 }
             }
@@ -895,6 +896,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     $nfeID = $invData["key"];
                     $chaveAcID = $invData["key"];
                     $date = $invData["date"];
+                    break;
                 }else {
                     $CommentCurr = str_replace(array(" ", "<b>", "</b>"), "", $CommentCurr);
                     $CommentCurr = str_replace(array("<br>"), "<br/>", $CommentCurr);
@@ -902,25 +904,25 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     if ((strpos($CommentCurr, 'ChavedeAcesso:') !== false)) {
                         $chaveAcID = substr($CommentCurr, $chaveAcesso + 14, 44);
 
-                    $notaFiscal = strpos($CommentCurr, 'Notafiscal:');
-                    if( (strpos($CommentCurr, 'Notafiscal:') !== false) ) {
-                        $endNF = strpos($CommentCurr, '<br/>');
-                        $numDigNfe = $endNF-($notaFiscal+11);
-                        $nfeID = substr( $CommentCurr, $notaFiscal+11, $numDigNfe);
-
-                        if( $nfeID == "" ){
-                            $nfeID = $chaveAcID;
-                        }
-                    }else{
-                        $notaFiscal = strpos($CommentCurr, 'NrNF-e');
-                        if( $notaFiscal !== false ) {
+                        $notaFiscal = strpos($CommentCurr, 'Notafiscal:');
+                        if ((strpos($CommentCurr, 'Notafiscal:') !== false)) {
                             $endNF = strpos($CommentCurr, '<br/>');
-                            $numDigNfe = $endNF-($notaFiscal+6);
-                            $nfeID = substr( $CommentCurr, $notaFiscal+6, $numDigNfe);
+                            $numDigNfe = ($notaFiscal + 11)-$endNF;
+                            $nfeID = substr($CommentCurr, $notaFiscal + 11, $numDigNfe);
 
+                            if ($nfeID == "") {
+                                $nfeID = $chaveAcID;
+                            }
+                        } else {
+                            $notaFiscal = strpos($CommentCurr, 'NrNF-e');
+                            if ($notaFiscal !== false) {
+                                $endNF = strpos($CommentCurr, '<br/>');
+                                $numDigNfe = ($notaFiscal + 6) - $endNF;
+                                $nfeID = substr($CommentCurr, $notaFiscal + 6, $numDigNfe);
                                 if ($nfeID == "") {
                                     $nfeID = $chaveAcID;
                                 }
+
                             }
                         }
 
@@ -938,14 +940,17 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 foreach ($shippment->getCommentsCollection() as $item) {
                     $CommentCurr = $item->getComment();
                     $invData = $this->procInvoiceModelsToAnymarket($CommentCurr);
+
                     if( $invData ){
                         $nfeID = $invData["key"];
                         $chaveAcID = $invData["key"];
                         $date = $invData["date"];
+                        break;
                     }
                 }
             }
         }
+
         return array("number" => $nfeID, "date" => $date, "accessKey" => $chaveAcID);
     }
 
@@ -1040,7 +1045,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $invoiceData = $this->getInvoiceOrder($Order);
             $trackingData = $this->getTrackingOrder($Order);
 
-            if ($invoiceData['number'] != '') {
+            if ($invoiceData['accessKey'] != '') {
                 $params["invoice"] = $invoiceData;
             }
 
@@ -1190,7 +1195,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     $params["tracking"] = $arrTracking;
                 };
 
-                if($arrInvoice["number"] != ''){
+                if($arrInvoice["accessKey"] != ''){
                     $params["invoice"] = $arrInvoice;
                 };
 
