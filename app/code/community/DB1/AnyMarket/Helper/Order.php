@@ -823,12 +823,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $anymarketlog->save();
 
             Mage::getSingleton('core/session')->setImportOrdersVariable('true');
-        }else{
-            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-            $anymarketlog->setLogDesc( $statusMage );
-            $anymarketlog->setLogId( $IDOrderMagento ); 
-            $anymarketlog->setStatus("0");
-            $anymarketlog->save();
         }
     }
 
@@ -1010,66 +1004,62 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
         $status = $Order->getStatus();
         $statuAM = $this->getStatusMageToAnyMarketOrderConfig($storeID, $status);
-        if (strpos($statuAM, 'ERROR:') === false) {
+        if (strpos($statuAM, 'ERROR:') !== false) {
+            return false;
+        }
 
-            $headers = array(
-                "Content-type: application/json",
-                "Accept: */*",
-                "gumgaToken: ".$TOKEN
-            );
+        $headers = array(
+            "Content-type: application/json",
+            "Accept: */*",
+            "gumgaToken: ".$TOKEN
+        );
 
-            $params = array(
-                "status" => $statuAM
-            );
+        $params = array(
+            "status" => $statuAM
+        );
 
-            $invoiceData = $this->getInvoiceOrder($Order);
-            $trackingData = $this->getTrackingOrder($Order);
+        $invoiceData = $this->getInvoiceOrder($Order);
+        if ($invoiceData['accessKey'] != '') {
+            $params["invoice"] = $invoiceData;
+        }else if($statuAM == "INVOICED"){
+            return false;
+        }
 
-            if ($invoiceData['number'] != '') {
-                $params["invoice"] = $invoiceData;
+        $trackingData = $this->getTrackingOrder($Order);
+        if ($trackingData['number'] != '') {
+            $params["tracking"] = $trackingData;
+        }
+
+        if( ($statuAM != "PENDING" ) || (isset($params["tracking"]) || isset($params["invoice"])) ){
+            $IDOrderAnyMarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
+
+            $returnOrder = $this->CallAPICurl("PUT", $HOST."/v2/orders/".$IDOrderAnyMarket, $headers, $params);
+
+            if($returnOrder['error'] == '1'){
+                $anymarketorderupdt->setStatus("0");
+                $anymarketorderupdt->setNmoStatusInt('ERROR 02');
+                $anymarketorderupdt->setNmoDescError($returnOrder['return']);
+                $anymarketorderupdt->setStores(array($storeID));
+                $anymarketorderupdt->save();
             }
 
-            if ($trackingData['number'] != '') {
-                $params["tracking"] = $trackingData;
-            }
-
-            if( ($statuAM != "PENDING" ) || (isset($params["tracking"]) || isset($params["invoice"])) ){
-                $IDOrderAnyMarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
-
-                $returnOrder = $this->CallAPICurl("PUT", $HOST."/v2/orders/".$IDOrderAnyMarket, $headers, $params);
-
-                if($returnOrder['error'] == '1'){
-                    $anymarketorderupdt->setStatus("0");
-                    $anymarketorderupdt->setNmoStatusInt('ERROR 02');
-                    $anymarketorderupdt->setNmoDescError($returnOrder['return']);
-                    $anymarketorderupdt->setStores(array($storeID));
-                    $anymarketorderupdt->save();
-                }
-
-                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                $anymarketlog->setLogDesc( json_encode($returnOrder['return']) );
-                $anymarketlog->setLogId( $idOrder );
-                $anymarketlog->setLogJson( json_encode($returnOrder['json']) );
-                $anymarketlog->setStores(array($storeID));
-                $anymarketlog->setStatus("0");
-                $anymarketlog->save();
-            }else{
-                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('There was some error getting data Invoice or Tracking.') );
-                $anymarketlog->setLogId( $idOrder );
-                $anymarketlog->setLogJson('');
-                $anymarketlog->setStores(array($storeID));
-                $anymarketlog->setStatus("0");
-                $anymarketlog->save();
-            }
+            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+            $anymarketlog->setLogDesc( json_encode($returnOrder['return']) );
+            $anymarketlog->setLogId( $idOrder );
+            $anymarketlog->setLogJson( json_encode($returnOrder['json']) );
+            $anymarketlog->setStores(array($storeID));
+            $anymarketlog->setStatus("0");
+            $anymarketlog->save();
         }else{
             $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-            $anymarketlog->setStatus("0");
-            $anymarketlog->setLogDesc( $statuAM );
+            $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('There was some error getting data Invoice or Tracking.') );
             $anymarketlog->setLogId( $idOrder );
+            $anymarketlog->setLogJson('');
             $anymarketlog->setStores(array($storeID));
+            $anymarketlog->setStatus("0");
             $anymarketlog->save();
         }
+
         return true;
     }
 
@@ -1128,129 +1118,120 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             }
 
 
-            if( (strpos($statuAM, 'ERROR:') === false) && ($statuAM != '') ) {
-                $dateTmp =  new DateTime(str_replace("/", "-", $Order->getData('created_at') ));
-                $params = array(
-                    'marketPlaceId' => $idOrder,
-                    "createdAt" => date_format($dateTmp, 'Y-m-d\TH:i:s\Z'),
-                    "status" =>  $statuAM,
-                    "marketPlace" => "ECOMMERCE",
-                    "marketPlaceStatus" => $statuAM,
-                    "marketPlaceUrl" => null,
-                    "shipping" => array(
-                        "city" => $shipping->getCity(),
-                        "state" => $shipping->getRegion(),
-                        "country" => $shipping->getCountry(),
-                        "address" => $shipping->getStreetFull(),
-                        "street" =>  $shipping->getStreet(1),
-                        "number" =>  $shipping->getStreet(2),
-                        "comment" =>  $shipping->getStreet(3),
-                        "neighborhood" =>  $shipping->getStreet(4),
-                        "zipCode" => $shipping->getPostcode()
-                    ),
-                    "buyer" => array(
-                        "id" => 0,
-                        "name" => $Order->getCustomerFirstname()." ".$Order->getCustomerLastname(),
-                        "email" => $Order->getCustomerEmail(),
-                        "document" =>  $docData,
-                        "documentType" => $this->getDocumentType($docData),
-                        "phone" => $shipping->getTelephone(),
-                    ),
-                    "items" => $orderedProductIds,
-                    "payments" => array(
-                                    array(
-                                        "method" => $payment->getMethodInstance()->getTitle(),
-                                        "status" => "",
-                                        "value" => $Order->getBaseGrandTotal()
-                                    ),
-                    ),
-                    "discount" => floatval( $Order->getDiscountAmount() ) < 0 ? floatval( $Order->getDiscountAmount() )*-1 : $Order->getDiscountAmount(),
-                    "freight" => $Order->getShippingAmount(),
-                    "gross" => $Order->getBaseSubtotal(),
-                    "total" => $Order->getBaseGrandTotal()
-                );
+            if( (strpos($statuAM, 'ERROR:') !== false) || ($statuAM == '') ) {
+                return false;
+            }
+            $dateTmp =  new DateTime(str_replace("/", "-", $Order->getData('created_at') ));
+            $params = array(
+                'marketPlaceId' => $idOrder,
+                "createdAt" => date_format($dateTmp, 'Y-m-d\TH:i:s\Z'),
+                "status" =>  $statuAM,
+                "marketPlace" => "ECOMMERCE",
+                "marketPlaceStatus" => $statuAM,
+                "marketPlaceUrl" => null,
+                "shipping" => array(
+                    "city" => $shipping->getCity(),
+                    "state" => $shipping->getRegion(),
+                    "country" => $shipping->getCountry(),
+                    "address" => $shipping->getStreetFull(),
+                    "street" =>  $shipping->getStreet(1),
+                    "number" =>  $shipping->getStreet(2),
+                    "comment" =>  $shipping->getStreet(3),
+                    "neighborhood" =>  $shipping->getStreet(4),
+                    "zipCode" => $shipping->getPostcode()
+                ),
+                "buyer" => array(
+                    "id" => 0,
+                    "name" => $Order->getCustomerFirstname()." ".$Order->getCustomerLastname(),
+                    "email" => $Order->getCustomerEmail(),
+                    "document" =>  $docData,
+                    "documentType" => $this->getDocumentType($docData),
+                    "phone" => $shipping->getTelephone(),
+                ),
+                "items" => $orderedProductIds,
+                "payments" => array(
+                                array(
+                                    "method" => $payment->getMethodInstance()->getTitle(),
+                                    "status" => "",
+                                    "value" => $Order->getBaseGrandTotal()
+                                ),
+                ),
+                "discount" => floatval( $Order->getDiscountAmount() ) < 0 ? floatval( $Order->getDiscountAmount() )*-1 : $Order->getDiscountAmount(),
+                "freight" => $Order->getShippingAmount(),
+                "gross" => $Order->getBaseSubtotal(),
+                "total" => $Order->getBaseGrandTotal()
+            );
 
-                $arrTracking = $this->getTrackingOrder($Order);
-                $arrInvoice = $this->getInvoiceOrder($Order);
+            $arrTracking = $this->getTrackingOrder($Order);
+            $arrInvoice = $this->getInvoiceOrder($Order);
 
-                if($arrTracking["number"] != ''){
-                    $params["tracking"] = $arrTracking;
-                };
+            if($arrTracking["number"] != ''){
+                $params["tracking"] = $arrTracking;
+            };
 
-                if($arrInvoice["number"] != ''){
-                    $params["invoice"] = $arrInvoice;
-                };
+            if($arrInvoice["number"] != ''){
+                $params["invoice"] = $arrInvoice;
+            };
 
-                $headers = array(
-                    "Content-type: application/json",
-                    "Accept: */*",
-                    "gumgaToken: ".$TOKEN
-                );
+            $headers = array(
+                "Content-type: application/json",
+                "Accept: */*",
+                "gumgaToken: ".$TOKEN
+            );
 
-                $returnOrder = $this->CallAPICurl("POST", $HOST."/v2/orders/", $headers, $params);
+            $returnOrder = $this->CallAPICurl("POST", $HOST."/v2/orders/", $headers, $params);
 
-                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                $anymarketlog->setLogDesc( json_encode($returnOrder['return']) );
+            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+            $anymarketlog->setLogDesc( json_encode($returnOrder['return']) );
 
-                $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->load($idOrder, 'nmo_id_order');
-                $anymarketorders->setStatus("1");
-                $anymarketorders->setStores(array($storeID));
-                if($returnOrder['error'] == '1'){
-                    if( strpos($returnOrder['return'], 'existe uma venda de ECOMMERCE cadastrada com o') === false ) {
-                        $anymarketorders->setNmoStatusInt('ERROR 02');
-                        $anymarketorders->setNmoDescError($returnOrder['return']);
-                    }else{
-                        $OrderResp = json_decode($returnOrder['return']);
+            $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->load($idOrder, 'nmo_id_order');
+            $anymarketorders->setStatus("1");
+            $anymarketorders->setStores(array($storeID));
+            if($returnOrder['error'] == '1'){
+                if( strpos($returnOrder['return'], 'existe uma venda de ECOMMERCE cadastrada com o') === false ) {
+                    $anymarketorders->setNmoStatusInt('ERROR 02');
+                    $anymarketorders->setNmoDescError($returnOrder['return']);
+                }else{
+                    $OrderResp = json_decode($returnOrder['return']);
 
-                        $IDAnymarket = strpos($OrderResp, 'ID Anymarket');
-                        if ($IDAnymarket !== false) {
-                            $idAnymarketOrder = substr($OrderResp, $IDAnymarket+14, 100);
-                            $idAnymarketOrder = str_replace(']"}', "", $idAnymarketOrder );
+                    $IDAnymarket = strpos($OrderResp, 'ID Anymarket');
+                    if ($IDAnymarket !== false) {
+                        $idAnymarketOrder = substr($OrderResp, $IDAnymarket+14, 100);
+                        $idAnymarketOrder = str_replace(']"}', "", $idAnymarketOrder );
 
-                            if( is_numeric ($idAnymarketOrder) ) {
-                                $anymarketorders->setNmoStatusInt('Integrado');
-                                $anymarketorders->setNmoDescError('');
-                                $anymarketorders->setNmoIdSeqAnymarket($idAnymarketOrder);
-                                $anymarketorders->setNmoIdOrder($idOrder);
-                                $anymarketorders->setNmoIdAnymarket($idOrder);
-                                $anymarketorders->save();
+                        if( is_numeric ($idAnymarketOrder) ) {
+                            $anymarketorders->setNmoStatusInt('Integrado');
+                            $anymarketorders->setNmoDescError('');
+                            $anymarketorders->setNmoIdSeqAnymarket($idAnymarketOrder);
+                            $anymarketorders->setNmoIdOrder($idOrder);
+                            $anymarketorders->setNmoIdAnymarket($idOrder);
+                            $anymarketorders->save();
 
-                                $anymarketlog->setStores(array($storeID));
-                                $anymarketlog->setLogDesc("Pedido encontrado [" . $idAnymarketOrder . "] e realizado o relacionamento.");
-                                $anymarketlog->setStatus("0");
-                                $anymarketlog->save();
+                            $anymarketlog->setStores(array($storeID));
+                            $anymarketlog->setLogDesc("Pedido encontrado [" . $idAnymarketOrder . "] e realizado o relacionamento.");
+                            $anymarketlog->setStatus("0");
+                            $anymarketlog->save();
 
-                                $OrderRetry = Mage::getModel('sales/order')->loadByIncrementId($idOrder);
-                                $this->updateOrCreateOrderAnyMarket($storeID, $OrderRetry);
-                                return $this;
-                            }
+                            $OrderRetry = Mage::getModel('sales/order')->loadByIncrementId($idOrder);
+                            $this->updateOrCreateOrderAnyMarket($storeID, $OrderRetry);
+                            return $this;
                         }
                     }
-                }else{
-                    $retOrderJSON = $returnOrder['return'];
-                    $anymarketorders->setNmoStatusInt('Integrado');
-                    $anymarketorders->setNmoDescError('');
-                    $anymarketorders->setNmoIdAnymarket( $retOrderJSON->marketPlaceId );
-                    $anymarketorders->setNmoIdSeqAnymarket( $retOrderJSON->id );
-                    
-                    $anymarketlog->setLogId( $retOrderJSON->marketPlaceId );
                 }
-
-                $anymarketlog->setStores(array($storeID));
-                $anymarketlog->setLogJson( $returnOrder['json'] );
-                $anymarketlog->setStatus("0");
-                $anymarketlog->save();
-
             }else{
-                $anymarketorders = Mage::getModel('db1_anymarket/anymarketorders')->load($idOrder, 'nmo_id_order');
-                $anymarketorders->setNmoStatusInt('ERROR 02');
-                $anymarketorders->setStores(array($storeID));
-                if($statuAM != ''){
-                    $anymarketorders->setNmoDescError( $statuAM );
-                }else{
-                    $anymarketorders->setNmoDescError( 'Status new não foi referenciado.' );
-                }
+                $retOrderJSON = $returnOrder['return'];
+                $anymarketorders->setNmoStatusInt('Integrado');
+                $anymarketorders->setNmoDescError('');
+                $anymarketorders->setNmoIdAnymarket( $retOrderJSON->marketPlaceId );
+                $anymarketorders->setNmoIdSeqAnymarket( $retOrderJSON->id );
+
+                $anymarketlog->setLogId( $retOrderJSON->marketPlaceId );
             }
+
+            $anymarketlog->setStores(array($storeID));
+            $anymarketlog->setLogJson( $returnOrder['json'] );
+            $anymarketlog->setStatus("0");
+            $anymarketlog->save();
 
             $anymarketorders->setNmoIdOrder($idOrder);
             $anymarketorders->save();
