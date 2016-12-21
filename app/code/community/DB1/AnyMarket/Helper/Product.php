@@ -674,7 +674,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 }
                 Mage::getSingleton('core/session')->setImportProdsVariable('true');
 
-                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
+                $this->sendProductToAnyMarket($storeID, $product->getId());
             }
         }else{
             $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
@@ -701,7 +701,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }
 
                         $customVariation = $this->getCustomsVariations($storeID, $product);
-                        array_push($attributeOptions, $customVariation);
+                        foreach ($customVariation as $index => $value) {
+                            $attributeOptions[$index] = $value;
+                        }
 
                         foreach ($parentIds as $parentId) {
                             $arrSku = array(
@@ -905,8 +907,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }
                     }
 
-                    $customVariation = $this->getCustomsVariations($storeID, $product);
-                    array_push($ArrVariationValues, $customVariation);
+                    $customVariation = $this->getCustomsVariations($storeID, $SimpleConfigProd);
+                    foreach ($customVariation as $index => $value) {
+                        $ArrVariationValues[$index] = $value;
+                    }
 
                     //obtem as imagens do produto (Obtem os simples e relaciona as variacoes)
                     $itemsIMGSimple = Mage::helper('db1_anymarket/image')->getImagesOfProduct($storeID, $SimpleConfigProd, $ArrVariationValues);
