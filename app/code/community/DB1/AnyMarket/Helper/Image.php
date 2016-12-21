@@ -192,28 +192,38 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                 if( $processImage == 0 ) {
                     foreach ($imgsProdMagento as $imgProdMagento) {
                         $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')->load( $imgProdMagento->getData('value_id'), 'value_id');
-                        if( $loadedImagCtrl->getData('value_id') == "" || $loadedImagCtrl->getData('value_id') == null ) {
-                            $urlImage = $imgProdMagento->getData('url');
-                            $infoImg = getimagesize($urlImage);
-                            $imgSize = filesize($imgProdMagento->getData('path'));
-                            if (($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000)) {
-                                if ($exportImage == 0) {
-                                    array_push($arrProd, 'Image_c (' . $urlImage . ' - Sku: ' . $product->getSku() . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize . ')');
-                                } else {
-                                    $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                                    $anymarketlog->setLogDesc('Error on export image - ' . $urlImage);
-                                    $anymarketlog->setLogId($product->getSku());
-                                    $anymarketlog->setStatus("1");
-                                    $anymarketlog->setStores(array($storeID));
-                                    $anymarketlog->save();
-                                }
-                            } else {
-                                $imgProdMagentoURL = $imgProdMagento->getData('url');
-                                if ($transformToHttp != 0) {
-                                    $imgProdMagentoURL = str_replace("https", "http", $imgProdMagentoURL);
-                                }
-                                array_push($arrAdd, array('URL' => $imgProdMagentoURL, 'ID' =>$imgProdMagento->getData('value_id') ));
+
+                        if( $loadedImagCtrl->getData('value_id') != "" && $loadedImagCtrl->getData('value_id') != null ) {
+                            $imgValDeleted = $this->CallAPICurl("GET", $HOST."/v2/products/".$product->getData('id_anymarket')."/images/".$loadedImagCtrl->getData('id_image'), $headers, null);
+
+                            if($imgValDeleted['error'] == '1'){
+                                $loadedImagCtrl->delete();
+                            }else{
+                                continue;
                             }
+
+                        }
+                        $urlImage = $imgProdMagento->getData('url');
+                        $infoImg = getimagesize($urlImage);
+                        $imgSize = filesize($imgProdMagento->getData('path'));
+
+                        if (($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000)) {
+                            if ($exportImage == 0) {
+                                array_push($arrProd, 'Image_c (' . $urlImage . ' - Sku: ' . $product->getSku() . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize . ')');
+                            } else {
+                                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                                $anymarketlog->setLogDesc('Error on export image - ' . $urlImage);
+                                $anymarketlog->setLogId($product->getSku());
+                                $anymarketlog->setStatus("1");
+                                $anymarketlog->setStores(array($storeID));
+                                $anymarketlog->save();
+                            }
+                        } else {
+                            $imgProdMagentoURL = $imgProdMagento->getData('url');
+                            if ($transformToHttp != 0) {
+                                $imgProdMagentoURL = str_replace("https", "http", $imgProdMagentoURL);
+                            }
+                            array_push($arrAdd, array('URL' => $imgProdMagentoURL, 'ID' =>$imgProdMagento->getData('value_id') ));
                         }
                     }
                 }else {
@@ -221,19 +231,28 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                     $height = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_height_image_field', $storeID);
                     foreach ($imgsProdMagento as $imgProdMagento) {
                         $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')->load($imgProdMagento->getData('value_id'), 'value_id');
-                        if( $loadedImagCtrl->getData('value_id') == "" || $loadedImagCtrl->getData('value_id') == null ) {
-                            if (((int)$with > 0) && ((int)$height > 0)) {
-                                $thumbnail12 = Mage::helper('catalog/image')->init($product, 'image', $imgProdMagento->getFile())->resize($with, $height);
-                            } else {
-                                $thumbnail12 = Mage::helper('catalog/image')->init($product, 'image', $imgProdMagento->getFile());
+
+                        if( $loadedImagCtrl->getData('value_id') != "" && $loadedImagCtrl->getData('value_id') != null ) {
+                            $imgValDeleted = $this->CallAPICurl("GET", $HOST."/v2/products/".$product->getData('id_anymarket')."/images/".$loadedImagCtrl->getData('id_image'), $headers, null);
+                            if($imgValDeleted['error'] == '1'){
+                                $loadedImagCtrl->delete();
+                            }else{
+                                continue;
                             }
 
-                            $imgProdMagentoURL = str_replace('/webApps/migration/productapi/new/', '/', $thumbnail12);
-                            if ($transformToHttp != 0) {
-                                $imgProdMagentoURL = str_replace("https", "http", $imgProdMagentoURL);
-                            }
-                            array_push($arrAdd, array('URL' => $imgProdMagentoURL, 'ID' =>$imgProdMagento->getData('value_id') ));
                         }
+
+                        if (((int)$with > 0) && ((int)$height > 0)) {
+                            $thumbnail12 = Mage::helper('catalog/image')->init($product, 'image', $imgProdMagento->getFile())->resize($with, $height);
+                        } else {
+                            $thumbnail12 = Mage::helper('catalog/image')->init($product, 'image', $imgProdMagento->getFile());
+                        }
+
+                        $imgProdMagentoURL = str_replace('/webApps/migration/productapi/new/', '/', $thumbnail12);
+                        if ($transformToHttp != 0) {
+                            $imgProdMagentoURL = str_replace("https", "http", $imgProdMagentoURL);
+                        }
+                        array_push($arrAdd, array('URL' => $imgProdMagentoURL, 'ID' =>$imgProdMagento->getData('value_id') ));
                     }
                 }
             }
