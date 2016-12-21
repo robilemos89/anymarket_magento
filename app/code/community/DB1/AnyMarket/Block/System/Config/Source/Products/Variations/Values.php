@@ -44,14 +44,12 @@ class DB1_AnyMarket_Block_System_Config_Source_Products_Variations_Values  exten
             }
 
         } else {
-            $storeID = Mage::helper('db1_anymarket/data')->getCurrentStoreView();
+            $code = Mage::getSingleton('adminhtml/config_data')->getStore();
+            $storeId = Mage::getModel('core/store')->load($code)->getId();
 
-            Mage::log( Mage::app()->getStore()->getId() , null, 'store.log');
-
-
-            $customVariation = Mage::helper('db1_anymarket/variation')->getVariations($storeID);
+            $customVariation = Mage::helper('db1_anymarket/variation')->getVariations($storeId);
             foreach ($customVariation as $variation) {
-                $rendered .= '<option value="'.$variation['id'].'">'.$variation['name'].'</option>';
+                $rendered .= '<option value="'.$variation['name'].'">'.$variation['name'].'</option>';
             }
         }
 

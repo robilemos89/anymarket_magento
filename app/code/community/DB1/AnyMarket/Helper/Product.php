@@ -625,8 +625,26 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         }
     }
 
-    public function getCustomsVariations(){
+    public function getCustomsVariations($storeID, $product){
+        $customVariation = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_custom_variation_field', $storeID);
+        $variationReturn = array();
+        if ($customVariation && $customVariation != 'a:0:{}') {
+            $customVariation = unserialize($customVariation);
+            if (is_array($customVariation)) {
+                foreach($customVariation as $customVariationRow) {
+                    $attrMG = $customVariationRow['attrMGVariation'];
+                    $vartAM = $customVariationRow['variationTypeAnymarket'];
 
+                    $attrValueMG = $product->getData($attrMG);
+                    if( $attrValueMG != '' && $attrValueMG != null ){
+                        $variationReturn[$vartAM] = $attrValueMG;
+                    }
+
+                }
+            }
+        }
+
+        return $variationReturn;
     }
 
     public function prepareForSendProduct($storeID, $product){
@@ -682,7 +700,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             $attributeOptions[$attribute->getLabel()] = $value;
                         }
 
-                        $attributeOptions['Cor'] = 'Azul';
+                        $customVariation = $this->getCustomsVariations($storeID, $product);
+                        array_push($attributeOptions, $customVariation);
 
                         foreach ($parentIds as $parentId) {
                             $arrSku = array(
@@ -886,7 +905,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }
                     }
 
-                    $ArrVariationValues['Cor'] = 'Azul';
+                    $customVariation = $this->getCustomsVariations($storeID, $product);
+                    array_push($ArrVariationValues, $customVariation);
 
                     //obtem as imagens do produto (Obtem os simples e relaciona as variacoes)
                     $itemsIMGSimple = Mage::helper('db1_anymarket/image')->getImagesOfProduct($storeID, $SimpleConfigProd, $ArrVariationValues);
