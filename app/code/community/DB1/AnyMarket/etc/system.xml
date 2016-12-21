@@ -921,6 +921,24 @@
                             <comment>Add Order Status Magento</comment>
                         </anymarket_status_mg_am_field>
 
+                        <anymarket_header_custom_invoice_field>
+                            <label>Modelo customizado fatura</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>8</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </anymarket_header_custom_invoice_field>
+
+                        <anymarket_custom_invoice_field translate="label comment">
+                            <label>Model</label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>9</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </anymarket_custom_invoice_field>
+
                     </fields>
                 </anymarket_integration_order_group>
 

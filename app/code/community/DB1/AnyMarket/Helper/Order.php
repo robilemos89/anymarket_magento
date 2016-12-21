@@ -826,6 +826,72 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         }
     }
 
+    public function getFromCustomInvoiceModel($storeId, $comment){
+        $customModel = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_custom_invoice_field', $storeId);
+        $comment = str_replace( array("<br>", "</br>", "<br/>", "<b>") , "", $comment);
+
+        $returnArr = array();
+        preg_match_all ('/<ci[^>]*?>([^`]*?)<:ci>/', $customModel, $arrKeyIniChave, PREG_SET_ORDER);
+        preg_match_all ('/<cf[^>]*?>([^`]*?)<:cf>/', $customModel, $arrKeyFimChave, PREG_SET_ORDER);
+
+        preg_match_all ('/<ni[^>]*?>([^`]*?)<:ni>/', $customModel, $arrKeyIniNum, PREG_SET_ORDER);
+        preg_match_all ('/<nf[^>]*?>([^`]*?)<:nf>/', $customModel, $arrKeyFimNum, PREG_SET_ORDER);
+
+        preg_match_all ('/<di[^>]*?>([^`]*?)<:di>/', $customModel, $arrKeyIniData, PREG_SET_ORDER);
+        preg_match_all ('/<df[^>]*?>([^`]*?)<:df>/', $customModel, $arrKeyFimData, PREG_SET_ORDER);
+
+        $comment = str_replace( array("<ci>", "<:ci>", "<cf>", "<:cf>", "<ni>", "<:ni>", "<nf>", "<:nf>", "<di>", "<:di>", "<df>", "<:df>") , "", $comment);
+
+        if( isset($arrKeyIniChave[0]) && isset($arrKeyFimChave[0]) ) {
+            $chaveSt = $arrKeyIniChave[0][1];
+            $chaveEn = $arrKeyFimChave[0][1];
+
+            $posStart = strpos($comment, $chaveSt);
+            $posEnd   = strpos($comment, $chaveEn);
+
+            if ( $posStart !== false && $posEnd !== false) {
+                $posStart += strlen($chaveSt);
+                $posEndT  = $posEnd-strlen($chaveSt);
+                $returnArr['key'] = substr($comment, $posStart, $posEndT);
+
+                $posEnd += strlen($chaveEn);
+                $comment = substr($comment, $posEnd, strlen($comment));
+            }
+        }
+
+        if( isset($arrKeyIniNum[0]) && isset($arrKeyFimNum[0]) ) {
+            $numSt = $arrKeyIniNum[0][1];
+            $numEn = $arrKeyFimNum[0][1];
+
+            $posStart = strpos($comment, $numSt);
+            $posEnd   = strpos($comment, $numEn);
+
+            if ( $posStart !== false && $posEnd !== false) {
+                $posStart += strlen($numSt);
+                $posEndT   = $posEnd-strlen($numSt);
+                $returnArr['number'] = substr($comment, $posStart, $posEndT);
+
+                $posEnd += strlen($numEn);
+                $comment = substr($comment, $posEnd, strlen($comment));
+            }
+        }
+
+        if( isset($arrKeyIniData[0]) && isset($arrKeyFimData[0]) ) {
+            $dateSt = $arrKeyIniData[0][1];
+            $dateEn = $arrKeyFimData[0][1];
+
+            $posStart = strpos($comment, $dateSt);
+            $posEnd   = strpos($comment, $dateEn);
+            if ( $posStart !== false && $posEnd !== false) {
+                $posStart += strlen($dateSt);
+                $posEnd   -= strlen($dateSt);
+                $returnArr['date'] = substr($comment, $posStart, $posEnd);
+            }
+        }
+
+        return $returnArr;
+    }
+
     /**
      * get invoice order
      *
