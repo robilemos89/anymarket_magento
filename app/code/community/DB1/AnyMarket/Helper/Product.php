@@ -625,6 +625,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         }
     }
 
+    public function getCustomsVariations(){
+
+    }
 
     public function prepareForSendProduct($storeID, $product){
         $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
@@ -678,6 +681,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             $value = $product->getAttributeText($attribute->getProductAttribute()->getAttributeCode());
                             $attributeOptions[$attribute->getLabel()] = $value;
                         }
+
+                        $attributeOptions['Cor'] = 'Azul';
 
                         foreach ($parentIds as $parentId) {
                             $arrSku = array(
@@ -880,6 +885,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             }
                         }
                     }
+
+                    $ArrVariationValues['Cor'] = 'Azul';
 
                     //obtem as imagens do produto (Obtem os simples e relaciona as variacoes)
                     $itemsIMGSimple = Mage::helper('db1_anymarket/image')->getImagesOfProduct($storeID, $SimpleConfigProd, $ArrVariationValues);
