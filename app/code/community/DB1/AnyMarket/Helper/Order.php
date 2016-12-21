@@ -1061,6 +1061,13 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $params["tracking"] = $trackingData;
             }
 
+            if( isset( $params["tracking"] ) && $statuAM == "CONCLUDED" ){
+                $deliveredDate = $params["tracking"];
+                if( !isset($deliveredDate['deliveredDate']) ){
+                    return false;
+                }
+            }
+
             if( isset($params["tracking"]) || isset($params["invoice"]) ){
                 $IDOrderAnyMarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
 
