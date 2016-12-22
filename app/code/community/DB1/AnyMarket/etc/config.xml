@@ -280,6 +280,7 @@
 
         <anymarket_integration_order_group>
             <anymarket_type_order_sync_field>1</anymarket_type_order_sync_field>
+            <anymarket_custom_invoice_field><![CDATA[<ci> <:ci> <cf> <:cf> <ni> <:ni> <nf> <:nf> <di> <:di> <df> <:df>]]></anymarket_custom_invoice_field>
         </anymarket_integration_order_group>
 
         <anymarket_general_group>

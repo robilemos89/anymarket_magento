@@ -933,6 +933,10 @@
                         <anymarket_custom_invoice_field translate="label comment">
                             <label>Model</label>
                             <frontend_type>textarea</frontend_type>
+                            <comment><![CDATA[Utilize as tags para criar seu modelo<br> <strong><span style="color: red;">
+                                                <ci> <:ci> <cf> <:cf>
+                                                <ni> <:ni> <nf> <:nf>
+                                                <di> <:di> <df> <:df></span></strong> ]]></comment>
                             <sort_order>9</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>

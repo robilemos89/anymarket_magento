@@ -847,15 +847,16 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $chaveEn = $arrKeyFimChave[0][1];
 
             $posStart = strpos($comment, $chaveSt);
-            $posEnd   = strpos($comment, $chaveEn);
+            $commentTrat = substr($comment, $posStart, strlen($comment));
+            $posEnd   = strpos($commentTrat, $chaveEn);
 
             if ( $posStart !== false && $posEnd !== false) {
-                $posStart += strlen($chaveSt);
+                $posStartT = $posStart+strlen($chaveSt);
                 $posEndT  = $posEnd-strlen($chaveSt);
-                $returnArr['key'] = substr($comment, $posStart, $posEndT);
+                $returnArr['key'] = substr($comment, $posStartT, $posEndT);
 
                 $posEnd += strlen($chaveEn);
-                $comment = substr($comment, $posEnd, strlen($comment));
+                $comment = str_replace( substr($comment, $posStart, $posEnd) ,"", $comment);
             }
         }
 
@@ -864,15 +865,16 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $numEn = $arrKeyFimNum[0][1];
 
             $posStart = strpos($comment, $numSt);
-            $posEnd   = strpos($comment, $numEn);
+            $commentTrat = substr($comment, $posStart, strlen($comment));
+            $posEnd   = strpos($commentTrat, $numEn);
 
             if ( $posStart !== false && $posEnd !== false) {
-                $posStart += strlen($numSt);
+                $posStartT = $posStart+strlen($numSt);
                 $posEndT   = $posEnd-strlen($numSt);
-                $returnArr['number'] = substr($comment, $posStart, $posEndT);
+                $returnArr['number'] = substr($comment, $posStartT, $posEndT);
 
                 $posEnd += strlen($numEn);
-                $comment = substr($comment, $posEnd, strlen($comment));
+                $comment = str_replace( substr($comment, $posStart, $posEnd) ,"", $comment);
             }
         }
 
@@ -881,7 +883,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $dateEn = $arrKeyFimData[0][1];
 
             $posStart = strpos($comment, $dateSt);
-            $posEnd   = strpos($comment, $dateEn);
+            $commentTrat = substr($comment, $posStart, strlen($comment));
+            $posEnd   = strpos($commentTrat, $dateEn);
             if ( $posStart !== false && $posEnd !== false) {
                 $posStart += strlen($dateSt);
                 $posEnd   -= strlen($dateSt);
