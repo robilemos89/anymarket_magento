@@ -1163,37 +1163,43 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             return false;
         }
 
-            if($statuAM == "PENDING" ){
+        if($statuAM == "PENDING" ){
+            return false;
+        }
+
+        $headers = array(
+            "Content-type: application/json",
+            "Accept: */*",
+            "gumgaToken: ".$TOKEN
+        );
+
+        $params = array(
+            "status" => $statuAM
+        );
+
+        $invoiceData = $this->getInvoiceOrder($Order, $storeID);
+        if ($invoiceData['accessKey'] != '') {
+            $params["invoice"] = $invoiceData;
+        }else if($statuAM == "INVOICED"){
+            return false;
+        }
+
+        $trackingData = $this->getTrackingOrder($Order);
+        if ($trackingData['number'] != '') {
+            $params["tracking"] = $trackingData;
+        }
+
+        if( isset( $params["tracking"] ) && $statuAM == "CONCLUDED" ){
+            $deliveredDate = $params["tracking"];
+            if( !isset($deliveredDate['deliveredDate']) ){
                 return false;
             }
+        }
 
-            $headers = array(
-                "Content-type: application/json",
-                "Accept: */*",
-                "gumgaToken: ".$TOKEN
-            );
-
-            $params = array(
-                "status" => $statuAM
-            );
-
-            $invoiceData = $this->getInvoiceOrder($Order, $storeID);
-            if ($invoiceData['accessKey'] != '') {
-                $params["invoice"] = $invoiceData;
-            }else if($statuAM == "INVOICED"){
-                return false;
-            }
-
-            $trackingData = $this->getTrackingOrder($Order);
-            if ($trackingData['number'] != '') {
-                $params["tracking"] = $trackingData;
-            }
-
-        if( ($statuAM != "PENDING" ) || (isset($params["tracking"]) || isset($params["invoice"])) ){
+        if( isset($params["tracking"]) || isset($params["invoice"]) ){
             $IDOrderAnyMarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
 
             $returnOrder = $this->CallAPICurl("PUT", $HOST."/v2/orders/".$IDOrderAnyMarket, $headers, $params);
-
             if($returnOrder['error'] == '1'){
                 $anymarketorderupdt->setStatus("0");
                 $anymarketorderupdt->setNmoStatusInt('ERROR 02');
