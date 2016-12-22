@@ -280,7 +280,7 @@
 
         <anymarket_integration_order_group>
             <anymarket_type_order_sync_field>1</anymarket_type_order_sync_field>
-            <anymarket_custom_invoice_field><![CDATA[<ci> <:ci> <cf> <:cf> <ni> <:ni> <nf> <:nf> <di> <:di> <df> <:df>]]></anymarket_custom_invoice_field>
+            <anymarket_custom_invoice_field><![CDATA[<ci>Chave de acesso:<:ci>999999999999999<cf>;<:cf><br><ni>Nota Fiscal:<:ni>99999<nf>;<:nf><br><di>Data da Nota:<:di>00/00/0000 00:00:00<df>;<:df>]]></anymarket_custom_invoice_field>
         </anymarket_integration_order_group>
 
         <anymarket_general_group>

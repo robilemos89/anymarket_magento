@@ -933,10 +933,15 @@
                         <anymarket_custom_invoice_field translate="label comment">
                             <label>Model</label>
                             <frontend_type>textarea</frontend_type>
-                            <comment><![CDATA[Utilize as tags para criar seu modelo<br> <strong><span style="color: red;">
-                                                <ci> <:ci> <cf> <:cf>
-                                                <ni> <:ni> <nf> <:nf>
-                                                <di> <:di> <df> <:df></span></strong> ]]></comment>
+                            <comment>Utilize as tags para criar seu modelo</comment>
+                            <tooltip><![CDATA[Utilize as tags para criar seu modelo<br>
+                                                <span style="color: red;">&ltci&gt <:ci></span>: Inicio chave da nota <br>
+                                                <span style="color: red;">&ltcf&gt <:cf></span>: Fim chave da nota <br>
+                                                <span style="color: red;">&ltni&gt <:ni></span>: Inicio numero da nota <br>
+                                                <span style="color: red;">&ltnf&gt <:nf></span>: Fim numero da nota <br>
+                                                <span style="color: red;">&ltdi&gt <:di></span>: Inicio data emissão da nota <br>
+                                                <span style="color: red;">&ltdf&gt <:df></span>: Fim data emissão da nota
+                                                ]]></tooltip>
                             <sort_order>9</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
