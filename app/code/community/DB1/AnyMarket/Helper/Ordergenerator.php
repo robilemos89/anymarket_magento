@@ -252,9 +252,10 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
 
                 unset($arrToComp1['qty']);
                 unset($arrToComp2['qty']);
+                unset($arrToComp1['bundle_option_qty']);
+                unset($arrToComp2['bundle_option_qty']);
                 if (md5(serialize($arrToComp1)) == md5(serialize($arrToComp2))) {
                     $prod['qty'] += $prodToGroup['qty'];
-
                     if( isset($prod['bundle_option_qty']) ) {
                         foreach ($prod['bundle_option_qty'] as $key => $value) {
                             $prod['bundle_option_qty'][$key] += $prodToGroup['bundle_option_qty'][$key];
@@ -269,7 +270,6 @@ class DB1_AnyMarket_Helper_OrderGenerator extends DB1_AnyMarket_Helper_Data
                 array_push($ctrlProds, $prod['product']);
             }
         }
-
         return $arryProdAt;
     }
 

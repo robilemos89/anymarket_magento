@@ -595,6 +595,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         $IDOrderAnyMarket,
                                         $OrderIDMage,
                                         $storeID);
+
+                                    Mage::log($e, null, 'anymarket_exception.log');
                                 }
                             } else {
                                 $this->saveLogOrder('nmo_id_seq_anymarket',
