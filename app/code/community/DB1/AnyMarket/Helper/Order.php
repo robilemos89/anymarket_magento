@@ -368,7 +368,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     $boundOptQty = array();
                                     foreach ($optionsBundle as $detProd) {
                                         $boundOpt[$detProd['option_id']] = $detProd['selection_id'];
-                                        $boundOptQty[$detProd['option_id']] = $detProd['selection_qty'];
+                                        $boundOptQty[$detProd['option_id']] = (float)$detProd['selection_qty'];
                                     }
 
                                     $arrayTMP['bundle_option'] = $boundOpt;
