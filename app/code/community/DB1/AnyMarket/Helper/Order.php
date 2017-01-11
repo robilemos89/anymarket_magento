@@ -135,9 +135,9 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
         }
 
-        $shippedDate   = $this->formatDateTimeZone( str_replace("/", "-", $shippedDate ) );
-        $estimatedDate = $this->formatDateTimeZone( str_replace("/", "-", $estimatedDate ) );
 
+        $shippedDate   = ($shippedDate != "")   ? $this->formatDateTimeZone( str_replace("/", "-", $shippedDate ) )   : "";
+        $estimatedDate = ($estimatedDate != "") ? $this->formatDateTimeZone( str_replace("/", "-", $estimatedDate ) ) : "";
         return array($estimatedDate, $shippedDate);
     }
 
@@ -975,9 +975,17 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         $retArray = array("number" => $TrackNum,
                              "carrier" => $TrackTitle,
                              "date" => $dateTrack,
-                             "shippedDate" => $datesRes[1],
-                             "url" => "",
-                             "estimateDate" => $datesRes[0]);
+                             "url" => "");
+
+        $retArray["shippedDate"]  = ($datesRes[1] != "") ? $datesRes[1] : $dateTrack;
+        if($datesRes[0] != "") {
+            $retArray["estimateDate"] = $datesRes[0];
+        }else{
+            $estFromOrder = $this->getEstimatedDateFromOrder($Order);
+            if($estFromOrder != ""){
+                $retArray["estimateDate"] = $estFromOrder;
+            }
+        }
 
         $deliveredDate = $this->getDeliveredDateFromOrder( $Order );
         if( $deliveredDate ){
