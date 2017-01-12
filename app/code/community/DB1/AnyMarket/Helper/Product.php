@@ -635,7 +635,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     $attrMG = $customVariationRow['attrMGVariation'];
                     $vartAM = $customVariationRow['variationTypeAnymarket'];
 
-                    $attrValueMG = $product->getData($attrMG);
+                    $attrValueMG = $this->procAttrConfig($attrMG, $product->getData($attrMG), 1);
                     if( $attrValueMG != '' && $attrValueMG != null ){
                         $variationReturn[$vartAM] = $attrValueMG;
                     }
