@@ -135,9 +135,9 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
         }
 
-        $shippedDate   = $this->formatDateTimeZone( str_replace("/", "-", $shippedDate ) );
-        $estimatedDate = $this->formatDateTimeZone( str_replace("/", "-", $estimatedDate ) );
 
+        $shippedDate   = ($shippedDate != "")   ? $this->formatDateTimeZone( str_replace("/", "-", $shippedDate ) )   : "";
+        $estimatedDate = ($estimatedDate != "") ? $this->formatDateTimeZone( str_replace("/", "-", $estimatedDate ) ) : "";
         return array($estimatedDate, $shippedDate);
     }
 
@@ -368,7 +368,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     $boundOptQty = array();
                                     foreach ($optionsBundle as $detProd) {
                                         $boundOpt[$detProd['option_id']] = $detProd['selection_id'];
-                                        $boundOptQty[$detProd['option_id']] = $detProd['selection_qty'];
+                                        $boundOptQty[$detProd['option_id']] = (float)$detProd['selection_qty'];
                                     }
 
                                     $arrayTMP['bundle_option'] = $boundOpt;
@@ -595,6 +595,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         $IDOrderAnyMarket,
                                         $OrderIDMage,
                                         $storeID);
+
+                                    Mage::log($e, null, 'anymarket_exception.log');
                                 }
                             } else {
                                 $this->saveLogOrder('nmo_id_seq_anymarket',
@@ -975,9 +977,17 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         $retArray = array("number" => $TrackNum,
                              "carrier" => $TrackTitle,
                              "date" => $dateTrack,
-                             "shippedDate" => $datesRes[1],
-                             "url" => "",
-                             "estimateDate" => $datesRes[0]);
+                             "url" => "");
+
+        $retArray["shippedDate"]  = ($datesRes[1] != "") ? $datesRes[1] : $dateTrack;
+        if($datesRes[0] != "") {
+            $retArray["estimateDate"] = $datesRes[0];
+        }else{
+            $estFromOrder = $this->getEstimatedDateFromOrder($Order);
+            if($estFromOrder != ""){
+                $retArray["estimateDate"] = $estFromOrder;
+            }
+        }
 
         $deliveredDate = $this->getDeliveredDateFromOrder( $Order );
         if( $deliveredDate ){
