@@ -1038,15 +1038,17 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         (!$this->checkArrayAttributes( $ArrAttributes, "description", $attribute->getFrontendLabel() ) )
                     ){
                         if($confID == ""){
-                            $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1);
-                            if( $valAttr != null || $valAttr != '' ){
-                                $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $valAttr);
-                                $contIndexAttr = $contIndexAttr+1;
+                            if(!$this->checkArrayAttributes($ArrAttributes, "name", $attribute->getFrontendLabel())) {
+                                $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData($attribute->getAttributeCode()), 1);
+                                if ($valAttr != null || $valAttr != '') {
+                                    $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $valAttr);
+                                    $contIndexAttr = $contIndexAttr + 1;
+                                }
                             }
                         }else{
                             foreach ($attributesConf as $attributeConf){
                                 if(!in_array($attribute->getAttributeCode(), $attributeConf)){
-                                    if(!$this->checkArrayAttributes($ArrAttributes, "description", $attribute->getFrontendLabel())){
+                                    if(!$this->checkArrayAttributes($ArrAttributes, "name", $attribute->getFrontendLabel())){
                                         $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1);
                                         if( $valAttr != null || $valAttr != '' ){
                                             $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $valAttr);
