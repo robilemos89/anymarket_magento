@@ -921,6 +921,33 @@
                             <comment>Add Order Status Magento</comment>
                         </anymarket_status_mg_am_field>
 
+                        <anymarket_header_custom_invoice_field>
+                            <label>Modelo customizado fatura</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>8</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </anymarket_header_custom_invoice_field>
+
+                        <anymarket_custom_invoice_field translate="label comment">
+                            <label>Model</label>
+                            <frontend_type>textarea</frontend_type>
+                            <comment>Utilize as tags para criar seu modelo</comment>
+                            <tooltip><![CDATA[Utilize as tags para criar seu modelo<br>
+                                                <span style="color: red;">&ltci&gt <:ci></span>: Inicio chave da nota <br>
+                                                <span style="color: red;">&ltcf&gt <:cf></span>: Fim chave da nota <br>
+                                                <span style="color: red;">&ltni&gt <:ni></span>: Inicio numero da nota <br>
+                                                <span style="color: red;">&ltnf&gt <:nf></span>: Fim numero da nota <br>
+                                                <span style="color: red;">&ltdi&gt <:di></span>: Inicio data emissão da nota <br>
+                                                <span style="color: red;">&ltdf&gt <:df></span>: Fim data emissão da nota
+                                                ]]></tooltip>
+                            <sort_order>9</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </anymarket_custom_invoice_field>
+
                     </fields>
                 </anymarket_integration_order_group>
 
@@ -933,7 +960,7 @@
                     <comment>
                         <![CDATA[
                             <div>
-                                <h2>v. 2.12.1</h2>
+                                <h2>v. 2.13.0</h2>
                                 <hr>
                                 <h3>Desenvolvido por<br> NovaPC - Tecnologia da Informação.</h3>
                                 <img src="http://novapc.com.br/images/logo.png" alt="NovaPC" height="100" width="150">

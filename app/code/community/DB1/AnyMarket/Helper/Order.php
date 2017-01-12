@@ -842,6 +842,92 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         }
     }
 
+    /**
+     * get invoice order from custom model
+     *
+     * @param $storeId
+     * @param $comment
+     * @return array
+     */
+    public function getFromCustomInvoiceModel($storeID, $comment){
+        $customModel = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_custom_invoice_field', $storeID);
+        $comment = str_replace( array("<br>", "</br>", "<br/>", "<b>") , "", $comment);
+
+        $returnArr = array();
+        preg_match_all ('/<ci[^>]*?>([^`]*?)<:ci>/', $customModel, $arrKeyIniChave, PREG_SET_ORDER);
+        preg_match_all ('/<cf[^>]*?>([^`]*?)<:cf>/', $customModel, $arrKeyFimChave, PREG_SET_ORDER);
+
+        preg_match_all ('/<ni[^>]*?>([^`]*?)<:ni>/', $customModel, $arrKeyIniNum, PREG_SET_ORDER);
+        preg_match_all ('/<nf[^>]*?>([^`]*?)<:nf>/', $customModel, $arrKeyFimNum, PREG_SET_ORDER);
+
+        preg_match_all ('/<di[^>]*?>([^`]*?)<:di>/', $customModel, $arrKeyIniData, PREG_SET_ORDER);
+        preg_match_all ('/<df[^>]*?>([^`]*?)<:df>/', $customModel, $arrKeyFimData, PREG_SET_ORDER);
+
+        $comment = str_replace( array("<ci>", "<:ci>", "<cf>", "<:cf>", "<ni>", "<:ni>", "<nf>", "<:nf>", "<di>", "<:di>", "<df>", "<:df>") , "", $comment);
+
+        if( isset($arrKeyIniChave[0]) && isset($arrKeyFimChave[0]) ) {
+            $chaveSt = $arrKeyIniChave[0][1];
+            $chaveEn = $arrKeyFimChave[0][1];
+
+            $posStart = strpos($comment, $chaveSt);
+            $commentTrat = substr($comment, $posStart, strlen($comment));
+            $posEnd   = strpos($commentTrat, $chaveEn);
+
+            if ( $posStart !== false && $posEnd !== false) {
+                $posStartT = $posStart+strlen($chaveSt);
+                $posEndT  = $posEnd-strlen($chaveSt);
+                $returnArr['key'] = substr($comment, $posStartT, $posEndT);
+
+                $posEnd += strlen($chaveEn);
+                $comment = str_replace( substr($comment, $posStart, $posEnd) ,"", $comment);
+            }
+        }
+
+        if( isset($arrKeyIniNum[0]) && isset($arrKeyFimNum[0]) ) {
+            $numSt = $arrKeyIniNum[0][1];
+            $numEn = $arrKeyFimNum[0][1];
+
+            $posStart = strpos($comment, $numSt);
+            $commentTrat = substr($comment, $posStart, strlen($comment));
+            $posEnd   = strpos($commentTrat, $numEn);
+
+            if ( $posStart !== false && $posEnd !== false) {
+                $posStartT = $posStart+strlen($numSt);
+                $posEndT   = $posEnd-strlen($numSt);
+                $returnArr['number'] = substr($comment, $posStartT, $posEndT);
+
+                $posEnd += strlen($numEn);
+                $comment = str_replace( substr($comment, $posStart, $posEnd) ,"", $comment);
+            }
+        }
+
+        if( isset($arrKeyIniData[0]) && isset($arrKeyFimData[0]) ) {
+            $dateSt = $arrKeyIniData[0][1];
+            $dateEn = $arrKeyFimData[0][1];
+
+            $posStart = strpos($comment, $dateSt);
+            $commentTrat = substr($comment, $posStart, strlen($comment));
+            $posEnd   = strpos($commentTrat, $dateEn);
+            if ( $posStart !== false && $posEnd !== false) {
+                $posStart += strlen($dateSt);
+                $posEnd   -= strlen($dateSt);
+
+                $date = substr($comment, $posStart, $posEnd);
+                $dateTmp = str_replace("/", "-", $date );
+
+                $returnArr['date'] = $this->formatDateTimeZone($dateTmp);
+            }
+        }
+
+        return $returnArr;
+    }
+
+    /**
+     * get invoice order from default model
+     *
+     * @param $CommentCurr
+     * @return array
+     */
     public function procInvoiceModelsToAnymarket($CommentCurr){
         $nfeCount = strpos($CommentCurr, 'nfe:');
         $emissaoCount = strpos($CommentCurr, 'emiss');
@@ -866,7 +952,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      * @param $Order
      * @return array
      */
-    public function getInvoiceOrder($Order){
+    public function getInvoiceOrder($Order, $storeID){
         $nfeID = "";
         $date = "";
         $chaveAcID = "";
@@ -882,6 +968,20 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $date = $invData["date"];
                         break;
                     }
+
+                    $customModel = $this->getFromCustomInvoiceModel($storeID, $CommentCurr);
+                    if( isset($customModel['key']) ){
+                        $nfeID = isset($customModel['number']) ? $customModel["number"] : $customModel["key"];
+                        $chaveAcID = $customModel["key"];
+
+                        if( !isset($customModel['date']) ) {
+                            $dateTmp = new DateTime(str_replace("/", "-", $item->getData('created_at')));
+                            $date =  date_format($dateTmp, 'Y-m-d\TH:i:s\Z');
+                        }else{
+                            $date = $customModel["date"];
+                        }
+                        break;
+                    }
                 }
             }
         }
@@ -895,37 +995,52 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                     $nfeID = $invData["key"];
                     $chaveAcID = $invData["key"];
                     $date = $invData["date"];
-                }else {
-                    $CommentCurr = str_replace(array(" ", "<b>", "</b>"), "", $CommentCurr);
-                    $CommentCurr = str_replace(array("<br>"), "<br/>", $CommentCurr);
-                    $chaveAcesso = strpos($CommentCurr, 'ChavedeAcesso:');
-                    if ((strpos($CommentCurr, 'ChavedeAcesso:') !== false)) {
-                        $chaveAcID = substr($CommentCurr, $chaveAcesso + 14, 44);
+                    break;
+                }
 
-                        $notaFiscal = strpos($CommentCurr, 'Notafiscal:');
-                        if ((strpos($CommentCurr, 'Notafiscal:') !== false)) {
+                $customModel = $this->getFromCustomInvoiceModel($storeID, $CommentCurr);
+                if( isset($customModel['key']) ){
+                    $nfeID = isset($customModel['number']) ? $customModel["number"] : $customModel["key"];
+                    $chaveAcID = $customModel["key"];
+
+                    if( !isset($customModel['date']) ) {
+                        $dateTmp = new DateTime(str_replace("/", "-", $item->getData('created_at')));
+                        $date =  date_format($dateTmp, 'Y-m-d\TH:i:s\Z');
+                    }else{
+                        $date = $customModel["date"];
+                    }
+                    break;
+                }
+
+                $CommentCurr = str_replace(array(" ", "<b>", "</b>"), "", $CommentCurr);
+                $CommentCurr = str_replace(array("<br>"), "<br/>", $CommentCurr);
+                $chaveAcesso = strpos($CommentCurr, 'ChavedeAcesso:');
+                if ((strpos($CommentCurr, 'ChavedeAcesso:') !== false)) {
+                    $chaveAcID = substr($CommentCurr, $chaveAcesso + 14, 44);
+
+                    $notaFiscal = strpos($CommentCurr, 'Notafiscal:');
+                    if ((strpos($CommentCurr, 'Notafiscal:') !== false)) {
+                        $endNF = strpos($CommentCurr, '<br/>');
+                        $nfeID = substr($CommentCurr, $notaFiscal + 11, $endNF - 11);
+
+                        if ($nfeID == "") {
+                            $nfeID = $chaveAcID;
+                        }
+                    } else {
+                        $notaFiscal = strpos($CommentCurr, 'NrNF-e');
+                        if ($notaFiscal !== false) {
                             $endNF = strpos($CommentCurr, '<br/>');
-                            $nfeID = substr($CommentCurr, $notaFiscal + 11, $endNF - 11);
+                            $nfeID = substr($CommentCurr, $notaFiscal + 6, $endNF - 6);
 
                             if ($nfeID == "") {
                                 $nfeID = $chaveAcID;
                             }
-                        } else {
-                            $notaFiscal = strpos($CommentCurr, 'NrNF-e');
-                            if ($notaFiscal !== false) {
-                                $endNF = strpos($CommentCurr, '<br/>');
-                                $nfeID = substr($CommentCurr, $notaFiscal + 6, $endNF - 6);
-
-                                if ($nfeID == "") {
-                                    $nfeID = $chaveAcID;
-                                }
-                            }
                         }
-
-                        $dateTmp = new DateTime(str_replace("/", "-", $item->getData('created_at')));
-                        $date = date_format($dateTmp, 'Y-m-d\TH:i:s\Z');
-                        break;
                     }
+
+                    $dateTmp = new DateTime(str_replace("/", "-", $item->getData('created_at')));
+                    $date = date_format($dateTmp, 'Y-m-d\TH:i:s\Z');
+                    break;
                 }
             }
         }
@@ -940,7 +1055,23 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                         $nfeID = $invData["key"];
                         $chaveAcID = $invData["key"];
                         $date = $invData["date"];
+                        break;
                     }
+
+                    $customModel = $this->getFromCustomInvoiceModel($storeID, $CommentCurr);
+                    if( isset($customModel['key']) ){
+                        $nfeID = isset($customModel['number']) ? $customModel["number"] : $customModel["key"];
+                        $chaveAcID = $customModel["key"];
+
+                        if( !isset($customModel['date']) ) {
+                            $dateTmp = new DateTime(str_replace("/", "-", $item->getData('created_at')));
+                            $date =  date_format($dateTmp, 'Y-m-d\TH:i:s\Z');
+                        }else{
+                            $date = $customModel["date"];
+                        }
+                        break;
+                    }
+
                 }
             }
         }
@@ -1002,7 +1133,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      *
      * @param $Order
      */
-    public function updateOrCreateOrderAnyMarket($storeID, $Order){
+    public function updateOrCreateOrderAnyMarket($storeID, $Order)
+    {
         $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
         $canUpdateOrder = $this->updateOrderAnymarket($storeID, $Order);
         if (!$canUpdateOrder && $ConfigOrder == 0) {
@@ -1041,67 +1173,67 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             return false;
         }
 
-            if($statuAM == "PENDING" ){
+        if($statuAM == "PENDING" ){
+            return false;
+        }
+
+        $headers = array(
+            "Content-type: application/json",
+            "Accept: */*",
+            "gumgaToken: ".$TOKEN
+        );
+
+        $params = array(
+            "status" => $statuAM
+        );
+
+        $invoiceData = $this->getInvoiceOrder($Order, $storeID);
+        if ($invoiceData['accessKey'] != '') {
+            $params["invoice"] = $invoiceData;
+        }else if($statuAM == "INVOICED"){
+            return false;
+        }
+
+        $trackingData = $this->getTrackingOrder($Order);
+        if ($trackingData['number'] != '') {
+            $params["tracking"] = $trackingData;
+        }
+
+        if( isset( $params["tracking"] ) && $statuAM == "CONCLUDED" ){
+            $deliveredDate = $params["tracking"];
+            if( !isset($deliveredDate['deliveredDate']) ){
                 return false;
             }
+        }
 
-            $headers = array(
-                "Content-type: application/json",
-                "Accept: */*",
-                "gumgaToken: ".$TOKEN
-            );
+        if( isset($params["tracking"]) || isset($params["invoice"]) ){
+            $IDOrderAnyMarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
 
-            $params = array(
-                "status" => $statuAM
-            );
-
-            $invoiceData = $this->getInvoiceOrder($Order);
-            if ($invoiceData['accessKey'] != '') {
-                $params["invoice"] = $invoiceData;
-            }else if($statuAM == "INVOICED"){
-                return false;
+            $returnOrder = $this->CallAPICurl("PUT", $HOST."/v2/orders/".$IDOrderAnyMarket, $headers, $params);
+            if($returnOrder['error'] == '1'){
+                $anymarketorderupdt->setStatus("0");
+                $anymarketorderupdt->setNmoStatusInt('ERROR 02');
+                $anymarketorderupdt->setNmoDescError($returnOrder['return']);
+                $anymarketorderupdt->setStores(array($storeID));
+                $anymarketorderupdt->save();
             }
 
-            $trackingData = $this->getTrackingOrder($Order);
-            if ($trackingData['number'] != '') {
-                $params["tracking"] = $trackingData;
-            }
-
-            if( isset( $params["tracking"] ) && $statuAM == "CONCLUDED" ){
-                $deliveredDate = $params["tracking"];
-                if( !isset($deliveredDate['deliveredDate']) ){
-                    return false;
-                }
-            }
-
-            if( isset($params["tracking"]) || isset($params["invoice"]) ){
-                $IDOrderAnyMarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
-
-                $returnOrder = $this->CallAPICurl("PUT", $HOST."/v2/orders/".$IDOrderAnyMarket, $headers, $params);
-                if($returnOrder['error'] == '1'){
-                    $anymarketorderupdt->setStatus("0");
-                    $anymarketorderupdt->setNmoStatusInt('ERROR 02');
-                    $anymarketorderupdt->setNmoDescError($returnOrder['return']);
-                    $anymarketorderupdt->setStores(array($storeID));
-                    $anymarketorderupdt->save();
-                }
-
-                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                $anymarketlog->setLogDesc( json_encode($returnOrder['return']) );
-                $anymarketlog->setLogId( $idOrder );
-                $anymarketlog->setLogJson( json_encode($returnOrder['json']) );
-                $anymarketlog->setStores(array($storeID));
-                $anymarketlog->setStatus("0");
-                $anymarketlog->save();
-            }else{
-                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('There was some error getting data Invoice or Tracking.') );
-                $anymarketlog->setLogId( $idOrder );
-                $anymarketlog->setLogJson('');
-                $anymarketlog->setStores(array($storeID));
-                $anymarketlog->setStatus("0");
-                $anymarketlog->save();
-            }
+            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+            $anymarketlog->setLogDesc( json_encode($returnOrder['return']) );
+            $anymarketlog->setLogId( $idOrder );
+            $anymarketlog->setLogJson( json_encode($returnOrder['json']) );
+            $anymarketlog->setStores(array($storeID));
+            $anymarketlog->setStatus("0");
+            $anymarketlog->save();
+        }else{
+            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+            $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('There was some error getting data Invoice or Tracking.') );
+            $anymarketlog->setLogId( $idOrder );
+            $anymarketlog->setLogJson('');
+            $anymarketlog->setStores(array($storeID));
+            $anymarketlog->setStatus("0");
+            $anymarketlog->save();
+        }
 
         return true;
     }
@@ -1206,7 +1338,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             );
 
             $arrTracking = $this->getTrackingOrder($Order);
-            $arrInvoice = $this->getInvoiceOrder($Order);
+            $arrInvoice = $this->getInvoiceOrder($Order, $storeID);
 
             if($arrTracking["number"] != ''){
                 $params["tracking"] = $arrTracking;
