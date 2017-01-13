@@ -173,6 +173,10 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
             "gumgaToken: ".$TOKEN
         );
 
+        if($product->getData('id_anymarket') == '' || $product->getData('id_anymarket') == null){
+            $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $product->getId() );
+        }
+
         $imgGetRet = $this->CallAPICurl("GET", $HOST."/v2/products/".$product->getData('id_anymarket')."/images", $headers, null);
         if($imgGetRet['error'] == '0'){
             $imgsProdAnymarket = $imgGetRet['return'];
