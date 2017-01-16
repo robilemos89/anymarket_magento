@@ -24,6 +24,7 @@ class DB1_AnyMarket_Model_Cron{
 
     public function sincOrdersWithErrors(){
         Mage::helper('db1_anymarket/queue')->processOrdersWithError01();
+        Mage::helper('db1_anymarket/queue')->processOrdersWithError02();
     }
 
     /**
