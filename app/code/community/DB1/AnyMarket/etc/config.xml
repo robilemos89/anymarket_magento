@@ -2,7 +2,7 @@
 <config>
     <modules>
         <DB1_AnyMarket>
-            <version>2.11.9</version>
+            <version>2.13.0</version>
         </DB1_AnyMarket>
     </modules>
     <global>
@@ -280,6 +280,7 @@
 
         <anymarket_integration_order_group>
             <anymarket_type_order_sync_field>1</anymarket_type_order_sync_field>
+            <anymarket_custom_invoice_field><![CDATA[<ci>Chave de acesso:<:ci>999999999999999<cf>;<:cf><br><ni>Nota Fiscal:<:ni>99999<nf>;<:nf><br><di>Data da Nota:<:di>00/00/0000 00:00:00<df>;<:df>]]></anymarket_custom_invoice_field>
         </anymarket_integration_order_group>
 
         <anymarket_general_group>
@@ -338,6 +339,10 @@
                 <schedule><cron_expr>*/15 * * * *</cron_expr></schedule>  <!-- 15 min -->
                 <run><model>db1_anymarket/cron::executeQueue</model></run>
             </db1_anymarket_execqueue>
+            <db1_anymarket_execorderwitherror>
+                <schedule><cron_expr>*/5 * * * *</cron_expr></schedule>  <!-- 5 min -->
+                <run><model>db1_anymarket/cron::sincOrdersWithErrors</model></run>
+            </db1_anymarket_execorderwitherror>
         </jobs>
     </crontab>
 <!-- CRON -->

@@ -21,17 +21,13 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                 $imgSize = filesize($g_image['path']);
                 $processImage = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_transform_process_image_field', $storeID);
                 if ($processImage == 0) {
-                    if (($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000)) {
-                        if ($exportImage == 0) {
-                            array_push($arrProd, 'Image_a (' . $g_image['url'] . ' - Sku: ' . $product->getSku() . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize . ')');
-                        } else {
-                            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                            $anymarketlog->setLogDesc('Error on export image - ' . $g_image['url']);
-                            $anymarketlog->setLogId($product->getSku());
-                            $anymarketlog->setStatus("1");
-                            $anymarketlog->setStores(array($storeID));
-                            $anymarketlog->save();
-                        }
+                    if ($exportImage == 0 && ($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000)){
+                        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                        $anymarketlog->setLogDesc('Error on export image - ' . $g_image['url'] . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize );
+                        $anymarketlog->setLogId($product->getSku());
+                        $anymarketlog->setStatus("1");
+                        $anymarketlog->setStores(array($storeID));
+                        $anymarketlog->save();
                     } else {
                         $urlImageImport = $g_image['url'];
                         $defaultImage = $product->getImage();
@@ -211,17 +207,13 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                         $infoImg = getimagesize($urlImage);
                         $imgSize = filesize($imgProdMagento->getData('path'));
 
-                        if (($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000)) {
-                            if ($exportImage == 0) {
-                                array_push($arrProd, 'Image_c (' . $urlImage . ' - Sku: ' . $product->getSku() . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize . ')');
-                            } else {
-                                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                                $anymarketlog->setLogDesc('Error on export image - ' . $urlImage);
-                                $anymarketlog->setLogId($product->getSku());
-                                $anymarketlog->setStatus("1");
-                                $anymarketlog->setStores(array($storeID));
-                                $anymarketlog->save();
-                            }
+                        if ($exportImage == 0 && ($infoImg[0] != "") && ((float)$infoImg[0] < 350 || (float)$infoImg[1] < 350 || $imgSize > 4100000)) {
+                            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                            $anymarketlog->setLogDesc('Error on export image - ' . $urlImage . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize );
+                            $anymarketlog->setLogId($product->getSku());
+                            $anymarketlog->setStatus("1");
+                            $anymarketlog->setStores(array($storeID));
+                            $anymarketlog->save();
                         } else {
                             $imgProdMagentoURL = $imgProdMagento->getData('url');
                             if ($transformToHttp != 0) {

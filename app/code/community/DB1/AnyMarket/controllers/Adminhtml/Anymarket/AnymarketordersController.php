@@ -144,7 +144,7 @@ class DB1_AnyMarket_Adminhtml_Anymarket_AnymarketordersController extends DB1_An
                 }
 
                 if($anymarketorders->getNmoIdAnymarket() != '') {
-                    Mage::helper('db1_anymarket/queue')->addQueue($storeID, $anymarketorders->getNmoIdAnymarket(), 'IMP', 'ORDER');
+                    Mage::helper('db1_anymarket/queue')->addQueue($storeID, $anymarketorders->getNmoIdSeqAnymarket(), 'IMP', 'ORDER');
                 }
             }
             Mage::getSingleton('adminhtml/session')->addSuccess(

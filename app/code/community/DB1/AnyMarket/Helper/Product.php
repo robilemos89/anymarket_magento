@@ -1525,7 +1525,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                         "idProduct" => $IDProdTrans,
                                         "idInClient" => isset($transmission->sku->idInClient) ? $transmission->sku->idInClient : $transmission->sku->partnerId,
                                         "price" => $transmission->sku->price,
-                                        "stockAmount" => $transmission->sku->amount,
+                                        "specialPrice" => ($transmission->sku->price != $transmission->sku->discountPrice) ? $transmission->sku->discountPrice : null,
+                                        "stockAmount"  => $transmission->sku->amount,
                                         "ean" => isset($transmission->sku->ean) ? $transmission->sku->ean : null,
                                         "variations" => $arrVarSku
                                     )
@@ -1549,6 +1550,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                 "idProduct" => $IDProdTrans,
                                 "idInClient" => isset($transmission->sku->idInClient) ? $transmission->sku->idInClient : $transmission->sku->partnerId,
                                 "price" => $transmission->sku->price,
+                                "specialPrice" => ($transmission->sku->price != $transmission->sku->discountPrice) ? $transmission->sku->discountPrice : null,
                                 "stockAmount" => $transmission->sku->amount,
                                 "ean" => isset($transmission->sku->ean) ? $transmission->sku->ean : null,
                                 "variations" => $arrVarSku
@@ -1763,6 +1765,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             Mage::app()->getCacheInstance()->cleanType('config');
         }
 
+        $specialToDate = date('Y-m-dTH:i:sZ', strtotime('+5 years'));
+        $specialFromDate = date('Y-m-dTH:i:sZ', strtotime('-1 years'));
+
         $brand =    Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_brand_field', $storeID);
         $nbm   =    Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_nbm_field', $storeID);
         $model =    Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_model_field', $storeID);
@@ -1830,6 +1835,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             'description' => $sku->title,
                             'short_description' => $sku->title,
                             $priceField => $sku->price,
+                            'special_price' => $sku->specialPrice,
+                            'special_to_date'   => $sku->specialPrice != null ? $specialToDate   : null,
+                            'special_from_date' => $sku->specialPrice != null ? $specialFromDate : null,
                             'created_at' => strtotime('now'),
                             'updated_at' => strtotime('now'),
                             'id_anymarket' => $sku->idProduct,
@@ -1894,6 +1902,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $product->setData('weight', $MassUnit == 1 ? $ProdsJSON->weight*1000 : $ProdsJSON->weight);
 
                         $product->setData($priceField, $sku->price);
+                        $product->setData('special_price', $sku->specialPrice);
+                        $product->setData('special_to_date', $sku->specialPrice != null ? $specialToDate : null);
+                        $product->setData('special_from_date', $sku->specialPrice != null ? $specialFromDate : null);
                         $product->setData($brand, $this->procAttrConfig($brand, $ProdsJSON->brand, 0));
                         $product->setData($model, $this->procAttrConfig($model, $ProdsJSON->model, 0));
                         $product->setData($video_url, $this->procAttrConfig($video_url, $ProdsJSON->videoURL, 0));
@@ -2032,6 +2043,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     'sku' => $IDSkuJsonProd,
                     'name' => $skuProd->title,
                     $priceField => $skuProd->price,
+                    'special_price' => $skuProd->specialPrice,
+                    'special_to_date'   => $skuProd->specialPrice != null ? $specialToDate   : null,
+                    'special_from_date' => $skuProd->specialPrice != null ? $specialFromDate : null,
                     'created_at' => strtotime('now'),
                     'updated_at' => strtotime('now'),
                     'id_anymarket' => $ProdsJSON->id,
@@ -2118,6 +2132,9 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 }
 
                 $product->setData($priceField, $skuProd->price);
+                $product->setData('special_price', $skuProd->specialPrice);
+                $product->setData('special_to_date',   $skuProd->specialPrice != null ? $specialToDate   : null);
+                $product->setData('special_from_date', $skuProd->specialPrice != null ? $specialFromDate : null);
 
                 if( $typeSincOrder == 0 ) {
                     $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
