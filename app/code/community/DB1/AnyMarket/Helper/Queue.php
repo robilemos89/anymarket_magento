@@ -184,15 +184,34 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
         foreach ($allStores as $store) {
             $storeID = $store['store_id'];
             $cronEnabled = Mage::getStoreConfig('anymarket_section/anymarket_cron_group/anymarket_order_field', $storeID);
-            $orderSync = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
 
-            if( $cronEnabled == '1' && $orderSync == '1' ) {
+            if( $cronEnabled == '1' ) {
                 $ordersError = Mage::getModel('db1_anymarket/anymarketorders')
                     ->getCollection()
                     ->addFilter('nmo_status_int', 'ERROR 01');
 
                 foreach ($ordersError as $order) {
                     Mage::helper('db1_anymarket/queue')->addQueue($storeID, $order->getData('nmo_id_seq_anymarket'), 'IMP', 'ORDER');
+                }
+            }
+        }
+    }
+
+    /**
+     * process Orders with erros 02 By CRON
+     */
+    public function processOrdersWithError02(){
+        $allStores = Mage::helper('db1_anymarket')->getAllStores();
+        foreach ($allStores as $store) {
+            $storeID = $store['store_id'];
+            $cronEnabled = Mage::getStoreConfig('anymarket_section/anymarket_cron_group/anymarket_order_field', $storeID);
+            if( $cronEnabled == '1' ) {
+                $ordersError = Mage::getModel('db1_anymarket/anymarketorders')
+                    ->getCollection()
+                    ->addFilter('nmo_status_int', 'ERROR 02');
+
+                foreach ($ordersError as $order) {
+                    Mage::helper('db1_anymarket/queue')->addQueue($storeID, $order->getNmoIdOrder(), 'EXP', 'ORDER');
                 }
             }
         }

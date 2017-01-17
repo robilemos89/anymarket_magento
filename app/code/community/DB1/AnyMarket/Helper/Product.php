@@ -625,6 +625,27 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         }
     }
 
+    public function getCustomsVariations($storeID, $product){
+        $customVariation = Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_custom_variation_field', $storeID);
+        $variationReturn = array();
+        if ($customVariation && $customVariation != 'a:0:{}') {
+            $customVariation = unserialize($customVariation);
+            if (is_array($customVariation)) {
+                foreach($customVariation as $customVariationRow) {
+                    $attrMG = $customVariationRow['attrMGVariation'];
+                    $vartAM = $customVariationRow['variationTypeAnymarket'];
+
+                    $attrValueMG = $this->procAttrConfig($attrMG, $product->getData($attrMG), 1);
+                    if( $attrValueMG != '' && $attrValueMG != null ){
+                        $variationReturn[$vartAM] = $attrValueMG;
+                    }
+
+                }
+            }
+        }
+
+        return $variationReturn;
+    }
 
     public function prepareForSendProduct($storeID, $product){
         $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
@@ -653,7 +674,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 }
                 Mage::getSingleton('core/session')->setImportProdsVariable('true');
 
-                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
+                $this->sendProductToAnyMarket($storeID, $product->getId());
             }
         }else{
             $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
@@ -677,6 +698,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         foreach ($productConfig->getTypeInstance()->getConfigurableAttributes() as $attribute) {
                             $value = $product->getAttributeText($attribute->getProductAttribute()->getAttributeCode());
                             $attributeOptions[$attribute->getLabel()] = $value;
+                        }
+
+                        $customVariation = $this->getCustomsVariations($storeID, $product);
+                        foreach ($customVariation as $index => $value) {
+                            $attributeOptions[$index] = $value;
                         }
 
                         foreach ($parentIds as $parentId) {
@@ -881,6 +907,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }
                     }
 
+                    $customVariation = $this->getCustomsVariations($storeID, $SimpleConfigProd);
+                    foreach ($customVariation as $index => $value) {
+                        $ArrVariationValues[$index] = $value;
+                    }
+
                     //obtem as imagens do produto (Obtem os simples e relaciona as variacoes)
                     $itemsIMGSimple = Mage::helper('db1_anymarket/image')->getImagesOfProduct($storeID, $SimpleConfigProd, $ArrVariationValues);
                     if( isset($itemsIMG) &&  count($itemsIMG) > 0 ){
@@ -1007,15 +1038,17 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         (!$this->checkArrayAttributes( $ArrAttributes, "description", $attribute->getFrontendLabel() ) )
                     ){
                         if($confID == ""){
-                            $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1);
-                            if( $valAttr != null || $valAttr != '' ){
-                                $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $valAttr);
-                                $contIndexAttr = $contIndexAttr+1;
+                            if(!$this->checkArrayAttributes($ArrAttributes, "name", $attribute->getFrontendLabel())) {
+                                $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData($attribute->getAttributeCode()), 1);
+                                if ($valAttr != null || $valAttr != '') {
+                                    $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $valAttr);
+                                    $contIndexAttr = $contIndexAttr + 1;
+                                }
                             }
                         }else{
                             foreach ($attributesConf as $attributeConf){
                                 if(!in_array($attribute->getAttributeCode(), $attributeConf)){
-                                    if(!$this->checkArrayAttributes($ArrAttributes, "description", $attribute->getFrontendLabel())){
+                                    if(!$this->checkArrayAttributes($ArrAttributes, "name", $attribute->getFrontendLabel())){
                                         $valAttr = $this->procAttrConfig($attribute->getAttributeCode(), $product->getData( $attribute->getAttributeCode() ), 1);
                                         if( $valAttr != null || $valAttr != '' ){
                                             $ArrAttributes[] = array("index" => $contIndexAttr, "name" => $attribute->getFrontendLabel(), "value" => $valAttr);

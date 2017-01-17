@@ -1,0 +1,5 @@
+Apenas utilize esse metodo caso tenha ocorrido algum erro na instalação convencional e nao instalação via Magento Connect.
+
+
+1 - Execute no banco de dados o conteudo do arquivo: anymarket_install.sql
+2 - Copie o arquivo anymarket_install.php para a raiz do seu magento e execute.
