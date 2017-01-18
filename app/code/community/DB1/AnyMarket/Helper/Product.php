@@ -1137,7 +1137,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $SaveLog = $returnProd['return'];
                         $IDinAnymarket = json_encode($SaveLog->id);
 
-                        if($IDinAnymarket != '0'){
+                        if($IDinAnymarket != '0' && $IDinAnymarket != ''){
                             $productForSave = Mage::getModel('catalog/product')->setStoreId($storeID)->load($product->getId());
                             $productForSave->setIdAnymarket($IDinAnymarket);
                             $productForSave->save();
@@ -1154,7 +1154,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                     if ($productC->getIntegraAnymarket() != '1') {
                                         $productC->setIntegraAnymarket('1');
                                     }
-                                    if ($IDinAnymarket != '0') {
+                                    if ($IDinAnymarket != '0' && $IDinAnymarket != '') {
                                         $productC->setIdAnymarket($IDinAnymarket);
                                     }
                                     $productC->save();
