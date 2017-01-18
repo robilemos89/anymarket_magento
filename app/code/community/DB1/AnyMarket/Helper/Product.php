@@ -2366,93 +2366,91 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             if( $product->getData('integra_anymarket') == 1 ){
                 $anymarketproductsUpdt =  Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)->load($product->getId(), 'nmp_id');
                 if( ($anymarketproductsUpdt->getData('nmp_status_int') != 'Não integrado (Magento)') ){
-                    if($product->getData('id_anymarket') != ""){
-                        $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
-                        $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
-                        $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
+                    $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
+                    $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
+                    $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
 
-                        $headers = array(
-                            "Content-type: application/json",
-                            "Accept: */*",
-                            "gumgaToken: ".$TOKEN
+                    $headers = array(
+                        "Content-type: application/json",
+                        "Accept: */*",
+                        "gumgaToken: ".$TOKEN
+                    );
+
+                    //TRATAMENTO PARA BUNDLE
+                    $bundles =  $this->findBundledProductsWithThisChildProduct($IDProd);
+                    foreach($bundles as $prodBund) {
+                        $this->updatePriceStockAnyMarket($storeID, $prodBund->getId(), null, null);
+                    }
+
+                    $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
+                    $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
+
+                    if($product->getTypeID() == "bundle") {
+                        $stockPriceBundle = $this->getStockPriceOfBundle($product);
+                        //OBTEM O STOCK DO ITEM BUNDLE
+                        if( $typeSincOrder == 0 ){
+                            $QtdStock = null;
+                        }else{
+                            $QtdStock = $stockPriceBundle["stock"];
+                        }
+
+                        if( $typeSincProd == 0 ){
+                            $Price = $stockPriceBundle["price"];
+                        }else{
+                            $Price = null;
+                        }
+
+                        if($product->getPriceType() == 0 && $Price == null ) {
+                            $priceModel = $product->getPriceModel();
+                            $PricesBundle = $priceModel->getTotalPrices($product, null, true, false);
+                            $Price = reset($PricesBundle);
+                        }
+
+                    }else{
+                        if( $typeSincProd == 0 ){
+                            if($filter == 'final_price'){
+                                $Price = $product->getFinalPrice();
+                            }else{
+                                $Price = $product->getData($filter);
+                            }
+                        }else{
+                            $Price = null;
+                        }
+
+                        if( $typeSincOrder == 0 ){
+                            $QtdStock = null;
+                        }elseif( !is_numeric ( $QtdStock ) ){
+                            $QtdStock = null;
+                        }
+                    }
+
+                    if( ($QtdStock != null) || ($Price != null) ){
+                        $params = array(
+                            "partnerId" => $product->getSku(),
+                            "quantity" => $QtdStock,
+                            "cost" => $Price
                         );
 
-                        //TRATAMENTO PARA BUNDLE
-                        $bundles =  $this->findBundledProductsWithThisChildProduct($IDProd);
-                        foreach($bundles as $prodBund) {
-                            $this->updatePriceStockAnyMarket($storeID, $prodBund->getId(), null, null);
+                        $returnProd = $this->CallAPICurl("PUT", $HOST."/v2/stocks", $headers, array($params));
+                        if($returnProd['return'] == ''){
+                            $returnProd['return'] = Mage::helper('db1_anymarket')->__('Update Stock and Price');
+                            $returnProd['error'] = '0';
+                            $returnProd['json'] = json_encode($params);
                         }
 
-                        $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
-                        $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
-
-                        if($product->getTypeID() == "bundle") {
-                            $stockPriceBundle = $this->getStockPriceOfBundle($product);
-                            //OBTEM O STOCK DO ITEM BUNDLE
-                            if( $typeSincOrder == 0 ){
-                                $QtdStock = null;
-                            }else{
-                                $QtdStock = $stockPriceBundle["stock"];
-                            }
-
-                            if( $typeSincProd == 0 ){
-                                $Price = $stockPriceBundle["price"];
-                            }else{
-                                $Price = null;
-                            }
-
-                            if($product->getPriceType() == 0 && $Price == null ) {
-                                $priceModel = $product->getPriceModel();
-                                $PricesBundle = $priceModel->getTotalPrices($product, null, true, false);
-                                $Price = reset($PricesBundle);
-                            }
-
+                        if( $returnProd['error'] == '1' ){
+                            $this->saveLogsProds($storeID, "0", $returnProd, $product);
                         }else{
-                            if( $typeSincProd == 0 ){
-                                if($filter == 'final_price'){
-                                    $Price = $product->getFinalPrice();
-                                }else{
-                                    $Price = $product->getData($filter);
-                                }
-                            }else{
-                                $Price = null;
-                            }
-
-                            if( $typeSincOrder == 0 ){
-                                $QtdStock = null;
-                            }elseif( !is_numeric ( $QtdStock ) ){
-                                $QtdStock = null;
-                            }
+                            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                            $anymarketlog->setLogDesc(  Mage::helper('db1_anymarket')->__('Update stock and price.') );
+                            $anymarketlog->setStatus("0");
+                            $anymarketlog->setLogId( $product->getId() );
+                            $anymarketlog->setLogJson( json_encode($params) );
+                            $anymarketlog->setStores(array($storeID));
+                            $anymarketlog->save();
                         }
-
-                        if( ($QtdStock != null) || ($Price != null) ){
-                            $params = array(
-                                "partnerId" => $product->getSku(),
-                                "quantity" => $QtdStock,
-                                "cost" => $Price
-                            );
-
-                            $returnProd = $this->CallAPICurl("PUT", $HOST."/v2/stocks", $headers, array($params));
-                            if($returnProd['return'] == ''){
-                                $returnProd['return'] = Mage::helper('db1_anymarket')->__('Update Stock and Price');
-                                $returnProd['error'] = '0';
-                                $returnProd['json'] = json_encode($params);
-                            }
-
-                            if( $returnProd['error'] == '1' ){
-                                $this->saveLogsProds($storeID, "0", $returnProd, $product);
-                            }else{
-                                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                                $anymarketlog->setLogDesc(  Mage::helper('db1_anymarket')->__('Update stock and price.') );
-                                $anymarketlog->setStatus("0");
-                                $anymarketlog->setLogId( $product->getId() );
-                                $anymarketlog->setLogJson( json_encode($params) );
-                                $anymarketlog->setStores(array($storeID));
-                                $anymarketlog->save();
-                            }
-                        }
-
                     }
+
                 }
             }else{
                 $bundleModel = Mage::getResourceSingleton('bundle/selection');
