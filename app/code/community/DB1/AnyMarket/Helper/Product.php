@@ -784,45 +784,47 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $calculated_price =   Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_calculated_price_field', $storeID);
 
         $arrProd = array();
-        // verifica categoria null ou em branco
-        $categProd = $product->getData('categoria_anymarket');
-        if($categProd == null || $categProd == ''){
-            array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Category') );
-        }
-
-        // verifica o Price Factor (Markup)
-        $varPriceFactor = $this->procAttrConfig($price_factor, $product->getData( $price_factor ), 1);
-        if((string)(float)$varPriceFactor == $varPriceFactor) {
-            $varPriceFactor = (float)$varPriceFactor;
-            if($varPriceFactor > 99){
-                array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Price Factor(Limit 99)'));
+        if($product->getData('exp_sep_simp_prod') != 1) {
+            // verifica categoria null ou em branco
+            $categProd = $product->getData('categoria_anymarket');
+            if ($categProd == null || $categProd == '') {
+                array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Category'));
             }
-        }else{
-            array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Price Factor(Only Number)') );
-        }
 
-        // verifica Origin null ou em branco
-        $originData = $this->procAttrConfig($nbm_origin, $product->getData( $nbm_origin ), 1);
-        if($originData == null || $originData == ''){
-            array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Origin') );
-        }
+            // verifica o Price Factor (Markup)
+            $varPriceFactor = $this->procAttrConfig($price_factor, $product->getData($price_factor), 1);
+            if ((string)(float)$varPriceFactor == $varPriceFactor) {
+                $varPriceFactor = (float)$varPriceFactor;
+                if ($varPriceFactor > 99) {
+                    array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Price Factor(Limit 99)'));
+                }
+            } else {
+                array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Price Factor(Only Number)'));
+            }
 
-        //trata para nao enviar novamente solicitacao quando o erro for o mesmo
-        if( ($product->getData('id_anymarket') == '') || ($product->getData('id_anymarket') == '0') ){
-            $prodErrorCtrl = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)
-                ->load($product->getId(), 'nmp_id');
-            if( $prodErrorCtrl->getData('nmp_id') != null ){
-                $descError = $prodErrorCtrl->getData('nmp_desc_error');
+            // verifica Origin null ou em branco
+            $originData = $this->procAttrConfig($nbm_origin, $product->getData($nbm_origin), 1);
+            if ($originData == null || $originData == '') {
+                array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Origin'));
+            }
 
-                // Trata para nao ficar disparando em cima da Duplicadade de SKU
-                $mesgDuplSku = strrpos($descError, "Duplicidade de SKU:");
-                if ($mesgDuplSku !== false) {
-                    $bindProds  = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_bind_product_field', $storeID);
-                    if( $bindProds == '0' ) {
-                        $oldSkuErr = $this->getBetweenCaract($descError, '"', '"');
+            //trata para nao enviar novamente solicitacao quando o erro for o mesmo
+            if (($product->getData('id_anymarket') == '') || ($product->getData('id_anymarket') == '0')) {
+                $prodErrorCtrl = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)
+                    ->load($product->getId(), 'nmp_id');
+                if ($prodErrorCtrl->getData('nmp_id') != null) {
+                    $descError = $prodErrorCtrl->getData('nmp_desc_error');
 
-                        if ($oldSkuErr == $product->getSku()) {
-                            array_push($arrProd, 'Duplicidade de SKU: ' . Mage::helper('db1_anymarket')->__('Already existing SKU in anymarket') . ' "' . $oldSkuErr . '".');
+                    // Trata para nao ficar disparando em cima da Duplicadade de SKU
+                    $mesgDuplSku = strrpos($descError, "Duplicidade de SKU:");
+                    if ($mesgDuplSku !== false) {
+                        $bindProds = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_bind_product_field', $storeID);
+                        if ($bindProds == '0') {
+                            $oldSkuErr = $this->getBetweenCaract($descError, '"', '"');
+
+                            if ($oldSkuErr == $product->getSku()) {
+                                array_push($arrProd, 'Duplicidade de SKU: ' . Mage::helper('db1_anymarket')->__('Already existing SKU in anymarket') . ' "' . $oldSkuErr . '".');
+                            }
                         }
                     }
                 }
@@ -870,6 +872,8 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     $exportSimpleSep = $productConfig->getData('exp_sep_simp_prod');
                     if($exportSimpleSep != 1){
                         $product = $productConfig;
+                    }else{
+                        $confID = "";
                     }
 
                 }
