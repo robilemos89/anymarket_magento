@@ -368,6 +368,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $IDAnyMarket = $OrderJSON->marketPlaceNumber;
             $ctrlOrder = $this->getOrderAnymarketFromHistoryComment( $IDAnyMarket );
             if( $ctrlOrder != null ) {
+                $IDAnyMarket = $OrderJSON->marketPlaceId;
                 $this->saveLogOrder('nmo_id_anymarket', $IDAnyMarket, 'Integrado', '', $idSeqAnyMarket, $IDAnyMarket, $ctrlOrder->getIncrementId(), $storeID);
 
                 $statsConfig = $this->getStatusAnyMarketToMageOrderConfig($storeID, $OrderJSON->status);
