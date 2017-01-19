@@ -742,6 +742,21 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
     }
 
     /**
+     * send products to AnyMarket
+     *
+     * @param $storeID
+     * @param $arrIdProduct
+     * @return bool
+     */
+    public function sendProductSepAnymarket($storeID, $arrIdProduct){
+        foreach ($arrIdProduct as $idProduct) {
+            $this->sendProductToAnyMarket($storeID, $idProduct);
+        }
+
+        return false;
+    }
+
+    /**
      * send product to AnyMarket
      *
      * @param $idProduct
@@ -851,7 +866,12 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $Weight = ($product->getTypeID() == "bundle" && $product->getPriceType() == 0 ) ? $this->getWeightOfBundle($storeID, $product) : $product->getWeight();
                 if (isset($parentIds[0])) {
                     $confID = $parentIds[0];
-                    $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($confID);
+                    $productConfig = Mage::getModel('catalog/product')->setStoreId($storeID)->load($confID);
+                    $exportSimpleSep = $productConfig->getData('exp_sep_simp_prod');
+                    if($exportSimpleSep != 1){
+                        $product = $productConfig;
+                    }
+
                 }
 
                 //obtem as imagens do produto(Simples)
@@ -876,8 +896,16 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
                 $attributesConf = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
 
+
+                $exportSimpleSep = $product->getData('exp_sep_simp_prod');
+                $arrSepProd = array();
                 foreach($childProducts as $child) {
                     $SimpleConfigProd = Mage::getModel('catalog/product')->setStoreId($storeID)->load($child->getId());
+
+                    if( $exportSimpleSep == 1 ){
+                        array_push( $arrSepProd, $child->getId());
+                        continue;
+                    }
 
                     if ($Weight == "") {
                         $Weight = $SimpleConfigProd->getWeight();
@@ -959,6 +987,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         );
                     }
 
+                }
+
+                if( count($arrSepProd) > 0 ){
+                    return $this->sendProductSepAnymarket($storeID, $arrSepProd);
                 }
 
             }
