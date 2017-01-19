@@ -352,8 +352,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $OrderIDMage = '';
 
             if( ($anymarketordersSpec->getData('nmo_id_anymarket') != null) &&
-                ($anymarketordersSpec->getData('nmo_status_int') == "Não integrado (AnyMarket)") &&
-                ($anymarketordersSpec->getData('nmo_status_int') == "ERROR 01") ) {
+                ($anymarketordersSpec->getData('nmo_status_int') != "Não integrado (AnyMarket)") &&
+                ($anymarketordersSpec->getData('nmo_status_int') != "ERROR 01") ) {
 
                 $statsConfig = $this->getStatusAnyMarketToMageOrderConfig($storeID, $OrderJSON->status);
                 $statusMage = $statsConfig["status"];
