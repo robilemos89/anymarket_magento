@@ -180,12 +180,27 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
             $arrAdd = array();
             $arrImgs = array();
 
+            //OBTEM A GALERIA SEM A STORE
             $processImage = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_transform_process_image_field', $storeID);
             $imgsProdMagento = $product->getMediaGalleryImages();
 
+            //CASO NAO ACHE, CARREGA PASSANDO A STORE
             if (count($imgsProdMagento) <= 0) {
                 $productIMG = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $product->getId() );
                 $imgsProdMagento = $productIMG->getMediaGalleryImages();
+            }
+
+            //CASO AINDA NAO ENCONTRAR E ELE TIVER UM PAI, CARREGA DO PAI
+            if (count($imgsProdMagento) <= 0) {
+                $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
+                if (isset($parentIds[0])) {
+                    $confID = $parentIds[0];
+                    $productConfig = Mage::getModel('catalog/product')->setStoreId($storeID)->load($confID);
+                    $exportSimpleSep = $productConfig->getData('exp_sep_simp_prod');
+                    if($exportSimpleSep == 1){
+                        $imgsProdMagento = $productConfig->getMediaGalleryImages();
+                    }
+                }
             }
 
             if (count($imgsProdMagento) > 0) {

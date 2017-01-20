@@ -107,6 +107,29 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         return $fieldDesc;
     }
 
+    public function getIdBySku($storeID, $sku)
+    {
+        $HOST = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
+        $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
+
+        $headers = array(
+            "Content-type: application/json",
+            "Cache-Control: no-cache",
+            "gumgaToken: " . $TOKEN
+        );
+
+        $sku = urlencode($sku);
+        $prodProf = $this->CallAPICurl("GET", $HOST . "/v2/products?sku=" . $sku, $headers, null);
+        if($prodProf['error'] != '1'){
+            $prodProf = json_decode(  json_encode($prodProf['return']), true);
+            if (isset($prodProf['content'])) {
+                $firstItem = array_shift($prodProf['content']);
+                return $firstItem['id'];
+            }
+        }
+        return null;
+    }
+
     public function saveCallbackReceiver($sku){
         $cache = Mage::app()->getCache();
         $cache->save("sendToAnymarket", "callback_product_executed_".$sku, array($sku."_cached"), 60);
@@ -707,15 +730,18 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                         foreach ($parentIds as $parentId) {
                             $arrSku = array(
-                                "variations" => $attributeOptions,
                                 "price" => $stkPrice,
                                 "amount" => $stockQty,
                                 "ean" => $product->getData($ean),
                                 "partnerId" => $product->getSku(),
                                 "title" => $product->getName(),
                                 "idProduct" => $product->getData('id_anymarket'),
-                                "internalIdProduct" => $product->getId(),
+                                "internalIdProduct" => $product->getId()
                             );
+
+                            if( $productConfig->getData('exp_sep_simp_prod') != 1 ) {
+                                $arrSku["variations"] = $attributeOptions;
+                            }
 
                             Mage::helper('db1_anymarket/product')->sendImageSkuToAnyMarket($storeID, $product, array($arrSku));
                         }
