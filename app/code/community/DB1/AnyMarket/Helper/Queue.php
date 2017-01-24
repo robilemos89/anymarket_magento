@@ -3,6 +3,15 @@
 class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
 {
 
+    private function addInLog($storeID, $logMessage, $IdItem){
+        $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+        $anymarketlog->setLogDesc( $logMessage );
+        $anymarketlog->setLogId($IdItem);
+        $anymarketlog->setStatus("0");
+        $anymarketlog->setStores(array($storeID));
+        $anymarketlog->save();
+    }
+
     /**
      * add item in current queue
      *
@@ -20,6 +29,8 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
             $queueItem->setNmqTable($tableItem);
             $queueItem->setStores(array($storeID));
             $queueItem->save();
+
+            $this->addInLog($storeID, Mage::helper('db1_anymarket')->__('Added item in queue: ').$IdItem.", ".$typeItem.", ".$tableItem, $IdItem);
         }
     }
 
@@ -56,6 +67,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
             if($cronEnabled == '1' || $typeExec == "FORCE") {
                 $typeSincProd = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_prod_sync_field', $storeID);
 
+                $this->addInLog($storeID, Mage::helper('db1_anymarket')->__('Processing item: ').$IdItemQueue, $IdItemQueue);
                 $typImp = $item['nmq_type'];
                 if ($item['nmq_table'] == 'ORDER') {
                     try {
@@ -154,6 +166,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                     }
 
                 }
+                $this->addInLog($storeID, Mage::helper('db1_anymarket')->__('Item processed: ').$IdItemQueue, $IdItemQueue);
                 $this->removeQueue($item['entity_id']);
             }
         }
