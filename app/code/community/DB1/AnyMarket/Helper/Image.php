@@ -4,6 +4,21 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
 {
 
     /**
+     * //GET LAST ITEM IN CTRL TABLE
+     * @param $key
+     * @param $value
+     *
+     * @return Object
+     */
+    private function getLastCtrlReg($key, $value){
+        $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')
+            ->getCollection()
+            ->addFilter($key, $value);
+
+        return Mage::getModel('db1_anymarket/anymarketimage')->load( $loadedImagCtrl->getLastItem()->getData('entity_id'), 'entity_id');
+    }
+
+    /**
      * //obtem as imagens do produto(Config ou Simples)
      * @param $storeID
      * @param $product
@@ -137,7 +152,7 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
             $anymarketlogDel->save();
 
 
-            $anymarketCtrlImg = Mage::getModel('db1_anymarket/anymarketimage')->load($imgRemove, 'id_image');
+            $anymarketCtrlImg = $this->getLastCtrlReg('id_image', $imgRemove);
             if( $anymarketCtrlImg->getData('value_id') != "" || $anymarketCtrlImg->getData('value_id') != null ) {
                 $anymarketCtrlImg->delete();
             }
@@ -191,7 +206,7 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
             if (count($imgsProdMagento) > 0) {
                 if( $processImage == 0 ) {
                     foreach ($imgsProdMagento as $imgProdMagento) {
-                        $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')->load( $imgProdMagento->getData('value_id'), 'value_id');
+                        $loadedImagCtrl = $this->getLastCtrlReg('value_id', $imgProdMagento->getData('value_id'));
 
                         if( $loadedImagCtrl->getData('value_id') != "" && $loadedImagCtrl->getData('value_id') != null ) {
                             $imgValDeleted = $this->CallAPICurl("GET", $HOST."/v2/products/".$product->getData('id_anymarket')."/images/".$loadedImagCtrl->getData('id_image'), $headers, null);
@@ -226,7 +241,8 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                     $with = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_width_image_field', $storeID);
                     $height = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_height_image_field', $storeID);
                     foreach ($imgsProdMagento as $imgProdMagento) {
-                        $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')->load($imgProdMagento->getData('value_id'), 'value_id');
+
+                        $loadedImagCtrl = $this->getLastCtrlReg('value_id', $imgProdMagento->getData('value_id'));
 
                         if( $loadedImagCtrl->getData('value_id') != "" && $loadedImagCtrl->getData('value_id') != null ) {
                             $imgValDeleted = $this->CallAPICurl("GET", $HOST."/v2/products/".$product->getData('id_anymarket')."/images/".$loadedImagCtrl->getData('id_image'), $headers, null);
@@ -264,7 +280,7 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
 
                 if( $exportImages ) {
                     $imgRemove = $imgProdAnymarket->id;
-                    $loadedImagCtrl = Mage::getModel('db1_anymarket/anymarketimage')->load($imgRemove, 'id_image');
+                    $loadedImagCtrl = $this->getLastCtrlReg('id_image', $imgRemove);
 
                     if( $loadedImagCtrl->getData('value_id') != "" || $loadedImagCtrl->getData('value_id') != null ) {
                         $deleteImage = true;
