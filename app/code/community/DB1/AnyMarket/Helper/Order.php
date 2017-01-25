@@ -1285,7 +1285,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      */
     public function sendOrderToAnyMarket($storeID, $Order){
         $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
-        if($ConfigOrder == 0){
+        if($ConfigOrder == 0 && $Order->getIncrementId() != null){
             $idOrder = $Order->getIncrementId();
             $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
             $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
