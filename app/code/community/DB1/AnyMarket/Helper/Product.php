@@ -810,7 +810,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $calculated_price =   Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_calculated_price_field', $storeID);
 
         $arrProd = array();
-        if($product->getData('exp_sep_simp_prod') != 1) {
+        if($product->getData('exp_sep_simp_prod') != 1 || $product->getTypeID() == "simple" ) {
             // verifica categoria null ou em branco
             $categProd = $product->getData('categoria_anymarket');
             if ($categProd == null || $categProd == '') {
