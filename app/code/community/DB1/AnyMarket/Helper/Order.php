@@ -1282,8 +1282,16 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      *
      * @param $storeID
      * @param $Order
+     *
+     * @return boolean
      */
     public function sendOrderToAnyMarket($storeID, $Order){
+        $anymarketorderupdt = Mage::getModel('db1_anymarket/anymarketorders')->load($Order->getIncrementId(), 'nmo_id_order');
+        $seqIdAnymarket = $anymarketorderupdt->getData('nmo_id_seq_anymarket');
+        if( $seqIdAnymarket != '' || $seqIdAnymarket != null ){
+            return false;
+        }
+
         $ConfigOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
         if($ConfigOrder == 0 && $Order->getIncrementId() != null){
             $idOrder = $Order->getIncrementId();
