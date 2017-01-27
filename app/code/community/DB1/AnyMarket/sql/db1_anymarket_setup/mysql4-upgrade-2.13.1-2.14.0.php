@@ -18,7 +18,7 @@ $config = array(
     'visible'  => true,
     'used_in_product_listing' => true,
     'apply_to' => 'bundle,grouped,configurable',
-    'note'     => 'Cadastrar somente os produtos associados como produto simples no Anymarket.',
+    'note'     => 'Cadastrar os produtos associados como produtos simples no Anymarket.',
     'user_defined' => 1,
     'global'   => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_GLOBAL
 );
