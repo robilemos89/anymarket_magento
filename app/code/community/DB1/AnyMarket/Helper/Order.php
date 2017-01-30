@@ -135,7 +135,6 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
         }
 
-
         $shippedDate   = ($shippedDate != "")   ? $this->formatDateTimeZone( str_replace("/", "-", $shippedDate ) )   : "";
         $estimatedDate = ($estimatedDate != "") ? $this->formatDateTimeZone( str_replace("/", "-", $estimatedDate ) ) : "";
         return array($estimatedDate, $shippedDate);
@@ -1241,6 +1240,14 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         if( isset( $params["tracking"] ) && $statuAM == "CONCLUDED" ){
             $deliveredDate = $params["tracking"];
             if( !isset($deliveredDate['deliveredDate']) ){
+                $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+                $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('Informação de Data de Entrega obrigatória nos comentários do pedido.') );
+                $anymarketlog->setLogId( $idOrder );
+                $anymarketlog->setLogJson('');
+                $anymarketlog->setStores(array($storeID));
+                $anymarketlog->setStatus("0");
+                $anymarketlog->save();
+
                 return false;
             }
         }
