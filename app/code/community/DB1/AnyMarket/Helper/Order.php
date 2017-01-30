@@ -883,7 +883,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     /**
      * get invoice order from custom model
      *
-     * @param $storeId
+     * @param $storeID
      * @param $comment
      * @return array
      */
@@ -910,14 +910,17 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $posStart = strpos($comment, $chaveSt);
             $commentTrat = substr($comment, $posStart, strlen($comment));
             $posEnd   = strpos($commentTrat, $chaveEn);
+            if ( $posStart !== false ) {
+                $posStartT = $posStart + strlen($chaveSt);
+                if(  $posEnd !== false ) {
+                    $posEndT = $posEnd - strlen($chaveSt);
+                    $returnArr['key'] = substr($comment, $posStartT, $posEndT);
 
-            if ( $posStart !== false && $posEnd !== false) {
-                $posStartT = $posStart+strlen($chaveSt);
-                $posEndT  = $posEnd-strlen($chaveSt);
-                $returnArr['key'] = substr($comment, $posStartT, $posEndT);
-
-                $posEnd += strlen($chaveEn);
-                $comment = str_replace( substr($comment, $posStart, $posEnd) ,"", $comment);
+                    $posEnd += strlen($chaveEn);
+                }else{
+                    $returnArr['key'] = substr($comment, $posStartT, strlen($comment));
+                }
+                $comment = str_replace(substr($comment, $posStart, $posEnd), "", $comment);
             }
         }
 
