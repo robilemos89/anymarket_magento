@@ -881,6 +881,35 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
     }
 
     /**
+     * get all info from invoice
+     *
+     * @param $start
+     * @param $end
+     * @param $comment
+     * @return string
+     */
+    public function procCommentInvoiceOrder($start, $end, $comment){
+        $vCtrlStart = '';
+        $vKey = '';
+        $bCtrlComment = false;
+        for ($i=0; $i < strlen($comment) ; $i++) {
+            if( $bCtrlComment ){
+                $vKey .= $comment[$i];
+                if (strpos($vKey, $end) !== false ) {
+                   return  str_replace($end, "", $vKey);
+                }
+            }else {
+                $vCtrlStart .= $comment[$i];
+                if (strpos($vCtrlStart, $start) !== false ) {
+                    $bCtrlComment = true;
+                }
+            }
+        }
+
+        return $vKey != '' ? $vKey : null;
+    }
+    
+    /**
      * get invoice order from custom model
      *
      * @param $storeID
@@ -889,6 +918,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      */
     public function getFromCustomInvoiceModel($storeID, $comment){
         $customModel = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_custom_invoice_field', $storeID);
+
         $comment = str_replace( array("<br>", "</br>", "<br/>", "<b>") , "", $comment);
 
         $returnArr = array();
@@ -907,20 +937,27 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $chaveSt = $arrKeyIniChave[0][1];
             $chaveEn = $arrKeyFimChave[0][1];
 
-            $posStart = strpos($comment, $chaveSt);
-            $commentTrat = substr($comment, $posStart, strlen($comment));
-            $posEnd   = strpos($commentTrat, $chaveEn);
-            if ( $posStart !== false ) {
-                $posStartT = $posStart + strlen($chaveSt);
-                if(  $posEnd !== false ) {
-                    $posEndT = $posEnd - strlen($chaveSt);
-                    $returnArr['key'] = substr($comment, $posStartT, $posEndT);
-
-                    $posEnd += strlen($chaveEn);
-                }else{
-                    $returnArr['key'] = substr($comment, $posStartT, strlen($comment));
+            if( $metCustomModel == '1' ) {
+                $rKey = $this->procCommentInvoiceOrder($chaveSt, $chaveEn, $comment);
+                if($rKey) {
+                    $returnArr['key'] = $rKey;
                 }
-                $comment = str_replace(substr($comment, $posStart, $posEnd), "", $comment);
+            }else {
+                $posStart = strpos($comment, $chaveSt);
+                $commentTrat = substr($comment, $posStart, strlen($comment));
+                $posEnd = strpos($commentTrat, $chaveEn);
+                if ($posStart !== false) {
+                    $posStartT = $posStart + strlen($chaveSt);
+                    if ($posEnd !== false) {
+                        $posEndT = $posEnd - strlen($chaveSt);
+                        $returnArr['key'] = substr($comment, $posStartT, $posEndT);
+
+                        $posEnd += strlen($chaveEn);
+                    } else {
+                        $returnArr['key'] = substr($comment, $posStartT, strlen($comment));
+                    }
+                    $comment = str_replace(substr($comment, $posStart, $posEnd), "", $comment);
+                }
             }
         }
 
@@ -928,17 +965,24 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $numSt = $arrKeyIniNum[0][1];
             $numEn = $arrKeyFimNum[0][1];
 
-            $posStart = strpos($comment, $numSt);
-            $commentTrat = substr($comment, $posStart, strlen($comment));
-            $posEnd   = strpos($commentTrat, $numEn);
+            if( $metCustomModel == '1' ) {
+                $rNum = $this->procCommentInvoiceOrder($numSt, $numEn, $comment);
+                if($rNum) {
+                    $returnArr['number'] = $rNum;
+                }
+            }else {
+                $posStart = strpos($comment, $numSt);
+                $commentTrat = substr($comment, $posStart, strlen($comment));
+                $posEnd = strpos($commentTrat, $numEn);
 
-            if ( $posStart !== false && $posEnd !== false) {
-                $posStartT = $posStart+strlen($numSt);
-                $posEndT   = $posEnd-strlen($numSt);
-                $returnArr['number'] = substr($comment, $posStartT, $posEndT);
+                if ($posStart !== false && $posEnd !== false) {
+                    $posStartT = $posStart + strlen($numSt);
+                    $posEndT = $posEnd - strlen($numSt);
+                    $returnArr['number'] = substr($comment, $posStartT, $posEndT);
 
-                $posEnd += strlen($numEn);
-                $comment = str_replace( substr($comment, $posStart, $posEnd) ,"", $comment);
+                    $posEnd += strlen($numEn);
+                    $comment = str_replace(substr($comment, $posStart, $posEnd), "", $comment);
+                }
             }
         }
 
@@ -953,10 +997,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                 $posStart += strlen($dateSt);
                 $posEnd   -= strlen($dateSt);
 
-                $date = substr($comment, $posStart, $posEnd);
-                $dateTmp = str_replace("/", "-", $date );
 
-                $returnArr['date'] = $this->formatDateTimeZone($dateTmp);
             }
         }
 

@@ -951,6 +951,16 @@
                             <show_in_store>1</show_in_store>
                         </anymarket_header_custom_invoice_field>
 
+                        <anymarket_capture_invoice_type_field>
+                            <label>Método de Captura</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>db1_anymarket/system_config_source_general_invoice_values</source_model>
+                            <sort_order>9</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </anymarket_capture_invoice_type_field>
+
                         <anymarket_custom_invoice_field translate="label comment">
                             <label>Model</label>
                             <frontend_type>textarea</frontend_type>
@@ -963,7 +973,7 @@
                                                 <span style="color: red;">&ltdi&gt <:di></span>: Inicio data emissão da nota <br>
                                                 <span style="color: red;">&ltdf&gt <:df></span>: Fim data emissão da nota
                                                 ]]></tooltip>
-                            <sort_order>9</sort_order>
+                            <sort_order>10</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
