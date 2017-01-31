@@ -918,6 +918,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
      */
     public function getFromCustomInvoiceModel($storeID, $comment){
         $customModel = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_custom_invoice_field', $storeID);
+        $metCustomModel = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_capture_invoice_type_field', $storeID);
 
         $comment = str_replace( array("<br>", "</br>", "<br/>", "<b>") , "", $comment);
 
@@ -989,15 +990,24 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         if( isset($arrKeyIniData[0]) && isset($arrKeyFimData[0]) ) {
             $dateSt = $arrKeyIniData[0][1];
             $dateEn = $arrKeyFimData[0][1];
+            if( $metCustomModel == '1' ) {
+                $rDate = $this->procCommentInvoiceOrder($dateSt, $dateEn, $comment);
+                if($rDate) {
+                    $returnArr['date'] = $rDate;
+                }
+            }else {
+                $posStart = strpos($comment, $dateSt);
+                $commentTrat = substr($comment, $posStart, strlen($comment));
+                $posEnd = strpos($commentTrat, $dateEn);
+                if ($posStart !== false && $posEnd !== false) {
+                    $posStart += strlen($dateSt);
+                    $posEnd -= strlen($dateSt);
 
-            $posStart = strpos($comment, $dateSt);
-            $commentTrat = substr($comment, $posStart, strlen($comment));
-            $posEnd   = strpos($commentTrat, $dateEn);
-            if ( $posStart !== false && $posEnd !== false) {
-                $posStart += strlen($dateSt);
-                $posEnd   -= strlen($dateSt);
+                    $date = substr($comment, $posStart, $posEnd);
+                    $dateTmp = str_replace("/", "-", $date);
 
-
+                    $returnArr['date'] = $this->formatDateTimeZone($dateTmp);
+                }
             }
         }
 
