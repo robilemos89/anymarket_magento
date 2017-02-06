@@ -47,13 +47,13 @@ class DB1_AnyMarket_Model_Observer {
         try{
             $ExportProdSession = Mage::getSingleton('core/session')->getImportProdsVariable();
             if( $ExportProdSession == 'false' ) {
-                return false;
+                return $this;
             }
 
             $QuickCreate = Mage::getSingleton('core/session')->getQuickCreateProdVariable();
             if($QuickCreate != null || $QuickCreate != "" || $QuickCreate == $productOld->getSku() ) {
                 Mage::getSingleton('core/session')->setQuickCreateProdVariable('');
-                return false;
+                return $this;
             }
 
             if( Mage::registry('prod_save_observer_executed_'.$productOld->getId()) ){
@@ -65,7 +65,7 @@ class DB1_AnyMarket_Model_Observer {
             $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load($productOld->getId());
             if( $this->asyncMode($storeID) && $product->getData('integra_anymarket') == 1 ) {
                 Mage::helper('db1_anymarket/queue')->addQueue($storeID, $product->getId(), 'EXP', 'PRODUCT');
-                return false;
+                return $this;
             }
 
             Mage::helper('db1_anymarket/product')->prepareForSendProduct($storeID, $product);

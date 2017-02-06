@@ -120,52 +120,65 @@ class DB1_AnyMarket_Helper_ProductGenerator extends DB1_AnyMarket_Helper_Data
      * @param $sku
      */
     private function importImages($product, $image, $sku){
+        try{
+            $image_url = $image['img'];
+            $image_url  = str_replace("https://", "http://", $image_url);
+            $image_type = substr(strrchr($image_url,"."),1);
+            $split =  explode("?", $image_type);
+            $image_type = $split[0];
+            $split =  explode("/", $image_type);
+            $image_type = $split[0];
 
-        $image_url = $image['img'];
-        $image_url  = str_replace("https://", "http://", $image_url);
-        $image_type = substr(strrchr($image_url,"."),1);
-        $split =  explode("?", $image_type);
-        $image_type = $split[0];
-        $split =  explode("/", $image_type);
-        $image_type = $split[0];
+            $image_url  = substr($image_url, 0,strpos($image_url, $image_type)+strlen($image_type));
 
-        $image_url  = substr($image_url, 0,strpos($image_url, $image_type)+strlen($image_type));
+            $imgName = basename($image_url);
+            $imgName = str_replace('.'.$image_type, "", $imgName);
+            $filename  = md5($imgName . $sku).'.'.$image_type;
 
-        $imgName = basename($image_url);
-        $imgName = str_replace('.'.$image_type, "", $imgName);
-        $filename  = md5($imgName . $sku).'.'.$image_type;
-
-        $dirPath = Mage::getBaseDir('media') . DS . 'import';
-        if (!file_exists($dirPath)) {
-            mkdir($dirPath, 0777, true);
-        }
-
-        $filepath   = $dirPath . DS . $filename;
-
-        $curl_handle = curl_init();
-        curl_setopt($curl_handle, CURLOPT_URL,$image_url);
-        curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
-        curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Cirkel');
-        $query = curl_exec($curl_handle);
-        curl_close($curl_handle);
-
-        file_put_contents($filepath, $query);
-
-        if (file_exists($filepath)) {
-            $attrIMG = array();
-
-            if( array_key_exists('main', $image) ){
-                if($image['main'] == true){
-                    $attrIMG = array('image', 'thumbnail', 'small_image');
-                }
+            $dirPath = Mage::getBaseDir('media') . DS . 'import';
+            if (!file_exists($dirPath)) {
+                mkdir($dirPath, 0777, true);
             }
 
-            Mage::app()->setCurrentStore(Mage::getModel('core/store')->load(Mage_Core_Model_App::ADMIN_STORE_ID));
-            $productMG = Mage::getModel('catalog/product')->loadByAttribute('sku', $product->getSku());
-            $productMG->addImageToMediaGallery( $filepath, $attrIMG, false, false);
-            $productMG->save();
-            Mage::app()->setCurrentStore( $this->getCurrentStoreView() );
+            $filepath   = $dirPath . DS . $filename;
+
+            $curl_handle = curl_init();
+            curl_setopt($curl_handle, CURLOPT_URL,$image_url);
+            curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 0);
+            curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Cirkel');
+            $query = curl_exec($curl_handle);
+            $err = curl_error($curl_handle);
+
+            if($err){
+                Mage::log('CURL ERROR ON CREATE IMAGE FILE '.$sku.' IMAGE '.$image_url, null, 'anymarket_dlog.log');
+                Mage::log($err, null, 'anymarket_dlog.log');
+            }
+
+            curl_close($curl_handle);
+
+            file_put_contents($filepath, $query);
+
+            if (file_exists($filepath)) {
+                $attrIMG = array();
+
+                if( array_key_exists('main', $image) ){
+                    if($image['main'] == true){
+                        $attrIMG = array('image', 'thumbnail', 'small_image');
+                    }
+                }
+
+                Mage::app()->setCurrentStore(Mage::getModel('core/store')->load(Mage_Core_Model_App::ADMIN_STORE_ID));
+                $productMG = Mage::getModel('catalog/product')->loadByAttribute('sku', $product->getSku());
+                $productMG->addImageToMediaGallery( $filepath, $attrIMG, false, false);
+                $productMG->save();
+                Mage::app()->setCurrentStore( $this->getCurrentStoreView() );
+            }else{
+                Mage::log('ERROR ON CREATE IMAGE FILE '.$sku.' IMAGE '.$image_url, null, 'anymarket_dlog.log');
+            }
+        } catch (Exception $e) {
+            Mage::log('TRY CATCH ERROR ON CREATE IMAGE FILE '.$sku.' IMAGE '.$image_url, null, 'anymarket_dlog.log');
+            Mage::log($e, null, 'anymarket_dlog.log');
         }
 
     }
