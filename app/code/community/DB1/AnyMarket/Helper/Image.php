@@ -30,6 +30,11 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
             $transformToHttp = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_transform_http_image_field', $storeID);
             $itemsIMG = array();
             $galleryData = $product->getMediaGalleryImages();
+
+            if($product->getStatus() != 1){
+                return null;
+            }
+
             $exportImage = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_export_image_field', $storeID);
             foreach ($galleryData as $g_image) {
                 $infoImg = getimagesize($g_image['url']);
