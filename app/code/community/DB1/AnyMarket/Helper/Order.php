@@ -1283,6 +1283,14 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
         if ($invoiceData['accessKey'] != '') {
             $params["invoice"] = $invoiceData;
         }else if($statuAM == "INVOICED"){
+            $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
+            $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('Informação de Nota Fiscal é obrigatória no pedido para Atualizar como Faturado.') );
+            $anymarketlog->setLogId( $idOrder );
+            $anymarketlog->setLogJson('');
+            $anymarketlog->setStores(array($storeID));
+            $anymarketlog->setStatus("0");
+            $anymarketlog->save();
+
             return false;
         }
 
@@ -1295,7 +1303,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
             $deliveredDate = $params["tracking"];
             if( !isset($deliveredDate['deliveredDate']) ){
                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
-                $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('Informação de Data de Entrega obrigatória nos comentários do pedido.') );
+                $anymarketlog->setLogDesc( Mage::helper('db1_anymarket')->__('Informação de Data de Entrega é obrigatória nos comentários do pedido.') );
                 $anymarketlog->setLogId( $idOrder );
                 $anymarketlog->setLogJson('');
                 $anymarketlog->setStores(array($storeID));
