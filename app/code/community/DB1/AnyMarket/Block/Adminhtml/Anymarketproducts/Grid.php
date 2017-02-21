@@ -228,12 +228,15 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid extends Mage_Adminhtm
      */
     public function getRowUrl($row)
     {
+        /*
         $_pullProduct = Mage::getModel('catalog/product')->loadByAttribute('sku', $row->getNmpSku());
         if($_pullProduct != null){
             return Mage::helper('adminhtml')->getUrl('adminhtml/catalog_product/edit', array('id' => $_pullProduct->getId()));
         }else{
             return null;
         }
+        */
+        return $this->getUrl('*/*/edit', array('id' => $row->getId()));
     }
 
     /**
