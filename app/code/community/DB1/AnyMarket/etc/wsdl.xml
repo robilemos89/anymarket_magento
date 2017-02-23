@@ -5,6 +5,51 @@
     <types>
         <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:Magento">
             <import namespace="http://schemas.xmlsoap.org/soap/encoding/" schemaLocation="http://schemas.xmlsoap.org/soap/encoding/" />
+            <complexType name="anymarketAnymarketqueueAddEntity">
+                <all>
+                    <element name="nmq_id" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="nmq_type" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="nmq_table" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="status" type="xsd:string"  minOccurs="1" maxOccurs="1" />
+                </all>
+            </complexType>
+            <complexType name="anymarketAnymarketqueueInfoEntity">
+                <all>
+                    <element name="entity_id" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="nmq_id" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="nmq_type" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="nmq_table" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="status" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="created_at" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="updated_at" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                </all>
+            </complexType>
+            <complexType name="anymarketAnymarketqueueListEntity">
+                <all>
+                    <element name="entity_id" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="nmq_id" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="nmq_type" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="nmq_table" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="status" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="created_at" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="updated_at" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                </all>
+            </complexType>
+            <complexType name="anymarketAnymarketqueueListEntityArray">
+                <complexContent>
+                    <restriction base="soapenc:Array">
+                        <attribute ref="soapenc:arrayType" wsdl:arrayType="typens:anymarketAnymarketqueueListEntity[]" />
+                    </restriction>
+                </complexContent>
+            </complexType>
+            <complexType name="anymarketAnymarketqueueUpdateEntity">
+                <all>
+                    <element name="nmq_id" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="nmq_type" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="nmq_table" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                    <element name="status" type="xsd:string" minOccurs="1" maxOccurs="1" />
+                </all>
+            </complexType>
             <complexType name="anymarketAnymarketlogListEntity">
                 <all>
                     <element name="entity_id" type="xsd:string" minOccurs="1" />
@@ -443,7 +488,8 @@
     <message name="anymarketAnymarketcategoriesRemoveResponse">
         <part name="result" type="xsd:boolean" />
     </message>
-        <message name="anymarketAnymarketqueueListRequest">
+
+    <message name="anymarketAnymarketqueueListRequest">
         <part name="sessionId" type="xsd:string" />
         <part name="filters" type="typens:filters"/>
     </message>
@@ -479,6 +525,7 @@
     <message name="anymarketAnymarketqueueRemoveResponse">
         <part name="result" type="xsd:boolean" />
     </message>
+
     <message name="anymarketAnymarketbrandsListRequest">
         <part name="sessionId" type="xsd:string" />
         <part name="filters" type="typens:filters"/>
