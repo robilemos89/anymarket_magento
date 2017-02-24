@@ -68,7 +68,14 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid extends Mage_Adminhtm
         $collection = Mage::getModel('db1_anymarket/anymarketproducts')
             ->getCollection()
             ->setOrder('entity_id','DESC');
-        
+
+        $select = $collection->getSelect();
+        $resource = Mage::getSingleton('core/resource');
+        $select->join(
+            array('category' => $resource->getTableName('catalog/category')),
+            'main_table.nmp_id = category.entity_id'
+        );
+
         $this->setCollection($collection);
         return parent::_prepareCollection();
     }
@@ -98,6 +105,14 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid extends Mage_Adminhtm
                 'index'  => 'nmp_name',
                 'type'=> 'text',
 
+            )
+        );
+        $this->addColumn(
+            'category',
+            array(
+                'header' => Mage::helper('db1_anymarket')->__('Category'),
+                'index' => 'category_id',
+                'filter_index' => 'category.entity_id'
             )
         );
         $this->addColumn(
