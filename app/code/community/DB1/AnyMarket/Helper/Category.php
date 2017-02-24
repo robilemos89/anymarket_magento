@@ -440,7 +440,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
         $idsUsedCategory = array();
         foreach ($categoryCollection as $categ) {
             if( $categ->getData('name') != null && $categ->getData('level') > $lastLevel ){
-                if( Mage::helper('db1_anymarket')->in_array_r($categ->getData('entity_id'), $ignoredCategories) ){
+                if( $this->in_array_r($categ->getData('entity_id'), $ignoredCategories) ){
                     continue;
                 }
                 if( $lastParentId == null || $categ->getData('parent_id') == $lastParentId){
@@ -462,7 +462,7 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
             "gumgaToken: ".$TOKEN
         );
 
-        $anymarketCategories = Mage::helper('db1_anymarket')->CallAPICurl("GET", $HOST."/v2/categories/fullPath", $headers, null);
+        $anymarketCategories = $this->CallAPICurl("GET", $HOST."/v2/categories/fullPath", $headers, null);
 
         $product = Mage::getModel('catalog/product')->load($idProduct);
         $categoryCollection = $product->getCategoryCollection()
