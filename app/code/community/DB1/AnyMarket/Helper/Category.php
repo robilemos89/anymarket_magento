@@ -409,5 +409,77 @@ class DB1_AnyMarket_Helper_Category extends DB1_AnyMarket_Helper_Data
         return $retCategCount;
     }
 
+    /**
+     * Find category in Anymarket by full path
+     *
+     * @param $anymarketCategories
+     * @param $fullPathMagento
+     * @param $currIndexFullPath
+     *
+     * @return boolean
+     */
+    private function findInAnymarketByFullPath($anymarketCategories, $fullPathMagento, $currIndexFullPath){
+        foreach ($anymarketCategories as $categ) {
+            if( strtolower($categ->name) == strtolower($fullPathMagento[$currIndexFullPath]) ){
+                if( $currIndexFullPath+2 > count( $fullPathMagento ) ){
+                    return isset($categ->children) ? false : $categ->id;
+                }else {
+                    $currIndexFullPath += 1;
+                    $retProc = $this->findInAnymarketByFullPath($categ->children, $fullPathMagento, $currIndexFullPath);
+                    return $retProc != null || $retProc == false ? $retProc : $categ->id;
+                }
+            }
+        }
+        return null;
+    }
+
+    private function verifyCategoryForSend($categoryCollection, $ignoredCategories){
+        $completePathCateg = array();
+        $lastLevel = 1;
+        $lastParentId = null;
+        $idsUsedCategory = array();
+        foreach ($categoryCollection as $categ) {
+            if( $categ->getData('name') != null && $categ->getData('level') > $lastLevel ){
+                if( Mage::helper('db1_anymarket')->in_array_r($categ->getData('entity_id'), $ignoredCategories) ){
+                    continue;
+                }
+                if( $lastParentId == null || $categ->getData('parent_id') == $lastParentId){
+                    array_push($completePathCateg, $categ->getData('name') );
+                    $lastParentId = $categ->getData('entity_id');
+                    array_push($idsUsedCategory, $lastParentId);
+                    $lastLevel += 1;
+                }
+            }
+        }
+
+        return array($idsUsedCategory, $completePathCateg);
+    }
+
+    public function valideCategoryToSend($HOST, $TOKEN, $idProduct){
+        $headers = array(
+            "Content-type: application/json",
+            "Accept: */*",
+            "gumgaToken: ".$TOKEN
+        );
+
+        $anymarketCategories = Mage::helper('db1_anymarket')->CallAPICurl("GET", $HOST."/v2/categories/fullPath", $headers, null);
+
+        $product = Mage::getModel('catalog/product')->load($idProduct);
+        $categoryCollection = $product->getCategoryCollection()
+            ->addAttributeToSelect('name');
+
+        $ignoredCategories = array();
+        do {
+            $fullPathMagento = $this->verifyCategoryForSend($categoryCollection, $ignoredCategories);
+            if (count($fullPathMagento[1]) <= 0) {
+                return false;
+            }
+            array_push($ignoredCategories, $fullPathMagento[0]);
+            $compatCateg = $this->findInAnymarketByFullPath($anymarketCategories["return"], $fullPathMagento[1], 0);
+        }while(!$compatCateg);
+
+        return $compatCateg;
+    }
+
 
 }
