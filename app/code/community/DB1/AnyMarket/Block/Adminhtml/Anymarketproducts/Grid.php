@@ -115,7 +115,12 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid extends Mage_Adminhtm
             array(
                 'header' => Mage::helper('db1_anymarket')->__('Category'),
                 'index' => 'category_id',
-                'filter_index' => 'category_id'
+                'filter_index' => 'category_id',
+                'sortable'	=> false,
+    			'width' => '250px',
+				'type'  => 'options',
+                'options'	=> Mage::getSingleton('db1_anymarket/system_config_source_categories_category')->toOptionArray(),
+                'renderer'	=> 'db1_anymarket/Adminhtml_Anymarketproducts_grid_render_category'
             )
         );
         $this->addColumn(
