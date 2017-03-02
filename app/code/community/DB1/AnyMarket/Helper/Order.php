@@ -486,7 +486,8 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     }
                                 }
 
-                                $AddressShipBill = null;
+                                $AddressBilling  = null;
+                                $AddressShipping = null;
 
                                 $firstName = $OrderJSON->buyer->name;
                                 $lastName = 'Lastname';
@@ -544,7 +545,12 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
 
                                     $customerRet = Mage::helper('db1_anymarket/customergenerator')->createCustomer($_DataCustomer);
                                     $customer = $customerRet['customer'];
-                                    $AddressShipBill = $customerRet['addr'];
+
+                                    $addressCustomerRet = $customerRet['addr'];
+                                    $AddressShipping = $addressCustomerRet[0];
+                                    if(count($addressCustomerRet) >= 2) {
+                                        $AddressBilling = $addressCustomerRet[1];
+                                    }
                                 } else {
                                     //PERCORRE OS ENDERECOS PARA VER SE JA HA CADASTRADO O INFORMADO
                                     $needRegisterShipp = true;
@@ -553,14 +559,14 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         $zipCodeOrder = (isset($OrderJSON->shipping->zipCode)) ? $OrderJSON->shipping->zipCode : 'Não especificado';
                                         $addressOrder = (isset($OrderJSON->shipping->address)) ? $OrderJSON->shipping->address : 'Frete não especificado.';
                                         if (($address->getData('postcode') == $zipCodeOrder) && ($address->getData('street') == $addressOrder)) {
-                                            $AddressShipBill = $address;
+                                            $AddressShipping = $address;
                                             $needRegisterShipp = false;
                                         }
 
                                         $zipCodeOrder = (isset($OrderJSON->billingAddress->zipCode)) ? $OrderJSON->billingAddress->zipCode : 'Não especificado';
                                         $addressOrder = (isset($OrderJSON->billingAddress->address)) ? $OrderJSON->billingAddress->address : 'Frete não especificado.';
                                         if (($address->getData('postcode') == $zipCodeOrder) && ($address->getData('street') == $addressOrder)) {
-                                            $AddressShipBill = $address;
+                                            $AddressBilling = $address;
                                             $needRegisterBill = false;
                                         }
                                     }
@@ -581,7 +587,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                             'telephone' => $OrderJSON->buyer->phone
                                         );
 
-                                        $address->setIsDefaultBilling(1);
+                                        $address->setIsDefaultBilling(0);
                                         $address->setIsDefaultShipping(1);
                                         $address->addData($addressData);
                                         $address->setPostIndex('_item1');
@@ -606,7 +612,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                         );
 
                                         $address->setIsDefaultBilling(1);
-                                        $address->setIsDefaultShipping(1);
+                                        $address->setIsDefaultShipping(0);
                                         $address->addData($addressData);
                                         $address->setPostIndex('_item1');
                                         $customer->addAddress($address);
@@ -627,7 +633,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     }
                                 }
 
-                                $OrderIDMage = $this->create_order($storeID, $anymarketordersSpec, $_products, $customer, $IDOrderAnyMarket, $idSeqAnyMarket, $infoMetPag, $AddressShipBill, $AddressShipBill, $OrderJSON->freight, implode(",", $shippingDesc) );
+                                $OrderIDMage = $this->create_order($storeID, $anymarketordersSpec, $_products, $customer, $IDOrderAnyMarket, $idSeqAnyMarket, $infoMetPag, $AddressBilling, $AddressShipping, $OrderJSON->freight, implode(",", $shippingDesc) );
                                 $OrderCheck = Mage::getModel('sales/order')->loadByIncrementId($OrderIDMage);
 
                                 $this->changeFeedOrder($HOST, $headers, $idSeqAnyMarket, $tokenFeed);
