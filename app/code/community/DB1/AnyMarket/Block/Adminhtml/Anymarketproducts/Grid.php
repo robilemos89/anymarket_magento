@@ -65,16 +65,19 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid extends Mage_Adminhtm
         Mage::app()->setCurrentStore($store_id);
         $store_id = Mage::app()->getStore()->getId();
         Mage::getSingleton('core/session')->setStoreListProdVariable($store_id);
+
         $collection = Mage::getModel('db1_anymarket/anymarketproducts')
             ->getCollection()
             ->setOrder('entity_id','DESC');
 
-        $select = $collection->getSelect();
-        $resource = Mage::getSingleton('core/resource');
-        $select->join(
-            array('category' => $resource->getTableName('catalog/category')),
-            'main_table.nmp_id = category.entity_id'
-        );
+        $productTable = Mage::getSingleton('core/resource')->getTableName('catalog/category_product');
+        $collection->getSelect()
+            ->join(
+                array('product_category' => 'catalog_category_product'),
+                'product_category.product_id = main_table.nmp_id',
+                array('product_category.product_id')
+            )
+            ->group('main_table.entity_id');
 
         $this->setCollection($collection);
         return parent::_prepareCollection();
@@ -112,7 +115,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid extends Mage_Adminhtm
             array(
                 'header' => Mage::helper('db1_anymarket')->__('Category'),
                 'index' => 'category_id',
-                'filter_index' => 'category.entity_id'
+                'filter_index' => 'category_id'
             )
         );
         $this->addColumn(
