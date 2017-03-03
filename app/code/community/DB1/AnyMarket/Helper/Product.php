@@ -741,9 +741,12 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
 
                             if( $productConfig->getData('exp_sep_simp_prod') != 1 ) {
                                 $arrSku["variations"] = $attributeOptions;
+                                Mage::helper('db1_anymarket/product')->sendImageSkuToAnyMarket($storeID, $product, array($arrSku));
+                            }else{
+                                Mage::helper('db1_anymarket/product')->sendProductToAnyMarket($storeID, $product->getId());
+                                Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $stockQty, $product->getData($filter));
                             }
 
-                            Mage::helper('db1_anymarket/product')->sendImageSkuToAnyMarket($storeID, $product, array($arrSku));
                         }
                     }else{
                         $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
