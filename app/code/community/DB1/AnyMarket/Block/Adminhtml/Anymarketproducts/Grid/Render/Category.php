@@ -4,7 +4,8 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid_Render_Category exten
 {
     public function render(Varien_Object $row)
     {
-        $product = Mage::getModel('catalog/product')->load($row->getEntityId());
+        $product = Mage::getModel('catalog/product')->load($row->getNmpId());
+
         $cats = $product->getCategoryIds();
         $allCats = '';
         foreach($cats as $key => $cat)

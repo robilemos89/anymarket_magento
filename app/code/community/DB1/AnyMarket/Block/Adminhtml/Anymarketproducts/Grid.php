@@ -75,7 +75,7 @@ class DB1_AnyMarket_Block_Adminhtml_Anymarketproducts_Grid extends Mage_Adminhtm
         $productCategTable = Mage::getSingleton('core/resource')->getTableName('catalog/category_product');
         $selCollection = $collection->getSelect();
 
-        $selCollection->join(
+        $selCollection->joinLeft(
                 array('product_category' => $productCategTable),
                 'product_category.product_id = main_table.nmp_id',
                 array('product_category.product_id')
