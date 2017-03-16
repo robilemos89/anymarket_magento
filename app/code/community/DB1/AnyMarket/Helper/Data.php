@@ -347,5 +347,17 @@ class DB1_AnyMarket_Helper_Data extends Mage_Core_Helper_Abstract
         }
     }
 
+    /**
+     *
+     */
+    function in_array_r($needle, $haystack, $strict = false) {
+        foreach ($haystack as $item) {
+            if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && $this->in_array_r($needle, $item, $strict))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 }

@@ -124,18 +124,18 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                     if (($typImp == 'EXP') && ($typeSincProd == 0)) {
                         try {
                             $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $IdItemQueue );
+
+                            $needSendExtraInfo = $product->getData('id_anymarket') != '' ? true : false;
                             $anymarketproducts->setStatus('1')->setIsMassupdate(true)->save();
                             if ($product != null) {
                                 Mage::helper('db1_anymarket/product')->prepareForSendProduct($storeID, $product);
                             }
-
                         } catch (Exception $e) {
                             Mage::logException($e);
                         }
 
-
                         // TRATA STOCK
-                        if ($product) {
+                        if ($product && $needSendExtraInfo) {
                             if ($typeSincOrder == 1) {
                                 $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                                 $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);

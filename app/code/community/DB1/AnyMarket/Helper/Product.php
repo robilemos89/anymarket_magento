@@ -812,12 +812,18 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         $price_factor =       Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_price_factor_field', $storeID);
         $calculated_price =   Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_calculated_price_field', $storeID);
 
+        $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
+        $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
+
         $arrProd = array();
         if($product->getData('exp_sep_simp_prod') != 1 || $product->getTypeID() == "simple" ) {
             // verifica categoria null ou em branco
             $categProd = $product->getData('categoria_anymarket');
             if ($categProd == null || $categProd == '') {
-                array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Category'));
+                $categProd = Mage::helper('db1_anymarket/category')->valideCategoryToSend($HOST, $TOKEN, $product->getId());
+                if(!$categProd) {
+                    array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Category'));
+                }
             }
 
             // verifica o Price Factor (Markup)
@@ -875,9 +881,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             return false;
         }else{
             $arrProd = array();
-
-            $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
-            $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
 
             $MassUnit = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_weight_field', $storeID);
             $UnitMeasurement = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_type_size_field', $storeID);
@@ -1158,7 +1161,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     "id" => $this->procAttrConfig($nbm_origin, $product->getData( $nbm_origin ), 1)
                 ),
                 "category" => array(
-                    "id" => $product->getData('categoria_anymarket')
+                    "id" => $categProd
                 ),
                 "model" =>  $this->procAttrConfig($model, $product->getData( $model ), 1),
                 "warrantyText" => $this->procAttrConfig($warranty_text, $product->getData( $warranty_text ), 1),
