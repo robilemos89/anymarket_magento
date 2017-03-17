@@ -1289,7 +1289,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                         $currentProdDup['return'] = Mage::helper('db1_anymarket')->__('SKU Related :') . $productForSave->getSku() . " - " . $idProdCh;
                                         $this->saveLogsProds($storeID, "1", $currentProdDup, $productForSave);
 
-                                        //$this->sendProductToAnyMarket($storeID, $productForSave->getId());
                                     }
                                 }else{
                                     $currentProdDup = $this->getProductBySKUInAnymarket($product->getSku(), $HOST, $headers);
@@ -1303,7 +1302,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                                         $returnProd['return'] = Mage::helper('db1_anymarket')->__('SKU Related :') . $productForSave->getSku() . " - " . $currentProdDup["id"];
                                         $this->saveLogsProds($storeID, "1", $returnProd, $productForSave);
 
-                                        //$this->sendProductToAnyMarket($storeID, $productForSave->getId());
                                     } else {
                                         $currentProdDup['error'] = '1';
                                         $currentProdDup['return'] = Mage::helper('db1_anymarket')->__('SKU to bond not found :').$product->getSku();
@@ -1336,7 +1334,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         }else{
                             $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                             $productSku = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $skuPut['partnerId'] );
-                            if ($productSku->getData() != null && $productSku->getId() != null && $productSku != null) {
+                            if ( $productSku != null && $productSku->getId() != null && $productSku->getData() != null ) {
                                 $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($productSku);
                                 $this->updatePriceStockAnyMarket($storeID, $productSku->getId(), $stock->getQty(), $productSku->getData($filter));
                             }
