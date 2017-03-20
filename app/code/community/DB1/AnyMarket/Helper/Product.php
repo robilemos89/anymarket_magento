@@ -542,6 +542,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 foreach ($skusParam as $skuPut) {
                     $prodSimple = Mage::getModel('catalog/product')->setStoreId($storeID)->loadByAttribute('sku', $skuPut['partnerId']);
 
+                    if ( $prodSimple == null || $prodSimple->getSku() == null || $prodSimple->getData() == null ) {
                         $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                         $anymarketlog->setLogDesc('SKU not found '.$skuPut['partnerId']);
                         $anymarketlog->setLogId($product->getSku());
