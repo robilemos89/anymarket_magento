@@ -2247,8 +2247,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                             $arrvar = array_values($anymarketproductsUpdt->getData('store_id'));
                             $StoreIDAmProd = array_shift($arrvar);
                         }else{
-                            $StoreIDAmProd = $anymarketproductsUpdt->getData('store_id');
+                            $StoreIDAmProd = $anymarketproductsUpdt->getData('store_id') != null ? $anymarketproductsUpdt->getData('store_id') : $storeID;
                         }
+
+
                         if( ($anymarketproductsUpdt->getData('nmp_id') == null) || ($StoreIDAmProd != $storeID) ){
 
                             $parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild( $product->getId() );
