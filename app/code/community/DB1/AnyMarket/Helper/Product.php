@@ -1423,7 +1423,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             // TRATA STOCK
             if ( $prodCreated ) {
                 $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
-                if ($typeSincOrder == 1) {
+                if ($typeSincOrder == 0) {
                     $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                     $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($prodCreated);
                     $this->updatePriceStockAnyMarket($storeID, $prodCreated->getId(), $ProdStock->getQty(), $prodCreated->getData($filter));
@@ -1679,7 +1679,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             }
 
             $typeSincOrder = Mage::getStoreConfig('anymarket_section/anymarket_integration_order_group/anymarket_type_order_sync_field', $storeID);
-            if( $typeSincOrder == 1 ){
+            if( $typeSincOrder == 0 ){
                 if( $transmissionReturn['error'] == '0' ) {
                     $transmissionStock = $transmissionReturn['return'];
                     $skuToLoad = isset($transmissionStock->sku->partnerId) ? $transmissionStock->sku->partnerId : $transmissionStock->product->id;

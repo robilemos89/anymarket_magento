@@ -258,6 +258,8 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                         $filter = strtolower(Mage::getStoreConfig('anymarket_section/anymarket_attribute_group/anymarket_preco_field', $storeID));
                         $ProdStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
                         Mage::helper('db1_anymarket/product')->updatePriceStockAnyMarket($storeID, $product->getId(), $ProdStock->getQty(), $product->getData($filter));
+                    }else{
+                        Mage::helper('db1_anymarket/product')->getStockProductAnyMarket($storeID, $product->getId());
                     }
                 }
                 $this->removeQueue($item['entity_id']);
