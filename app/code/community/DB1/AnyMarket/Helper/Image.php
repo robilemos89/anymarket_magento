@@ -88,13 +88,16 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                         }
                         $thumbnail13 = str_replace('/webApps/migration/productapi/new/', '/', $thumbnail12);
                         $urlImageImport = $thumbnail13;
+
+                        $defaultImage = $product->getImage();
+                        $isMain =  strpos($_image->getFile(), $defaultImage) === false ? false : true;
                         if ($ArrVariationValues) {
                             foreach ($ArrVariationValues as $value) {
                                 if ($transformToHttp != 0) {
                                     $urlImageImport = str_replace("https", "http", $urlImageImport);
                                 }
                                 $itemsIMG[] = array(
-                                    "main" => false,
+                                    "main" => $isMain,
                                     "url" => $urlImageImport,
                                     "variation" => $value,
                                 );
@@ -105,7 +108,7 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                             }
 
                             $itemsIMG[] = array(
-                                "main" => true,
+                                "main" => $isMain,
                                 "url" => $urlImageImport
                             );
                         }
