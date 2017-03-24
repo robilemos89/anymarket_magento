@@ -136,7 +136,7 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
 
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
-        $idAnymarket = $this->getIdInAnymarketBySku($storeID, $product);
+        $idAnymarket = Mage::helper('db1_anymarket/product')->getIdInAnymarketBySku($storeID, $product);
         if($idAnymarket == null){
             return false;
         }
@@ -198,7 +198,7 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
             "gumgaToken: ".$TOKEN
         );
 
-        $idAnymarket = $this->getIdInAnymarketBySku($storeID, $product);
+        $idAnymarket = Mage::helper('db1_anymarket/product')->getIdInAnymarketBySku($storeID, $product);
         if($idAnymarket == null){
             $product = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $product->getId() );
         }
