@@ -94,7 +94,7 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                                     $urlImageImport = str_replace("https", "http", $urlImageImport);
                                 }
                                 $itemsIMG[] = array(
-                                    "main" => $isMain,
+                                    "main" => false,
                                     "url" => $urlImageImport,
                                     "variation" => $value,
                                 );
