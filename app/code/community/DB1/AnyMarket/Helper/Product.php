@@ -525,7 +525,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
      *
      * @return Boolean
      */
-    //TODO OBTER O ID DO OBJETO E CONTINUAR DAQUI
     public function sendImageSkuToAnyMarket($storeID, $product, $skusParam) {
         $HOST  = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_host_field', $storeID);
         $TOKEN = Mage::getStoreConfig('anymarket_section/anymarket_acesso_group/anymarket_token_field', $storeID);
@@ -1188,10 +1187,11 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 if( $idProductAnymarket == null ){
                     $returnProd = $this->CallAPICurl("POST", $HOST."/v2/products/", $headers, $param);
 
-                    if($returnProd['error'] == '1'){
-                        $this->saveLogsProds($storeID, "1", $returnProd, $product);
-                        $this->saveCallbackReceiver( $product->getSku() );
+                    if($returnProd['error'] != '1'){
+                        $returnProd['return'] = Mage::helper('db1_anymarket')->__('Product Created');
                     }
+                    $this->saveLogsProds($storeID, "1", $returnProd, $product);
+                    $this->saveCallbackReceiver( $product->getSku() );
                 }else{
                     $returnProd = $this->CallAPICurl("PUT", $HOST."/v2/products/".$idProductAnymarket, $headers, $param);
                     if($returnProd['error'] == '0'){
@@ -1684,6 +1684,25 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
         );
     }
 
+    /**
+     * @param $storeID
+     * @param $collectionConfigurable
+     * @param $ProdsJSON
+     * @return Object
+     */
+    private function getConfigProdByIdAnymarket($storeID, $collectionConfigurable, $ProdsJSON){
+        foreach ($collectionConfigurable as $prodConfig) {
+            $prodTmp = Mage::getModel('catalog/product')->load( $prodConfig->getId() );
+            $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $prodTmp);
+            foreach ($childProducts as $prodChild) {
+                $idAnymarket = Mage::helper('db1_anymarket/product')->getIdInAnymarketBySku($storeID, $prodChild);
+                if( $idAnymarket == $ProdsJSON->id ){
+                    return $prodTmp;
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * @param $ProdsJSON
@@ -1899,15 +1918,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $collectionConfigurable = Mage::getResourceModel('catalog/product_collection')
                     ->addAttributeToFilter('type_id', array('eq' => 'configurable'));
 
-                $prod = null;
-                foreach ($collectionConfigurable as $prodConfig) {
-                    $prodTmp = Mage::getModel('catalog/product')->setStoreId($storeID)->load( $prodConfig->getId() );
-                    if( $prodTmp->getData('id_anymarket') == $ProdsJSON->id ){
-                        $prod = $prodTmp;
-                        break;
-                    }
-
-                }
+                $prod = $this->getConfigProdByIdAnymarket($storeID, $collectionConfigurable, $ProdsJSON);
 
                 $imagesGallery = array();
                 foreach ($ProdsJSON->photos as $image) {
@@ -2410,7 +2421,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                 $anymarketlog = Mage::getModel('db1_anymarket/anymarketlog');
                 $anymarketlog->setLogDesc(  Mage::helper('db1_anymarket')->__('Update stock and price.') );
                 $anymarketlog->setStatus("0");
-                $anymarketlog->setLogId( $product->getId() );
+                $anymarketlog->setLogId( $product->getSku() );
                 $anymarketlog->setLogJson( json_encode($params) );
                 $anymarketlog->setStores(array($storeID));
                 $anymarketlog->save();

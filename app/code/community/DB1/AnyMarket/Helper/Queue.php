@@ -129,7 +129,7 @@ class DB1_AnyMarket_Helper_Queue extends DB1_AnyMarket_Helper_Data
                                 continue;
                             }
                             $anymarketproducts->setStatus('1')->setIsMassupdate(true)->save();
-                            $idAnymarket = $this->getIdInAnymarketBySku($storeID, $product);
+                            $idAnymarket = Mage::helper('db1_anymarket/product')->getIdInAnymarketBySku($storeID, $product);
                             Mage::helper('db1_anymarket/product')->prepareForSendProduct($storeID, $product);
                         } catch (Exception $e) {
                             Mage::logException($e);
