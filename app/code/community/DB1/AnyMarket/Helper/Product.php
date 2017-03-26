@@ -1406,9 +1406,10 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $imagesGallery = array();
                         if( isset($transmission->images) ) {
                             foreach ($transmission->images as $image) {
+                                $urlTmp = isset($image->standardUrl) ? $image->standardUrl : $image->url;
                                 $imagesGallery[] = array(
-                                    "standard_resolution" => $image->standardUrl,
-                                    "original" => $image->standardUrl,
+                                    "standard_resolution" => $urlTmp,
+                                    "original" => $urlTmp,
                                     "main" => $image->main,
                                     "variationValue" => isset($image->variation) ? $image->variation : null
                                 );
@@ -1695,7 +1696,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             $prodTmp = Mage::getModel('catalog/product')->load( $prodConfig->getId() );
             $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $prodTmp);
             foreach ($childProducts as $prodChild) {
-                $idAnymarket = Mage::helper('db1_anymarket/product')->getIdInAnymarketBySku($storeID, $prodChild);
+                $idAnymarket = $this->getIdInAnymarketBySku($storeID, $prodChild);
                 if( $idAnymarket == $ProdsJSON->id ){
                     return $prodTmp;
                 }
@@ -1919,7 +1920,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                     ->addAttributeToFilter('type_id', array('eq' => 'configurable'));
 
                 $prod = $this->getConfigProdByIdAnymarket($storeID, $collectionConfigurable, $ProdsJSON);
-
                 $imagesGallery = array();
                 foreach ($ProdsJSON->photos as $image) {
                     $imagesGallery[] = array('img' => $image->standard_resolution, 'main' => $image->main);
@@ -1930,7 +1930,7 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
                         $dataProdConfig = array(
                             'stock' => '0',
                             'price' => '0',
-                            'name' => $ProdsJSON->title,
+                                'name' => $ProdsJSON->title,
                             'brand' => '',
                             'sku' => $ProdsJSON->id,
                             'categoria_anymarket' => $ProdsJSON->category,
