@@ -49,6 +49,8 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                     $anymarketlog->setStatus("1");
                     $anymarketlog->setStores(array($storeID));
                     $anymarketlog->save();
+
+                    $this->addMessageInBox($storeID , 'Error on export image - ' . $g_image['url'] . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize, 'Erro ao exportar Imagem ('.$g_image['url'].')', "");
                 } else {
                     $urlImageImport = $g_image['url'];
                     $defaultImage = $product->getImage();
@@ -266,6 +268,8 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                         $anymarketlog->setStatus("1");
                         $anymarketlog->setStores(array($storeID));
                         $anymarketlog->save();
+
+                        $this->addMessageInBox($storeID , 'Error on export image - ' . $urlImage . ' - Width: ' . $infoImg[0] . ' - Height: ' . $infoImg[1] . ' - Size: ' . $imgSize, 'Erro ao exportar Imagem ('.$urlImage.')', "");
                     } else {
                         $imgProdMagentoURL = $imgProdMagento->getData('url');
                         if ($transformToHttp != 0) {
