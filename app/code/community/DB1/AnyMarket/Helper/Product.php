@@ -853,28 +853,6 @@ class DB1_AnyMarket_Helper_Product extends DB1_AnyMarket_Helper_Data
             if ($originData == null || $originData == '') {
                 array_push($arrProd, Mage::helper('db1_anymarket')->__('AnyMarket Origin'));
             }
-
-            //trata para nao enviar novamente solicitacao quando o erro for o mesmo
-            if ($idProductAnymarket == null) {
-                $prodErrorCtrl = Mage::getModel('db1_anymarket/anymarketproducts')->setStoreId($storeID)
-                    ->load($product->getId(), 'nmp_id');
-                if ($prodErrorCtrl->getData('nmp_id') != null) {
-                    $descError = $prodErrorCtrl->getData('nmp_desc_error');
-
-                    // Trata para nao ficar disparando em cima da Duplicadade de SKU
-                    $mesgDuplSku = strrpos($descError, "Duplicidade de SKU:");
-                    if ($mesgDuplSku !== false) {
-                        $bindProds = Mage::getStoreConfig('anymarket_section/anymarket_integration_prod_group/anymarket_bind_product_field', $storeID);
-                        if ($bindProds == '0') {
-                            $oldSkuErr = $this->getBetweenCaract($descError, '"', '"');
-
-                            if ($oldSkuErr == $product->getSku()) {
-                                array_push($arrProd, 'Duplicidade de SKU: ' . Mage::helper('db1_anymarket')->__('Already existing SKU in anymarket') . ' "' . $oldSkuErr . '".');
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         if( !empty($arrProd) ){
