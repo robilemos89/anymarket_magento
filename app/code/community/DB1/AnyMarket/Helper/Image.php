@@ -254,7 +254,9 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                             if ($transformToHttp != 0) {
                                 $imgProdMagentoURL = str_replace("https", "http", $imgProdMagentoURL);
                             }
-                            array_push($arrAdd, array('URL' => $imgProdMagentoURL, 'ID' =>$imgProdMagento->getData('value_id') ));
+                            if(!$this->in_array_r($imgProdMagentoURL, $arrAdd)){
+                                array_push($arrAdd, array('URL' => $imgProdMagentoURL, 'ID' =>$imgProdMagento->getData('value_id') ));
+                            }
                         }
                     }
                 }else {
@@ -284,7 +286,9 @@ class DB1_AnyMarket_Helper_Image extends DB1_AnyMarket_Helper_Data
                         if ($transformToHttp != 0) {
                             $imgProdMagentoURL = str_replace("https", "http", $imgProdMagentoURL);
                         }
-                        array_push($arrAdd, array('URL' => $imgProdMagentoURL, 'ID' =>$imgProdMagento->getData('value_id') ));
+                        if(!$this->in_array_r($imgProdMagentoURL, $arrAdd)){
+                            array_push($arrAdd, array('URL' => $imgProdMagentoURL, 'ID' =>$imgProdMagento->getData('value_id') ));
+                        }
                     }
                 }
             }
