@@ -547,12 +547,7 @@ class DB1_AnyMarket_Helper_Order extends DB1_AnyMarket_Helper_Data
                                     );
 
                                     $customerRet = Mage::helper('db1_anymarket/customergenerator')->createCustomer($_DataCustomer);
-                                    $customer = Mage::getModel('customer/customer')
-                                        ->getCollection()
-                                        ->addFieldToFilter('email', $email)->load()->getFirstItem();
-
-                                    $customer->setData($AttrToDoc, $document);
-
+                                    $customer = $customerRet['customer'];
                                     $AddressShipBill = $customerRet['addr'];
                                 } else {
                                     //PERCORRE OS ENDERECOS PARA VER SE JA HA CADASTRADO O INFORMADO
