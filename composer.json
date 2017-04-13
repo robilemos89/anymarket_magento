@@ -1,0 +1,6 @@
+{
+    "name": "anymarket/magento",
+    "type": "magento-package",
+    "description": "Módulo de integração AnyMarket e Magento",
+    "require": {}
+}
